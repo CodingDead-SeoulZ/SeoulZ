@@ -1,29 +1,69 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "Character/SZCharacterBase.h"
+#include "Components/CapsuleComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
+
+
 
 // Sets default values
 ASZCharacterBase::ASZCharacterBase()
 {
+	// Pawn
+	bUseControllerRotationPitch = false;
+	bUseControllerRotationYaw = false;
+	bUseControllerRotationRoll = false;
+
+	// Capsule
+	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
+	//GetCapsuleComponent()->SetCollisionProfileName(CPROFILE_ABCAPSULE);
+
+	// Movement
+	GetCharacterMovement()->bOrientRotationToMovement = true;
+	GetCharacterMovement()->RotationRate = FRotator(0.0f, 500.0f, 0.0f);
+	GetCharacterMovement()->JumpZVelocity = 700.f;
+	GetCharacterMovement()->AirControl = 0.35f;
+	GetCharacterMovement()->MaxWalkSpeed = 500.f;
+	GetCharacterMovement()->MinAnalogWalkSpeed = 20.f;
+	GetCharacterMovement()->BrakingDecelerationWalking = 2000.f;
+
+	// Mesh
+	GetMesh()->SetRelativeLocationAndRotation(FVector(0.0f, 0.0f, -100.0f), FRotator(0.0f, -90.0f, 0.0f));
+	GetMesh()->SetAnimationMode(EAnimationMode::AnimationBlueprint);
+	//GetMesh()->SetCollisionProfileName(TEXT("NoCollision"));
+
+	static ConstructorHelpers::FObjectFinder<USkeletalMesh> CharacterMeshRef(TEXT("/Game/Characters/Player/QuantumCharacter/Mesh/SKM_QuantumCharacter.SKM_QuantumCharacter"));
+	if (CharacterMeshRef.Object)
+	{
+		GetMesh()->SetSkeletalMesh(CharacterMeshRef.Object);
+	}
+
+	static ConstructorHelpers::FClassFinder<UAnimInstance> AnimInstanceClassRef(TEXT("/Game/Characters/Player/QuantumCharacter/Mesh/ABP_SZCharacterPlayer.ABP_SZCharacterPlayer_C"));
+	if (AnimInstanceClassRef.Class)
+	{
+		GetMesh()->SetAnimInstanceClass(AnimInstanceClassRef.Class);
+	}
+
+
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	//PrimaryActorTick.bCanEverTick = true;
 
-	// ¸Þ½Ã ÄÄÆ÷³ÍÆ® ÄÝ¸®Àü ²ô±â
+	// ë©”ì‹œ ì»´í¬ë„ŒíŠ¸ ì½œë¦¬ì „ ë„ê¸°
 	GetMesh()->SetCollisionProfileName(TEXT("NoCollision"));
 
-	// ASC ÃÊ±âÈ­. ÇÃ·¹ÀÌ¾î´Â State¿¡¼­ ÃÊ±âÈ­(¸ÖÆ¼ÀÇ °æ¿ì)
+	// ASC ì´ˆê¸°í™”. í”Œë ˆì´ì–´ëŠ” Stateì—ì„œ ì´ˆê¸°í™”(ë©€í‹°ì˜ ê²½ìš°)
 	ASC = nullptr;
 }
 
-// GAS¸¦ À§ÇÑ ASC °¡Á®¿À±â
+// GASë¥¼ ìœ„í•œ ASC ê°€ì ¸ì˜¤ê¸°
 UAbilitySystemComponent* ASZCharacterBase::GetAbilitySystemComponent() const
 {
 	return ASC;
 }
 
 
-// Á×¾úÀ» ¶§ È£ÃâÇÏ´Â ÇÔ¼ö. ÇÃ·¹ÀÌ¾îÀÇ °æ¿ì¿¡´Â ·Îºñ·Î µÇµ¹¾Æ°¡°í ¸ó½ºÅÍÀÇ °æ¿ì¿¡´Â Á×´Â ¾Ö´Ï¸ÞÀÌ¼ÇÀ» Àç»ýÇÏ°í ÄÝ¸®Àü µîÀ» ²ö´Ù.
+// ì£½ì—ˆì„ ë•Œ í˜¸ì¶œí•˜ëŠ” í•¨ìˆ˜. í”Œë ˆì´ì–´ì˜ ê²½ìš°ì—ëŠ” ë¡œë¹„ë¡œ ë˜ëŒì•„ê°€ê³  ëª¬ìŠ¤í„°ì˜ ê²½ìš°ì—ëŠ” ì£½ëŠ” ì• ë‹ˆë©”ì´ì…˜ì„ ìž¬ìƒí•˜ê³  ì½œë¦¬ì „ ë“±ì„ ëˆë‹¤.
 void ASZCharacterBase::SetDead()
 {
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
