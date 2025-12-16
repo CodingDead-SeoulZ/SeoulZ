@@ -5,4 +5,5 @@
 
 USZCharacterControlData::USZCharacterControlData()
 {
+	TargetArmLength = 400.0f;
 }

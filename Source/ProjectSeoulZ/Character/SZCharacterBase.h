@@ -16,12 +16,6 @@
 #include "AbilitySystemInterface.h"
 #include "SZCharacterBase.generated.h"
 
-UENUM()
-enum class ECharacterControlType : uint8
-{
-	Third,
-	First
-};
 
 UCLASS()
 class PROJECTSEOULZ_API ASZCharacterBase : public ACharacter, public IAbilitySystemInterface
@@ -41,6 +35,8 @@ protected:
 	virtual void SetDead();
 
 protected:
+
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = GAS)
 	TObjectPtr<class UAbilitySystemComponent> ASC;
 

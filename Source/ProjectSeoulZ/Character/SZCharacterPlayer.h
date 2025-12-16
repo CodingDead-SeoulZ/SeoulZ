@@ -19,6 +19,13 @@
 #include "InputActionValue.h"
 #include "SZCharacterPlayer.generated.h"
 
+UENUM()
+enum class ECharacterControlType : uint8
+{
+	ThirdPerson,
+	FirstPerson
+};
+
 /**
  * 
  */
@@ -42,13 +49,46 @@ protected:
 	void SetCharacterControl(ECharacterControlType NewCharacterControlType);
 	/*virtual void SetCharacterControlData(const class USZCharacterControlData* CharacterControlData) override;*/
 
-	// 카메라
+	// 카메라/이동 세팅 적용 (필요 시 분리)
+	void ApplyThirdPersonSettings(bool bInstant = false);
+	void ApplyFirstPersonSettings(bool bInstant = false);
+
 protected:
+	// 카메라
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera|Mode")
+	ECharacterControlType CurrentControlType = ECharacterControlType::ThirdPerson;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class USpringArmComponent> CameraBoom;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UCameraComponent> FollowCamera;
+
+	// TPS 카메라 (현재 FollowCamera를 TPS로 쓰는 편이 자연스러움)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
+	TObjectPtr<UCameraComponent> ThirdPersonCamera;
+
+	// FPS 카메라 (캐릭터 머리/눈 위치에 부착)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
+	TObjectPtr<UCameraComponent> FirstPersonCamera;
+
+	// 3인칭 파라미터
+	UPROPERTY(EditAnywhere, Category = "Camera|Third")
+	float ThirdArmLength = 400.f;
+
+	UPROPERTY(EditAnywhere, Category = "Camera|Third")
+	FVector ThirdSocketOffset = FVector(0.f, 60.f, 70.f); // 어깨 카메라 느낌
+
+	// 1인칭 파라미터
+	UPROPERTY(EditAnywhere, Category = "Camera|First")
+	FVector FirstPersonRelativeLocation = FVector(0.f, 0.f, 64.f);
+
+	UPROPERTY(EditAnywhere, Category = "Camera|Blend")
+	float CameraBlendSpeed = 12.f;
+
+
+
+
 
 	// 입력 맵핑
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
@@ -65,6 +105,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UInputAction> LookAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UInputAction> MouseLookAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UInputAction> ThirdMoveAction;
@@ -93,9 +136,10 @@ protected:
 	void FirstMove(const FInputActionValue& Value);
 	void FirstLook(const FInputActionValue& Value);
 
-
-	ECharacterControlType CurrentCharacterControlType;
-
-
 	virtual class UAbilitySystemComponent* GetAbilitySystemComponent() const override;
+
+private:
+	bool bWantsBlend = false;
+	float BlendAlpha = 1.f; // 0=3인칭, 1=1인칭
+	ECharacterControlType TargetControlType = ECharacterControlType::ThirdPerson;
 };

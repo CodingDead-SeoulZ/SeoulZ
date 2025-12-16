@@ -8,18 +8,33 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "SZCharacterControlData.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 ASZCharacterPlayer::ASZCharacterPlayer()
 {
-	// Camera
+	PrimaryActorTick.bCanEverTick = true;
+
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->SetupAttachment(RootComponent);
-	CameraBoom->TargetArmLength = 400.0f;
+	CameraBoom->TargetArmLength = ThirdArmLength;
 	CameraBoom->bUsePawnControlRotation = true;
+	CameraBoom->bDoCollisionTest = true;
 
-	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
-	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
-	FollowCamera->bUsePawnControlRotation = false;
+	// TPS 카메라 (기존 FollowCamera 역할)
+	ThirdPersonCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("ThirdPersonCamera"));
+	ThirdPersonCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
+	ThirdPersonCamera->bUsePawnControlRotation = false;
+
+	// FPS 카메라 (캐릭터 Mesh에 붙이거나, Root에 붙이고 상대위치로 조정)
+	// 보통은 Mesh(Head 소켓)에 붙이는 방식이 가장 깔끔합니다.
+	FirstPersonCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FirstPersonCamera"));
+	FirstPersonCamera->SetupAttachment(GetMesh()); // 또는 RootComponent
+	FirstPersonCamera->SetRelativeLocation(FirstPersonRelativeLocation);
+	FirstPersonCamera->bUsePawnControlRotation = true;
+
+	// 처음에는 TPS만 활성
+	ThirdPersonCamera->SetActive(true);
+	FirstPersonCamera->SetActive(false);
 
 	// Input
 	static ConstructorHelpers::FObjectFinder<UInputMappingContext> InputMappingContextRef(TEXT("/Game/Input/IMC_Default.IMC_Default"));
@@ -46,35 +61,17 @@ ASZCharacterPlayer::ASZCharacterPlayer()
 		LookAction = InputActionLookRef.Object;
 	}
 
-	//static ConstructorHelpers::FObjectFinder<UInputAction> InputChangeActionControlRef(TEXT("/Script/EnhancedInput.InputAction'/Game/ArenaBattle/Input/Actions/IA_ChangeControl.IA_ChangeControl'"));
-	//if (nullptr != InputChangeActionControlRef.Object)
-	//{
-	//	ChangeControlAction = InputChangeActionControlRef.Object;
-	//}
+	static ConstructorHelpers::FObjectFinder<UInputAction> InputChangeActionControlRef(TEXT("/Game/Input/Actions/IA_ChangeControl.IA_ChangeControl"));
+	if (nullptr != InputChangeActionControlRef.Object)
+	{
+		ChangeControlAction = InputChangeActionControlRef.Object;
+	}
 
-	//static ConstructorHelpers::FObjectFinder<UInputAction> InputActionThirdMoveRef(TEXT("/Script/EnhancedInput.InputAction'/Game/ArenaBattle/Input/Actions/IA_ShoulderMove.IA_ShoulderMove'"));
-	//if (nullptr != InputActionThirdMoveRef.Object)
-	//{
-	//	ThirdMoveAction = InputActionThirdMoveRef.Object;
-	//}
-
-	//static ConstructorHelpers::FObjectFinder<UInputAction> InputActionThirdLookRef(TEXT("/Script/EnhancedInput.InputAction'/Game/ArenaBattle/Input/Actions/IA_ThirdLook.IA_ThirdLook'"));
-	//if (nullptr != InputActionThirdLookRef.Object)
-	//{
-	//	ThirdLookAction = InputActionThirdLookRef.Object;
-	//}
-
-	//static ConstructorHelpers::FObjectFinder<UInputAction> InputActionFirstMoveRef(TEXT("/Script/EnhancedInput.InputAction'/Game/ArenaBattle/Input/Actions/IA_QuaterMove.IA_QuaterMove'"));
-	//if (nullptr != InputActionFirstMoveRef.Object)
-	//{
-	//	FirstMoveAction = InputActionFirstMoveRef.Object;
-	//}
-
-	//static ConstructorHelpers::FObjectFinder<UInputAction> InputActionFirstLookRef(TEXT("/Script/EnhancedInput.InputAction'/Game/ArenaBattle/Input/Actions/IA_ShoulderLook.IA_ShoulderLook'"));
-	//if (nullptr != InputActionFirstLookRef.Object)
-	//{
-	//	FirstLookAction = InputActionFirstLookRef.Object;
-	//}
+	static ConstructorHelpers::FObjectFinder<UInputAction> InputActionMouseLookRef(TEXT("/Game/Input/Actions/IA_MouseLook.IA_MouseLook"));
+	if (nullptr != InputActionMouseLookRef.Object)
+	{
+		MouseLookAction = InputActionMouseLookRef.Object;
+	}
 
 }
 
@@ -89,12 +86,9 @@ void ASZCharacterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 	EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
 	EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ASZCharacterPlayer::Move);
 	EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ASZCharacterPlayer::Look);
+	/*EnhancedInputComponent->BindAction(MouseLookAction, ETriggerEvent::Triggered, this, &ASZCharacterPlayer::MouseLook);*/
+	EnhancedInputComponent->BindAction(ChangeControlAction, ETriggerEvent::Triggered, this, &ASZCharacterPlayer::ChangeCharacterControl);
 
-	//EnhancedInputComponent->BindAction(ChangeControlAction, ETriggerEvent::Triggered, this, &ASZCharacterPlayer::ChangeCharacterControl);
-	//EnhancedInputComponent->BindAction(ThirdMoveAction, ETriggerEvent::Triggered, this, &ASZCharacterPlayer::ThirdMove);
-	//EnhancedInputComponent->BindAction(ThirdLookAction, ETriggerEvent::Triggered, this, &ASZCharacterPlayer::ThirdLook);
-	//EnhancedInputComponent->BindAction(FirstMoveAction, ETriggerEvent::Triggered, this, &ASZCharacterPlayer::FirstMove);
-	//EnhancedInputComponent->BindAction(FirstLookAction, ETriggerEvent::Triggered, this, &ASZCharacterPlayer::FirstLook);
 }
 
 void ASZCharacterPlayer::BeginPlay()
@@ -115,10 +109,66 @@ void ASZCharacterPlayer::SetDead()
 
 void ASZCharacterPlayer::ChangeCharacterControl()
 {
+	const ECharacterControlType NewType =
+		(CurrentControlType == ECharacterControlType::ThirdPerson)
+		? ECharacterControlType::FirstPerson
+		: ECharacterControlType::ThirdPerson;
+
+	SetCharacterControl(NewType);
+
 }
 
 void ASZCharacterPlayer::SetCharacterControl(ECharacterControlType NewCharacterControlType)
 {
+	if (CurrentControlType == NewCharacterControlType)
+		return;
+
+	CurrentControlType = NewCharacterControlType;
+
+	// 즉시 전환(간단/확실)
+	if (NewCharacterControlType == ECharacterControlType::ThirdPerson)
+	{
+		ApplyThirdPersonSettings(true);
+	}
+	else
+	{
+		ApplyFirstPersonSettings(true);
+	}
+}
+
+void ASZCharacterPlayer::ApplyThirdPersonSettings(bool bInstant)
+{
+	FirstPersonCamera->SetActive(false);
+	ThirdPersonCamera->SetActive(true);
+
+	// 스프링암 세팅
+	CameraBoom->TargetArmLength = ThirdArmLength;
+	CameraBoom->SocketOffset = ThirdSocketOffset;
+	CameraBoom->bUsePawnControlRotation = true;
+	CameraBoom->bDoCollisionTest = true;
+
+	// 3인칭에서 보통: 캐릭터는 이동 방향으로 회전하고, 컨트롤 회전은 카메라만
+	bUseControllerRotationYaw = false;
+	GetCharacterMovement()->bOrientRotationToMovement = true;
+	GetCharacterMovement()->RotationRate = FRotator(0.f, 720.f, 0.f);
+}
+
+void ASZCharacterPlayer::ApplyFirstPersonSettings(bool bInstant)
+{
+	// 카메라 활성화
+	ThirdPersonCamera->SetActive(false);
+	FirstPersonCamera->SetActive(true);
+
+	// 1인칭에서는 스프링암을 사실상 “무력화”하는 편이 안전
+	CameraBoom->TargetArmLength = 0.f;
+	CameraBoom->SocketOffset = FVector::ZeroVector;
+	CameraBoom->bUsePawnControlRotation = false;
+	CameraBoom->bDoCollisionTest = false;
+
+	// 1인칭에서 보통: 컨트롤 Yaw가 곧 캐릭터 Yaw
+	bUseControllerRotationYaw = true;
+	GetCharacterMovement()->bOrientRotationToMovement = false;
+	GetCharacterMovement()->RotationRate = FRotator(0.f, 0.f, 0.f);
 }
 
 //void ASZCharacterPlayer::SetCharacterControlData(const USZCharacterControlData* CharacterControlData)
