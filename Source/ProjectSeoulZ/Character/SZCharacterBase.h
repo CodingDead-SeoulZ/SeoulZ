@@ -1,12 +1,12 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 //---------------------------------------------------------------------------------------------------------
-// Author       : ÀÌÇı¼º
+// Author       : ì´í˜œì„±
 // Date       : 2025-12-11
 // Copyright   : ???
 //
-// Description : CharacterBase Å¬·¡½º 
-//               ÇÃ·¹ÀÌ¾î¿Í ¸ó½ºÅÍ°¡ »ó¼Ó¹Ş¾Æ »ç¿ëÇÒ Å¬·¡½º. 
-//				 ÇÃ·¹ÀÌ¾î¿Í ¸ó½ºÅÍ°¡ °øÅëÀ¸·Î »ç¿ëÇÏ´Â ¸Ş½Ã ÄÄÆ÷³ÍÆ®, Ä¸½¶ ÄÄÆ÷³ÍÆ®, ASCµîÀÇ º¯¼ö°¡ ÀÖ´Ù.
+// Description : CharacterBase í´ë˜ìŠ¤ 
+//               í”Œë ˆì´ì–´ì™€ ëª¬ìŠ¤í„°ê°€ ìƒì†ë°›ì•„ ì‚¬ìš©í•  í´ë˜ìŠ¤. 
+//				 í”Œë ˆì´ì–´ì™€ ëª¬ìŠ¤í„°ê°€ ê³µí†µìœ¼ë¡œ ì‚¬ìš©í•˜ëŠ” ë©”ì‹œ ì»´í¬ë„ŒíŠ¸, ìº¡ìŠ ì»´í¬ë„ŒíŠ¸, ASCë“±ì˜ ë³€ìˆ˜ê°€ ìˆë‹¤.
 //                 
 //----------------------------------------------------------------------------------------------------------
 #pragma once
@@ -15,6 +15,7 @@
 #include "GameFramework/Character.h"
 #include "AbilitySystemInterface.h"
 #include "SZCharacterBase.generated.h"
+
 
 UCLASS()
 class PROJECTSEOULZ_API ASZCharacterBase : public ACharacter, public IAbilitySystemInterface
@@ -25,15 +26,17 @@ public:
 	// Sets default values for this character's properties
 	ASZCharacterBase();
 
-	// GAS ½Ã½ºÅÛÀ» °¡Á®¿À´Â ÇÔ¼ö.
+	// GAS ì‹œìŠ¤í…œì„ ê°€ì ¸ì˜¤ëŠ” í•¨ìˆ˜.
 	virtual class UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 
 
 protected:
-	// Á×À½ »óÅÂ¸¦ ¼³Á¤ÇÏ´Â ÇÔ¼ö.
+	// ì£½ìŒ ìƒíƒœë¥¼ ì„¤ì •í•˜ëŠ” í•¨ìˆ˜.
 	virtual void SetDead();
 
 protected:
+
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = GAS)
 	TObjectPtr<class UAbilitySystemComponent> ASC;
 
