@@ -101,12 +101,12 @@ void ASZCharacterPlayer::BeginPlay()
 	CurrentControlType = ECharacterControlType::ThirdPerson;
 	ApplyThirdPersonSettings(true);
 
-	APlayerController* PlayerController = CastChecked<APlayerController>(GetController());
-	if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
-	{
-		Subsystem->AddMappingContext(DefaultMappingContext, 0);
-		//Subsystem->RemoveMappingContext(DefaultMappingContext);
-	}
+	//APlayerController* PlayerController = CastChecked<APlayerController>(GetController());
+	//if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
+	//{
+	//	Subsystem->AddMappingContext(DefaultMappingContext, 0);
+	//	//Subsystem->RemoveMappingContext(DefaultMappingContext);
+	//}
 }
 
 void ASZCharacterPlayer::SetDead()
