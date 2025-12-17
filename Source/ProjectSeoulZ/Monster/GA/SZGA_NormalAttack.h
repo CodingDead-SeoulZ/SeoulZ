@@ -4,13 +4,14 @@
 
 #include "CoreMinimal.h"
 #include "Abilities/GameplayAbility.h"
+#include "Interface/SZAttackAbilityInterface.h"
 #include "SZGA_NormalAttack.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class PROJECTSEOULZ_API USZGA_NormalAttack : public UGameplayAbility
+class PROJECTSEOULZ_API USZGA_NormalAttack : public UGameplayAbility, public ISZAttackAblilityInterface
 {
 	GENERATED_BODY()
 
@@ -27,4 +28,7 @@ protected:
 
 	UFUNCTION()
 	void OnInterruptedCallback();
+
+	virtual void HitCheck() override;
+	
 };

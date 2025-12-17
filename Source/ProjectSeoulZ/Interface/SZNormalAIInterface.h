@@ -32,4 +32,6 @@ public:
 	virtual UAnimMontage* GetAttackAnimMontage() = 0;
 	virtual int GetSectionCount() = 0;
 
+	virtual void OnAttackHitNotify() = 0;
+
 };
