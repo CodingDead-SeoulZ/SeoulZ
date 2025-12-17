@@ -7,6 +7,8 @@
 #include "AbilitySystemComponent.h"
 #include "GameplayAbilitySpec.h"
 #include "Monster/GA/SZGA_NormalAttack.h"
+#include "GameFramework/Character.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 ASZNormalMonster::ASZNormalMonster()
 {
@@ -20,6 +22,10 @@ ASZNormalMonster::ASZNormalMonster()
 	}
 
 	ASC = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("ASC"));
+
+	ACharacter* MChacacter = Cast<ACharacter>(this);
+	MChacacter->GetCharacterMovement()->bUseControllerDesiredRotation = false;
+	MChacacter->GetCharacterMovement()->bOrientRotationToMovement = false;
 }
 
 
@@ -79,6 +85,7 @@ int ASZNormalMonster::GetSectionCount()
 	return AttackDataAsset->AttackData.SectionCount;
 }
 
+
 void ASZNormalMonster::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
@@ -87,6 +94,23 @@ void ASZNormalMonster::PossessedBy(AController* NewController)
 
 	FGameplayAbilitySpec AttackSkillSpec(USZGA_NormalAttack::StaticClass());
 	ASC->GiveAbility(AttackSkillSpec);
+}
+
+void ASZNormalMonster::OnAttackHitNotify()
+{
+	UE_LOG(LogTemp, Log, TEXT("OnAttackHitNotify Ok"));
+	if (CurrentAttackAbility)
+	{
+		ISZAttackAblilityInterface* Ability = Cast<ISZAttackAblilityInterface>(CurrentAttackAbility);
+		if (Ability)
+		{
+			Ability->HitCheck();
+		}
+		else
+		{
+			UE_LOG(LogTemp, Log, TEXT("OnAttackHitNotify is nullptr"));
+		}
+	}
 }
 
 
