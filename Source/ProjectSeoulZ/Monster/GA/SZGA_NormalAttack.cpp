@@ -111,34 +111,34 @@ void USZGA_NormalAttack::HitCheck()
 {
 	UE_LOG(LogTemp, Log, TEXT("HitCheck Ok"));
 
-//	ASZNormalMonster* NormalMonster = CastChecked<ASZNormalMonster>(GetAvatarActorFromActorInfo());
-//
-//	FHitResult OutHitResult;
-//	FCollisionQueryParams Params(SCENE_QUERY_STAT(Attack), false, this);
-//
-//	// 나중에 값으로 어트리뷰트 셋으로 교체해야 함.
-//	const float AttackRange = 40.0f;
-//	const float AttackRadius = 50.0f;
-//	const float AttackDamage = 30.0f;
-//	const FVector Start = NormalMonster->GetActorLocation() + NormalMonster->GetActorForwardVector() 
-//						  * NormalMonster ->GetCapsuleComponent()->GetScaledCapsuleRadius();
-//	const FVector End = Start + NormalMonster->GetActorForwardVector() * AttackRange;
-//
-//	bool HitDetected = GetWorld()->SweepSingleByChannel(OutHitResult, Start, End, FQuat::Identity, CCHANNEL_SZACTION, FCollisionShape::MakeSphere(AttackRadius), Params);
-//	if (HitDetected)
-//	{
-//
-//	}
-//
-//#if ENABLE_DRAW_DEBUG
-//	FVector CapsuleOrigin = Start + (End - Start) * 0.5f;
-//	float CapsuleHalfHeight = AttackRange * 0.5;
-//	FColor DrawColor = HitDetected ? FColor::Green : FColor::Red;
-//
-//	DrawDebugCapsule(GetWorld(), CapsuleOrigin, CapsuleHalfHeight, AttackRadius, FRotationMatrix::MakeFromZ(NormalMonster->GetActorForwardVector()).ToQuat(),DrawColor, false, 0.5f);
-//
-//
-//#endif
+	ASZNormalMonster* NormalMonster = CastChecked<ASZNormalMonster>(GetAvatarActorFromActorInfo());
+
+	FHitResult OutHitResult;
+	FCollisionQueryParams Params(NAME_None, false, NormalMonster);
+
+	// 나중에 값으로 어트리뷰트 셋으로 교체해야 함.
+	const float AttackRange = 40.0f;
+	const float AttackRadius = 50.0f;
+	const float AttackDamage = 30.0f;
+	const FVector Start = NormalMonster->GetActorLocation() + NormalMonster->GetActorForwardVector() 
+						  * NormalMonster ->GetCapsuleComponent()->GetScaledCapsuleRadius();
+	const FVector End = Start + NormalMonster->GetActorForwardVector() * AttackRange;
+
+	bool HitDetected = GetWorld()->SweepSingleByChannel(OutHitResult, Start, End, FQuat::Identity, CCHANNEL_SZACTION, FCollisionShape::MakeSphere(AttackRadius), Params);
+	if (HitDetected)
+	{
+
+	}
+
+#if ENABLE_DRAW_DEBUG
+	FVector CapsuleOrigin = Start + (End - Start) * 0.5f;
+	float CapsuleHalfHeight = AttackRange * 0.5;
+	FColor DrawColor = HitDetected ? FColor::Green : FColor::Red;
+
+	DrawDebugCapsule(GetWorld(), CapsuleOrigin, CapsuleHalfHeight, AttackRadius, FRotationMatrix::MakeFromZ(NormalMonster->GetActorForwardVector()).ToQuat(),DrawColor, false, 0.5f);
+
+
+#endif
 
 	
 }

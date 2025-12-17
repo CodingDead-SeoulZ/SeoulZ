@@ -23,9 +23,6 @@ ASZNormalMonster::ASZNormalMonster()
 
 	ASC = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("ASC"));
 
-	ACharacter* MChacacter = Cast<ACharacter>(this);
-	MChacacter->GetCharacterMovement()->bUseControllerDesiredRotation = false;
-	MChacacter->GetCharacterMovement()->bOrientRotationToMovement = false;
 }
 
 
