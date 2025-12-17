@@ -101,15 +101,12 @@ void ASZCharacterPlayer::BeginPlay()
 	CurrentControlType = ECharacterControlType::ThirdPerson;
 	ApplyThirdPersonSettings(true);
 
-	UE_LOG(LogTemp, Warning, TEXT("IMC Added: %s"), *GetNameSafe(DefaultMappingContext));
-
 	APlayerController* PlayerController = CastChecked<APlayerController>(GetController());
 	if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
 	{
 		Subsystem->AddMappingContext(DefaultMappingContext, 0);
 		//Subsystem->RemoveMappingContext(DefaultMappingContext);
 	}
-
 }
 
 void ASZCharacterPlayer::SetDead()
