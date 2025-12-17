@@ -17,11 +17,12 @@
 #include "Character/SZCharacterBase.h"
 #include "Interface/SZNormalAIInterface.h"
 #include "SZNormalMonsterAttackData.h"
+#include "Interface/SZMonsterAttackInterface.h"
 #include "SZNormalMonster.generated.h"
 
 
 UCLASS()
-class PROJECTSEOULZ_API ASZNormalMonster : public ASZCharacterBase, public ISZNormalAIInterface
+class PROJECTSEOULZ_API ASZNormalMonster : public ASZCharacterBase, public ISZNormalAIInterface, public ISZMonsterAttackInterface
 {
 	GENERATED_BODY()
 	
@@ -29,6 +30,8 @@ public:
 	ASZNormalMonster();
 
 	FORCEINLINE UBTTask_Attack* GetAttackTask(){ return CurrentAttackTask; }
+
+	FORCEINLINE void SetCurrentAttackAbility(class UGameplayAbility* Ability) { CurrentAttackAbility = Ability; }
 
 // AI Section
 protected:
@@ -45,15 +48,25 @@ protected:
 	virtual UAnimMontage* GetAttackAnimMontage() override;
 	virtual int GetSectionCount() override;
 
+	// ASC 초기화를 위해 사용.
+	virtual void PossessedBy(AController* NewController) override;
+
 	UPROPERTY()
 	UBTTask_Attack* CurrentAttackTask;
 
+
+// Attack Section
 protected:
-	virtual void PossessedBy(AController* NewController) override;
+
+	FORCEINLINE void ClearCurrentAttackAblility() { CurrentAttackAbility = nullptr; }
+
+	virtual void OnAttackHitNotify() override;
 
 	UPROPERTY(EditAnywhere,BlueprintReadOnly, Category = "Attack")
 	TObjectPtr<class USZNormalMonsterAttackData> AttackDataAsset;
 
+	UPROPERTY()
+	class UGameplayAbility* CurrentAttackAbility;
 	
 	
 };
