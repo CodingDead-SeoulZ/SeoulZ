@@ -25,11 +25,9 @@ FText USZItemDataComp::OnLookAt_Implementation() const
 
 void USZItemDataComp::PickUpItem(AActor* InItem)
 {
-	// InGame에서 Item을 주웠을 시 파괴
-	// 할 일 : 아이템 파괴 대신, 오브젝트 폴링
-	GetOwner()->Destroy();
+	// TODO. 아이템 파괴 대신, 오브젝트 폴링
+	// GetOwner()->Destroy();                                       
 }
-
 
 // Called when the game starts
 void USZItemDataComp::BeginPlay()
