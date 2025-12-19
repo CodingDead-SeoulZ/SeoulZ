@@ -9,15 +9,53 @@ ASZItemBase::ASZItemBase()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	StaticMeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComp"));
+	SetRootComponent(StaticMeshComp);
+
 	ItemDataComp = CreateDefaultSubobject<USZItemDataComp>(TEXT("ItemDataComp"));
+}
+
+const FItemTemplete* ASZItemBase::GetItemData() const
+{
+	return ItemDataHandle.GetRow<FItemTemplete>(TEXT("GetItemData"));
+}
+
+FText ASZItemBase::OnLookAt_Implementation() const
+{
+	if (const FItemTemplete* Data = GetItemData())
+	{
+		return FText::Format(FText::FromString(TEXT("{0} 줍기")), Data->Name);
+	}
+	return FText::GetEmpty();
+}
+
+void ASZItemBase::SetStaticMesh()
+{
+	if (GetItemData()) 
+	{
+		TObjectPtr<UStaticMesh> SM = GetItemData()->ItemMesh.StaticMesh;
+		if (SM)
+		{
+			StaticMeshComp->SetStaticMesh(SM);
+		}
+	}
+}
+
+void ASZItemBase::SetMaterial()
+{
 }
 
 // Called when the game starts or when spawned
 void ASZItemBase::BeginPlay()
 {
 	Super::BeginPlay();
-	
-	
+
+}
+
+void ASZItemBase::OnConstruction(const FTransform& Transform)
+{
+	Super::OnConstruction(Transform);
+	SetStaticMesh();
 }
 
 // Called every frame

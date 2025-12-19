@@ -42,8 +42,5 @@ public:
 
 private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Item, Meta = (AllowPrivateAccess = "true"))
-	FDataTableRowHandle ItemRowHandle;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Item, Meta = (AllowPrivateAccess = "true"))
 	int32 StackCount = 1;
 };

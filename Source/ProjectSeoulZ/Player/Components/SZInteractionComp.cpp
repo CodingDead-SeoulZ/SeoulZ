@@ -58,14 +58,14 @@ void USZInteractionComp::InteractionTrace()
     AActor* HitActor = Hit.GetActor();
     if (bHit && HitActor)
     {
-        if (HitActor->GetClass()->ImplementsInterface(USZInteractionInterface::StaticClass()))
-        {
+      if (HitActor->GetClass()->ImplementsInterface(USZInteractionInterface::StaticClass()))
+      {
             Item = HitActor;
             if (UI) 
             { 
-                UI->SetMessage(ISZInteractionInterface::Execute_OnLookAt(HitActor));
+                UI->SetMessage(ISZInteractionInterface::Execute_OnLookAt(Item));
             }
-        }
+      }
     }
     else 
     {

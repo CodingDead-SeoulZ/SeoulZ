@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "Interface/SZInteractionInterface.h"
+#include "Item/SZItemTemplete.h"
 #include "Item/Components/SZItemDataComp.h"	
 #include "SZItemBase.generated.h"
 
@@ -28,15 +29,30 @@ public:
 	// Sets default values for this actor's properties
 	ASZItemBase();
 
+	const FItemTemplete* GetItemData() const;
+	virtual FText OnLookAt_Implementation() const override;
+
+	void SetStaticMesh();
+	void SetMaterial();
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+	// 에디터에서 값 바꿀 때도 갱신
+	virtual void OnConstruction(const FTransform& Transform) override;
 
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Item")
+	FDataTableRowHandle ItemDataHandle;
+
 private:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UStaticMeshComponent> StaticMeshComp;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<USZItemDataComp> ItemDataComp;
 };
