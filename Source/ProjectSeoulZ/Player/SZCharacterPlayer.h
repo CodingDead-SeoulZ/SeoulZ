@@ -43,6 +43,7 @@ public:
 
 	virtual void PossessedBy(AController* NewController) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	virtual void OnConstruction(const FTransform& Transform) override;
 
 protected:
 	// 캐릭터 게임 시작 및 죽음
@@ -144,6 +145,29 @@ protected:
 	void ToggleInventory(const FInputActionValue& Value);
 
 	virtual class UAbilitySystemComponent* GetAbilitySystemComponent() const override;
+
+protected:
+	// 캐릭터 메쉬 컴포넌트
+	// UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Meshes")
+	// TObjectPtr<USkeletalMeshComponent> FullBody;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Meshes")
+	TObjectPtr<USkeletalMeshComponent> Helmet;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Meshes")
+	TObjectPtr<USkeletalMeshComponent> Vest;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Meshes")
+	TObjectPtr<USkeletalMeshComponent> Gloves;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Meshes")
+	TObjectPtr<USkeletalMeshComponent> Holster;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Meshes")
+	TObjectPtr<USkeletalMeshComponent> Magazine;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Meshes")
+	TObjectPtr<USkeletalMeshComponent> PrimaryWeapon;
 
 private:
 	bool bWantsBlend = false;

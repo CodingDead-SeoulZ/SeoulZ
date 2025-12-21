@@ -103,6 +103,40 @@ void ASZCharacterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 	EnhancedInputComponent->BindAction(InventoryAction, ETriggerEvent::Started, this, &ASZCharacterPlayer::ToggleInventory);
 }
 
+void ASZCharacterPlayer::OnConstruction(const FTransform& Transform)
+{
+	Super::OnConstruction(Transform);
+
+	USkeletalMeshComponent* Leader = GetMesh();
+	if (!IsValid(Leader))
+	{
+		return;
+	}
+
+	auto BindFollower = [&](USkeletalMeshComponent* Follower)
+		{
+			if (!IsValid(Follower) || Follower == Leader)
+			{
+				return;
+			}
+			const bool bForceUpdate = true;
+			const bool bFollowerShouldTickPose = false;
+
+			Follower->SetLeaderPoseComponent(Leader, bForceUpdate, bFollowerShouldTickPose);
+
+			// Follower->bUpdateAnimationInEditor = false;
+			// Follower->SetAnimationMode(EAnimationMode::AnimationBlueprint); 
+		};
+
+	// BindFollower(FullBody);
+	BindFollower(Helmet);
+	BindFollower(Vest);
+	BindFollower(Gloves);
+	BindFollower(Holster);
+	BindFollower(Magazine);
+	BindFollower(PrimaryWeapon);
+}
+
 void ASZCharacterPlayer::BeginPlay()
 {
 	Super::BeginPlay();
