@@ -36,6 +36,9 @@ struct FItemFragment : public FTableRowBase
 {
 	GENERATED_BODY()
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FText Description;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "GE")
 	TArray<TSubclassOf<UGameplayEffect>> Fragments;
 };
@@ -112,7 +115,7 @@ struct FItemTemplete : public FTableRowBase
 	FItemSFX ItemSFX;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	EItemCategory ItemCategory = EItemCategory::Misc;
+	EItemCategory ItemCategory = EItemCategory::None;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FItemEquipment Equipment;

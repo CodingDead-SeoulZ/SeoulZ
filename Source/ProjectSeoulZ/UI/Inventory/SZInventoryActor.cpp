@@ -1,7 +1,7 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Inventory/SZInventoryActor.h"
+#include "UI/Inventory/SZInventoryActor.h"
 #include "Components/SceneCaptureComponent2D.h"
 #include "Kismet/GameplayStatics.h"
 #include "Player/SZPlayerController.h"

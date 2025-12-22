@@ -1,7 +1,7 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Inventory/SZWardrobe.h"
+#include "UI/Inventory/SZWardrobe.h"
 
 // Sets default values
 ASZWardrobe::ASZWardrobe()

@@ -1,9 +1,9 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Inventory/SZInventoryUI.h"
+#include "UI/Inventory/SZInventoryUI.h"
 #include "Components/WrapBox.h"
-#include "Inventory/SZInventorySlot.h"
+#include "UI/Inventory/SZInventorySlot.h"
 
 void USZInventoryUI::NativePreConstruct()
 {

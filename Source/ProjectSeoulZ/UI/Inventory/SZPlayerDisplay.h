@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "Inventory/SZInventoryUI.h"
+#include "UI/Inventory/SZInventoryUI.h"
 #include "SZPlayerDisplay.generated.h"
 
 //---------------------------------------------------------------------------------------------------------

@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "Inventory/SZInteractionUI.h"
+#include "UI/Inventory/SZInteractionUI.h"
 #include "Item/Components/SZItemDataComp.h"
 #include "SZInteractionComp.generated.h"
 

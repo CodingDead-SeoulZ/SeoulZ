@@ -5,8 +5,8 @@
 #include "EnhancedInputSubsystems.h"
 #include "InputMappingContext.h"
 #include "Blueprint/UserWidget.h"
-#include "Inventory/SZWardrobe.h"
-#include "Inventory/SZInventoryActor.h"
+#include "UI/Inventory/SZWardrobe.h"
+#include "UI/Inventory/SZInventoryActor.h"
 
 void ASZPlayerController::ShowPlayerHud()
 {

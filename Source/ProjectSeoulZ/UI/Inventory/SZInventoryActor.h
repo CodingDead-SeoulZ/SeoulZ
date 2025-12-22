@@ -5,8 +5,8 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "GameFramework/SpringArmComponent.h"
-#include "Inventory/SZPlayerDisplay.h"
-#include "Inventory/SZWardrobe.h"
+#include "UI/Inventory/SZPlayerDisplay.h"
+#include "UI/Inventory/SZWardrobe.h"
 #include "SZInventoryActor.generated.h"
 
 //---------------------------------------------------------------------------------------------------------

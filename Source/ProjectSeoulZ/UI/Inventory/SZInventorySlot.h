@@ -22,6 +22,7 @@ class UTextBlock;
 class UImage;
 class UOverlay;
 class UButton;
+class USZItemTool;
 
 UCLASS()
 class PROJECTSEOULZ_API USZInventorySlot : public UUserWidget
@@ -35,9 +36,16 @@ public:
 	void SetItemData();
 
 public:
+	UPROPERTY(BlueprintReadOnly, Category = "Inventory", meta = (AllowPrivateAccess = "true"))
 	FName ItemID;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Inventory", meta = (AllowPrivateAccess = "true"))
 	int32 StackCount;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Inventory", meta = (AllowPrivateAccess = "true"))
 	int32 SlotIndex;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Inventory", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<USZInventoryComponent> SZInventory;
 
 protected:
@@ -57,4 +65,6 @@ protected:
 	// 버튼
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UButton> Btn_InventorySlot;
+
+	// 툴팁은 BP에서 작업
 };

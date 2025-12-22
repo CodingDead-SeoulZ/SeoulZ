@@ -3,18 +3,22 @@
 UENUM(BlueprintType)
 enum class EItemCategory : uint8
 {
-	Weapons,
-	Appeal,
-	Consumables,
-	Misc
+	None,
+	Weapons,	 // 장착템
+	Appeal,		 // 장착템
+	Consumables // 소모품
 };
 
 UENUM(BlueprintType)
 enum class EEquipmentType : uint8
 {
 	None,
-	Weapon,
-	Appeal,
+	// Weapons
+	Gun,
+	Accessory,
+	// Appeal
+	Armor,
+	Cosmetic,
 
 	Count	UMETA(Hidden)
 };
