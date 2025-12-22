@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-UENUM(BlueprintType)
+UENUM(BlueprintType, meta = (Bitflags))
 enum class EItemCategory : uint8
 {
 	None,

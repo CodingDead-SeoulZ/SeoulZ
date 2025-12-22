@@ -37,6 +37,12 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void CreateInventorySlots();
 
+	UFUNCTION(BlueprintCallable)
+	bool FilterItem(const FItemSlot& InSlot) const;
+
+	UFUNCTION(BlueprintCallable)
+	bool FilterEmpty(const FItemSlot& InSlot) const;
+
 public:
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<USZInventorySlot> InventorySlotClass;
@@ -44,6 +50,12 @@ public:
 protected:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UWrapBox> WrapBox_Inventory;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Filter")
+	bool bIsFilterActive = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Filter", meta = (Bitmask, BitmaskEnum = "EItemCategory"))
+	int32 CurrentFilter = 0;
 
 private:
 	TObjectPtr<USZInventoryComponent> SZInventory;
