@@ -6,6 +6,21 @@
 #include "Kismet/GameplayStatics.h"
 #include "GameMode/SZPoolManager.h"
 
+ASZGameModeBase::ASZGameModeBase()
+{
+    static ConstructorHelpers::FClassFinder<APawn> SZPlayer(TEXT("/Game/Blueprints/BP_Player.BP_Player_C"));
+    if (SZPlayer.Class)
+    {
+        DefaultPawnClass = SZPlayer.Class;
+    }
+
+    static ConstructorHelpers::FClassFinder<APlayerController> PlayerControllerClassRef(TEXT("/Game/Blueprints/BP_PlayerController.BP_PlayerController_C"));
+    if (PlayerControllerClassRef.Class)
+    {
+        PlayerControllerClass = PlayerControllerClassRef.Class;
+    }
+}
+
 void ASZGameModeBase::BeginPlay()
 {
     Super::BeginPlay();

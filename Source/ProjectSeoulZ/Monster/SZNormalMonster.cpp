@@ -25,8 +25,15 @@ ASZNormalMonster::ASZNormalMonster()
 		GetMesh()->SetAnimInstanceClass(AnimInstanceClassRef.Class);
 	}
 
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> DeadAnimMontageRef(TEXT("/Game/Animation/Monster/AM_Dead.AM_Dead"));
+	if (DeadAnimMontageRef.Object)
+	{
+		DeadMontage = DeadAnimMontageRef.Object;
+	}
+
 	ASC = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("ASC"));
 	AttributeSet = CreateDefaultSubobject<USZAttributeSet>(TEXT("AttributeSet"));
+
 
 	HpBar = CreateDefaultSubobject<USZWidgetComponent>(TEXT("Widget"));
 	HpBar->SetupAttachment(GetMesh());
@@ -42,6 +49,16 @@ ASZNormalMonster::ASZNormalMonster()
 	}
 }
 
+
+void ASZNormalMonster::SetDead()
+{
+	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	AnimInstance->StopAllMontages(0.0f);
+	AnimInstance->Montage_Play(DeadMontage, 1.0f);
+
+
+}
 
 // 밑의 네가지 함수들은 나중에 AttributeSet으로 교체가능성 있음.
 float ASZNormalMonster::GetAIPatrolRadius()
@@ -145,6 +162,7 @@ void ASZNormalMonster::OnSpawnFromPool_Implementation()
 	UE_LOG(LogTemp, Log, TEXT("Monster OnSpawnFromPool Call"));
 	SetActorHiddenInGame(false);
 	SetActorEnableCollision(true);
+
 }
 
 void ASZNormalMonster::OnReturnToPool_Implementation()

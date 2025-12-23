@@ -13,6 +13,8 @@
  	GAMEPLAYATTRIBUTE_VALUE_SETTER(PropertyName) \
  	GAMEPLAYATTRIBUTE_VALUE_INITTER(PropertyName)
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOutOfHealthDelegate);
+
 /**
  * 
  */
@@ -36,10 +38,10 @@ public:
 	ATTRIBUTE_ACCESSORS(USZAttributeSet, MaxAttackDamage);
 
 
-
 	virtual void PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue) override;
 	virtual void PostAttributeChange(const FGameplayAttribute& Attribute, float OldValue, float NewValue) override;
 
+	mutable FOutOfHealthDelegate OnOutOfHealth;
 
 protected:
 	UPROPERTY(BlueprintReadOnly, Category = "Attack", meta=(AllowPrivateAccess = true))
@@ -71,5 +73,7 @@ protected:
 	
 	UPROPERTY(BlueprintReadOnly, Category = "Attack", meta = (AllowPrivateAccess = true))
 	FGameplayAttributeData MaxAttackDamage;
+
+	bool bOutOfHealth = false;
 
 };

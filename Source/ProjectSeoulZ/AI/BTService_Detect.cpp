@@ -9,6 +9,8 @@
 #include "DrawDebugHelpers.h"
 #include "Physics/SZCollision.h"
 #include "Engine/OverlapResult.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "GameFramework/Character.h"
 
 UBTService_Detect::UBTService_Detect()
 {
@@ -78,9 +80,21 @@ void UBTService_Detect::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeM
 				
 				DrawDebugPoint(World, Pawn->GetActorLocation(), 10.0f , FColor::Green, false, 0.2f);
 				DrawDebugLine(World, ControllingPawn->GetActorLocation(), Pawn->GetActorLocation(), FColor::Green, false, 0.2f);
+	
+				if (ACharacter* MonsterCharacter = Cast<ACharacter>(ControllingPawn))
+				{
+					UCharacterMovementComponent* MoveComp = MonsterCharacter->GetCharacterMovement();
+					if (MoveComp)
+					{
+						MoveComp->MaxWalkSpeed = 200.f; // 예: 속도 변경
+					}
+				}
+				
 				return;
 			}
 		}	
+
+	
 	}
 
 	// 플레이어를 찾지 못했다면 BBKEY_TARGET에 nullptr 할당

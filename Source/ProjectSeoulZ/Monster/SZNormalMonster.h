@@ -21,6 +21,8 @@
 #include "Interface/SZPoolableInterface.h"
 #include "SZNormalMonster.generated.h"
 
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnMonsterDeathFinished, AActor*);
+
 
 UCLASS()
 class PROJECTSEOULZ_API ASZNormalMonster : public ASZCharacterBase, public ISZNormalAIInterface, public ISZMonsterAttackInterface, public ISZPoolableInterface
@@ -33,6 +35,10 @@ public:
 	FORCEINLINE UBTTask_Attack* GetAttackTask(){ return CurrentAttackTask; }
 
 	FORCEINLINE void SetCurrentAttackAbility(class UGameplayAbility* Ability) { CurrentAttackAbility = Ability; }
+
+	virtual void SetDead() override;
+
+	FOnMonsterDeathFinished OnDeathFinished;
 
 // AI Section
 protected:

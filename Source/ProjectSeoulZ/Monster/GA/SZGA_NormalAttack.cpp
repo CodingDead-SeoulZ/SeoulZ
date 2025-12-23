@@ -161,7 +161,18 @@ void USZGA_NormalAttack::HitCheck()
 			return;
 		}
 
-		TargetAttribute->SetHealth(TargetAttribute->GetHealth() - AttackDamage);
+		TargetAttribute->SetHealth(TargetAttribute->GetHealth() - AttackDamage); 
+
+		// »ç¸Á Ã³¸®
+		if (TargetAttribute->GetHealth()<=0.f)
+		{
+			ASZCharacterBase* CharacterBase = Cast<ASZCharacterBase>(OutHitResult.GetActor());
+
+			if (CharacterBase)
+			{
+				CharacterBase->SetDead();
+			}
+		}
 
 	}
 

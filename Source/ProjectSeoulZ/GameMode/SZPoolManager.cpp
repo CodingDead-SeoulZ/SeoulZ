@@ -4,6 +4,7 @@
 #include "GameMode/SZPoolManager.h"
 #include "SZPoolManager.h"
 #include "Interface/SZPoolableInterface.h"
+#include "Monster/SZNormalMonster.h"
 
 void USZPoolManager::Pooling(TSubclassOf<AActor> ActorClass, int32 Count)
 {
@@ -31,6 +32,13 @@ AActor* USZPoolManager::GetActor(TSubclassOf<AActor> ActorClass, const FTransfor
 		{
 			Actor->SetActorTransform(SpawnTransform);
 			ISZPoolableInterface::Execute_OnSpawnFromPool(Actor);
+
+			if (ASZNormalMonster* Monster = Cast<ASZNormalMonster>(Actor))
+			{
+				Monster->OnDeathFinished.RemoveAll(this);
+				Monster->OnDeathFinished.AddUObject(this, &USZPoolManager::ReturnActor);
+			}
+
 			return Actor;
 		}
 	}
@@ -42,6 +50,11 @@ AActor* USZPoolManager::GetActor(TSubclassOf<AActor> ActorClass, const FTransfor
 		Pool.Add(NewActor);
 		NewActor->SetActorTransform(SpawnTransform);
 		ISZPoolableInterface::Execute_OnSpawnFromPool(NewActor);
+		if (ASZNormalMonster* Monster = Cast<ASZNormalMonster>(NewActor))
+		{
+			Monster->OnDeathFinished.RemoveAll(this);
+			Monster->OnDeathFinished.AddUObject(this, &USZPoolManager::ReturnActor);
+		}
 	}
 
 	return NewActor;
@@ -51,7 +64,13 @@ void USZPoolManager::ReturnActor(AActor* Actor)
 {
 	if (!Actor || !Actor->GetClass()->ImplementsInterface(USZPoolableInterface::StaticClass())) return;
 
+	if (ASZNormalMonster* Monster = Cast<ASZNormalMonster>(Actor))
+	{
+		Monster->OnDeathFinished.RemoveAll(this);
+	}
+
 	ISZPoolableInterface::Execute_OnReturnToPool(Actor);
+
 }
 
 void USZPoolManager::CleanupForNextStage(const TArray<TSubclassOf<AActor>>& StageActorList)

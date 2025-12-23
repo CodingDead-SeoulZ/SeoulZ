@@ -16,6 +16,8 @@ class PROJECTSEOULZ_API ASZGameModeBase : public AGameModeBase
 	GENERATED_BODY()
 
 public:
+    ASZGameModeBase();
+
 	virtual void BeginPlay() override;
     
     //void SpawnMonster();

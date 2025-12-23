@@ -32,5 +32,7 @@ void USZAttributeSet::PostAttributeChange(const FGameplayAttribute& Attribute, f
 	{
 		UE_LOG(LogTemp, Log, TEXT("Health : %f -> %f"),OldValue,NewValue);
 	}
+
+
 }
 
