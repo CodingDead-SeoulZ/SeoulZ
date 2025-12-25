@@ -20,8 +20,9 @@
 #include "SZCharacterPlayer.generated.h"
 
 class ASZPlayerController;
-class USZInteractionComp;
+class USZInteractionComponent;
 class USZInventoryComponent;
+class USZQuickSlotComponent;
 
 UENUM()
 enum class ECharacterControlType : uint8
@@ -58,10 +59,6 @@ protected:
 	// 카메라/이동 세팅 적용 (필요 시 분리)
 	void ApplyThirdPersonSettings(bool bInstant = false);
 	void ApplyFirstPersonSettings(bool bInstant = false);
-
-public:
-	FORCEINLINE USZInventoryComponent* GetInventoryComponent() const { return SZInventory; }
-	FORCEINLINE USZInventoryComponent* GetQuickSlotComponent() const { return SZQuickSlot; }
 
 protected:
 	// 카메라
@@ -181,13 +178,13 @@ private:
 
 	// 상호작용 컴포넌트
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<USZInteractionComp> SZInteraction;
-	
+	TObjectPtr<USZInteractionComponent> SZInteraction;
+
 	// 인벤토리 컴포넌트
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<USZInventoryComponent> SZInventory;
 
 	// 퀵슬롯 컴포넌트
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<USZInventoryComponent> SZQuickSlot;
+	TObjectPtr<USZQuickSlotComponent> SZQuickSlot;
 };

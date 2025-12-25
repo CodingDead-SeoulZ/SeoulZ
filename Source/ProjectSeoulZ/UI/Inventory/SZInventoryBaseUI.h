@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "Player/Components/SZInventoryComponent.h"
+#include "Player/Components/SZInventoryBaseComponent.h"
 #include "SZInventoryBaseUI.generated.h"
 
 //---------------------------------------------------------------------------------------------------------
@@ -31,7 +31,7 @@ public:
 	virtual void NativePreConstruct() override;
 
 	UFUNCTION(BlueprintCallable)
-	void RefreshInventory(USZInventoryComponent* InSZInventory);
+	void RefreshInventory(USZInventoryBaseComponent* InSZInventory);
 
 	UFUNCTION(BlueprintCallable)
 	void CreateInventorySlots();
@@ -60,5 +60,5 @@ protected:
 	int32 CurrentFilter = 0;
 
 protected:
-	TObjectPtr<USZInventoryComponent> SZInventory;
+	TObjectPtr<USZInventoryBaseComponent> SZInventory;
 };

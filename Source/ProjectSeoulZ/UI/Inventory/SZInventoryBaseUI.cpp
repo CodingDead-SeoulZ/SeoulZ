@@ -15,7 +15,7 @@ void USZInventoryBaseUI::NativePreConstruct()
 		return;
 	}
 
-	SZInventory = Player->GetComponentByClass<USZInventoryComponent>();
+	SZInventory = Player->GetComponentByClass<USZInventoryBaseComponent>();
 	if (!SZInventory)
 	{
 		return;
@@ -24,7 +24,7 @@ void USZInventoryBaseUI::NativePreConstruct()
 	CreateInventorySlots();
 }
 
-void USZInventoryBaseUI::RefreshInventory(USZInventoryComponent* InSZInventory)
+void USZInventoryBaseUI::RefreshInventory(USZInventoryBaseComponent* InSZInventory)
 {
 	if (!IsValid(InSZInventory))
 	{

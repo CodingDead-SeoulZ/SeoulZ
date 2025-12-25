@@ -10,8 +10,9 @@
 #include "Character/SZCharacterControlData.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Player/SZPlayerController.h"
-#include "Player/Components/SZInteractionComp.h"
+#include "Player/Components/SZInteractionComponent.h"
 #include "Player/Components/SZInventoryComponent.h"
+#include "Player/Components/SZQuickSlotComponent.h"
 
 ASZCharacterPlayer::ASZCharacterPlayer()
 {
@@ -64,13 +65,13 @@ ASZCharacterPlayer::ASZCharacterPlayer()
 	}
 
 	// 상호작용 컴포넌트 생성
-	SZInteraction = CreateDefaultSubobject<USZInteractionComp>(TEXT("SZInteraction"));
-	
+	SZInteraction = CreateDefaultSubobject<USZInteractionComponent>(TEXT("SZInteraction"));
+
 	// 인벤토리 컴포넌트 생성
 	SZInventory = CreateDefaultSubobject<USZInventoryComponent>(TEXT("SZInventory"));
 
 	// 퀵 슬롯 컴포넌트는 BPC로 연결
-	SZQuickSlot = CreateDefaultSubobject<USZInventoryComponent>(TEXT("SZQuickSlot"));
+	SZQuickSlot = CreateDefaultSubobject<USZQuickSlotComponent>(TEXT("SZQuickSlot"));
 }
 
 void ASZCharacterPlayer::PossessedBy(AController* NewController)

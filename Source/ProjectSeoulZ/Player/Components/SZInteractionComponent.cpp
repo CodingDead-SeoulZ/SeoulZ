@@ -1,14 +1,14 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "SZInteractionComp.h"
+#include "SZInteractionComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Player/SZPlayerController.h"
 #include "Blueprint/WidgetTree.h"
 #include "Interface/SZInteractionInterface.h"
 
 // Sets default values for this component's properties
-USZInteractionComp::USZInteractionComp()
+USZInteractionComponent::USZInteractionComponent()
 {
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
@@ -17,7 +17,7 @@ USZInteractionComp::USZInteractionComp()
 	// ...
 }
 
-USZInteractionUI* USZInteractionComp::GetInteractionUI() const
+USZInteractionUI* USZInteractionComponent::GetInteractionUI() const
 {
 	ASZPlayerController* SZPC = Cast<ASZPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
     if (SZPC) 
@@ -31,7 +31,7 @@ USZInteractionUI* USZInteractionComp::GetInteractionUI() const
     return nullptr;
 }
 
-void USZInteractionComp::InteractionTrace()
+void USZInteractionComponent::InteractionTrace()
 {
     USZInteractionUI* UI = GetInteractionUI();
     
@@ -74,23 +74,23 @@ void USZInteractionComp::InteractionTrace()
     }
 
 #pragma region 디버그
-    const FVector CapsuleOrigin = (Start + End) * 0.5f;
-    DrawDebugCapsule(
-        GetWorld(),
-        CapsuleOrigin,
-        CapsuleHalfHeight,
-        CapsuleRadius,
-        CapsuleQuat,
-        bHit ? FColor::Green : FColor::Red,
-        false,
-        1.f,
-        0,
-        1.f
-    );
+    //const FVector CapsuleOrigin = (Start + End) * 0.5f;
+    //DrawDebugCapsule(
+    //    GetWorld(),
+    //    CapsuleOrigin,
+    //    CapsuleHalfHeight,
+    //    CapsuleRadius,
+    //    CapsuleQuat,
+    //    bHit ? FColor::Green : FColor::Red,
+    //    false,
+    //    1.f,
+    //    0,
+    //    1.f
+    //);
 #pragma endregion
 }
 
-void USZInteractionComp::PickUpItem()
+void USZInteractionComponent::PickUpItem()
 {
     if (!Item)
     {
@@ -107,33 +107,33 @@ void USZInteractionComp::PickUpItem()
 }
 
 // Called when the game starts
-void USZInteractionComp::BeginPlay()
+void USZInteractionComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
 	BeginInteract();
 }
 
-void USZInteractionComp::BeginInteract()
+void USZInteractionComponent::BeginInteract()
 {
     // Tick 대신 Timer로 상호작용 처리
     GetWorld()->GetTimerManager().SetTimer(
         TimerHandle,
         this,
-        &USZInteractionComp::UpdateInteract,
+        &USZInteractionComponent::UpdateInteract,
         0.1f,
         true
     );
 }
 
-void USZInteractionComp::UpdateInteract()
+void USZInteractionComponent::UpdateInteract()
 {
     InteractionTrace();
 }
 
 
 // Called every frame
-void USZInteractionComp::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+void USZInteractionComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 

@@ -4,7 +4,7 @@
 #include "UI/Inventory/SZPlayerDisplay.h"
 #include "Player/SZCharacterPlayer.h"
 #include "Player/SZPlayerController.h"
-#include "Player/Components/SZInventoryComponent.h"
+#include "Player/Components/SZQuickSlotComponent.h"
 
 void USZPlayerDisplay::NativePreConstruct()
 {
@@ -68,7 +68,7 @@ void USZPlayerDisplay::DisplayInventory()
 		return;
 	}
 
-	USZInventoryComponent* SZInventory = Cast<USZInventoryComponent>(SZPC->GetComponentByClass(USZInventoryComponent::StaticClass()));
+	USZInventoryBaseComponent* SZInventory = Cast<USZInventoryBaseComponent>(SZPC->GetComponentByClass(USZInventoryBaseComponent::StaticClass()));
 	if (!IsValid(SZInventory))
 	{
 		return;
@@ -91,7 +91,7 @@ void USZPlayerDisplay::DisplayQuickSlot()
 		return;
 	}
 
-	USZInventoryComponent* SZQuickSlot = Player->GetQuickSlotComponent(); 
+	USZQuickSlotComponent* SZQuickSlot = Player->GetComponentByClass<USZQuickSlotComponent>();
 	if (!IsValid(SZQuickSlot))
 	{
 		return;

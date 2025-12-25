@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "Player/Components/SZInventoryComponent.h"
+#include "Player/Components/SZInventoryBaseComponent.h"
 #include "SZInventorySlot.generated.h"
 
 //---------------------------------------------------------------------------------------------------------
@@ -46,7 +46,7 @@ public:
 	int32 SlotIndex;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Inventory", meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<USZInventoryComponent> SZInventory;
+	TObjectPtr<USZInventoryBaseComponent> SZInventory;
 
 protected:
 	// BP에 있는 TextBlock 이름과 동일해야 자동 바인딩됨

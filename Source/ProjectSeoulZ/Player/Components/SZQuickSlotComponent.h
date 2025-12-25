@@ -4,20 +4,20 @@
 
 #include "CoreMinimal.h"
 #include "Player/Components/SZInventoryBaseComponent.h"
-#include "SZInventoryComponent.generated.h"
+#include "SZQuickSlotComponent.generated.h"
 
 //---------------------------------------------------------------------------------------------------------
 // Author       : 고미소
 // Date         : 2025-12-26
 // Copyright    : Coding Dead
 //
-// Description  : 인벤토리 컴포넌트
+// Description  : 퀵 슬롯 컴포넌트
 //           인벤토리 베이스 컴포넌트를 상속받음
 //             
 //----------------------------------------------------------------------------------------------------------
 
 UCLASS()
-class PROJECTSEOULZ_API USZInventoryComponent : public USZInventoryBaseComponent
+class PROJECTSEOULZ_API USZQuickSlotComponent : public USZInventoryBaseComponent
 {
 	GENERATED_BODY()
 	

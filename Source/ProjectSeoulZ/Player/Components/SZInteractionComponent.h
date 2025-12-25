@@ -6,7 +6,7 @@
 #include "Components/ActorComponent.h"
 #include "UI/Inventory/SZInteractionUI.h"
 #include "Item/Components/SZItemDataComp.h"
-#include "SZInteractionComp.generated.h"
+#include "SZInteractionComponent.generated.h"
 
 //---------------------------------------------------------------------------------------------------------
 // Author       : 고미소
@@ -19,13 +19,13 @@
 //----------------------------------------------------------------------------------------------------------
 
 UCLASS(Blueprintable, ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class PROJECTSEOULZ_API USZInteractionComp : public UActorComponent
+class PROJECTSEOULZ_API USZInteractionComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
 public:	
 	// Sets default values for this component's properties
-	USZInteractionComp();
+	USZInteractionComponent();
 
 	UFUNCTION(BlueprintCallable, Category = "Interact")
 	void BeginInteract();

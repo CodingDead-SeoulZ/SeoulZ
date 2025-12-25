@@ -4,7 +4,7 @@
 #include "UI/Inventory/SZQuickSlotDisplay.h"
 #include "Player/SZCharacterPlayer.h"
 #include "Player/SZPlayerController.h"
-#include "Player/Components/SZInventoryComponent.h"
+#include "Player/Components/SZQuickSlotComponent.h"
 #include "UI/Inventory/SZQuickSlotUI.h"
 
 void USZQuickSlotDisplay::UpdateQuickSlot()
@@ -21,7 +21,7 @@ void USZQuickSlotDisplay::UpdateQuickSlot()
 		return;
 	}
 
-	USZInventoryComponent* SZQuickSlot = Player->GetQuickSlotComponent(); 
+	USZQuickSlotComponent* SZQuickSlot = Player->GetComponentByClass<USZQuickSlotComponent>();
 	if (!IsValid(SZQuickSlot)) 
 	{
 		return;

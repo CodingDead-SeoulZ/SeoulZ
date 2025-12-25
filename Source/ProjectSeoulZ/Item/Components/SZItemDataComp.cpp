@@ -2,7 +2,7 @@
 
 
 #include "SZItemDataComp.h"
-#include "Player/Components/SZInventoryComponent.h"
+#include "Player/Components/SZInventoryBaseComponent.h"
 #include "Item/SZItemBase.h"
 
 // Sets default values for this component's properties
@@ -27,8 +27,8 @@ FText USZItemDataComp::OnLookAt_Implementation() const
 
 void USZItemDataComp::PickUpItem(AActor* Interactor)
 {
-	USZInventoryComponent* InventoryComp = Interactor? 
-		Interactor->FindComponentByClass<USZInventoryComponent>() : nullptr;
+	USZInventoryBaseComponent* InventoryComp = Interactor? 
+		Interactor->FindComponentByClass<USZInventoryBaseComponent>() : nullptr;
 	if (!IsValid(InventoryComp)) 
 	{
 		return;

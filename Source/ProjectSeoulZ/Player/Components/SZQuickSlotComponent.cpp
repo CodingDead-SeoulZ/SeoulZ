@@ -1,5 +1,5 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Player/Components/SZInventoryComponent.h"
+#include "Player/Components/SZQuickSlotComponent.h"
 
