@@ -2,6 +2,7 @@
 
 
 #include "UI/Inventory/SZPlayerDisplay.h"
+#include "Player/SZCharacterPlayer.h"
 #include "Player/SZPlayerController.h"
 #include "Player/Components/SZInventoryComponent.h"
 
@@ -10,6 +11,7 @@ void USZPlayerDisplay::NativePreConstruct()
 	Super::NativePreConstruct();
 
 	DisplayInventory();
+	DisplayQuickSlot();
 }
 
 void USZPlayerDisplay::NativeConstruct()
@@ -73,4 +75,27 @@ void USZPlayerDisplay::DisplayInventory()
 	}
 
 	WB_InventoryUI->RefreshInventory(SZInventory);
+}
+
+void USZPlayerDisplay::DisplayQuickSlot()
+{
+	ASZPlayerController* SZPC = GetOwningPlayer<ASZPlayerController>();
+	if (!IsValid(SZPC))
+	{
+		return;
+	}
+
+	ASZCharacterPlayer* Player = Cast<ASZCharacterPlayer>(SZPC->GetPawn());
+	if (!IsValid(Player))
+	{
+		return;
+	}
+
+	USZInventoryComponent* SZQuickSlot = Player->GetQuickSlotComponent(); 
+	if (!IsValid(SZQuickSlot))
+	{
+		return;
+	}
+
+	WB_InventoryUI->WB_QuickSlotUI->RefreshInventory(SZQuickSlot);
 }

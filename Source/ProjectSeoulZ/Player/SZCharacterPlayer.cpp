@@ -65,8 +65,12 @@ ASZCharacterPlayer::ASZCharacterPlayer()
 
 	// 상호작용 컴포넌트 생성
 	SZInteraction = CreateDefaultSubobject<USZInteractionComp>(TEXT("SZInteraction"));
+	
 	// 인벤토리 컴포넌트 생성
 	SZInventory = CreateDefaultSubobject<USZInventoryComponent>(TEXT("SZInventory"));
+
+	// 퀵 슬롯 컴포넌트는 BPC로 연결
+	SZQuickSlot = CreateDefaultSubobject<USZInventoryComponent>(TEXT("SZQuickSlot"));
 }
 
 void ASZCharacterPlayer::PossessedBy(AController* NewController)

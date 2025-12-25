@@ -5,6 +5,8 @@
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
 #include "UI/Inventory/SZInventoryUI.h"
+#include "UI/Inventory/SZQuickSlotUI.h"
+#include "UI/Inventory/SZQuickSlotDisplay.h"
 #include "SZPlayerDisplay.generated.h"
 
 //---------------------------------------------------------------------------------------------------------
@@ -36,7 +38,10 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void DisplayInventory();
 
+	UFUNCTION(BlueprintCallable)
+	void DisplayQuickSlot();
+
 public:
-	UPROPERTY(meta = (BindWidget))
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 	TObjectPtr<USZInventoryUI> WB_InventoryUI;
 };

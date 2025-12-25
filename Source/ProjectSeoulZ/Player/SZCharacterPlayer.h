@@ -59,6 +59,10 @@ protected:
 	void ApplyThirdPersonSettings(bool bInstant = false);
 	void ApplyFirstPersonSettings(bool bInstant = false);
 
+public:
+	FORCEINLINE USZInventoryComponent* GetInventoryComponent() const { return SZInventory; }
+	FORCEINLINE USZInventoryComponent* GetQuickSlotComponent() const { return SZQuickSlot; }
+
 protected:
 	// 카메라
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera|Mode")
@@ -178,7 +182,12 @@ private:
 	// 상호작용 컴포넌트
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<USZInteractionComp> SZInteraction;
+	
 	// 인벤토리 컴포넌트
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<USZInventoryComponent> SZInventory;
+
+	// 퀵슬롯 컴포넌트
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<USZInventoryComponent> SZQuickSlot;
 };
