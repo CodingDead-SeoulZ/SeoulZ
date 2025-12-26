@@ -31,11 +31,26 @@ class PROJECTSEOULZ_API USZInventorySlot : public UUserWidget
 	
 public:
 	virtual void NativeConstruct() override;
+	virtual FReply NativeOnPreviewMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
+	virtual void NativeOnDragDetected(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent, UDragDropOperation*& OutOperation) override;
+	virtual bool NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation) override;
 
 	UFUNCTION(BlueprintCallable)
 	void SetItemData();
 
+	UFUNCTION(BlueprintCallable)
+	void DisplayItemTool(FName InItemID);
+
 public:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Inventory", meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<class USZItemTool> ItemToolClass;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Inventory", meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<class USZItemSlotPreview> ItemSlotPreviewClass;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Inventory", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<USZInventoryBaseComponent> SZInventoryBase;
+
 	UPROPERTY(BlueprintReadOnly, Category = "Inventory", meta = (AllowPrivateAccess = "true"))
 	FName ItemID;
 
@@ -44,9 +59,6 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, Category = "Inventory", meta = (AllowPrivateAccess = "true"))
 	int32 SlotIndex;
-
-	UPROPERTY(BlueprintReadOnly, Category = "Inventory", meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<USZInventoryBaseComponent> SZInventory;
 
 protected:
 	// BP에 있는 TextBlock 이름과 동일해야 자동 바인딩됨
@@ -65,6 +77,4 @@ protected:
 	// 버튼
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UButton> Btn_InventorySlot;
-
-	// 툴팁은 BP에서 작업
 };

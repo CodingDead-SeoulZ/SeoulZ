@@ -15,8 +15,10 @@ USZInventoryBaseComponent::USZInventoryBaseComponent()
 	// ...
 }
 
-const FItemTemplete* USZInventoryBaseComponent::GetItemData(FName ItemID) const
+const FItemTemplete* USZInventoryBaseComponent::FindItemData(FName ItemID) const
 {
+	// TObjectPtr는 GC가 추적하는 UObject 전용 포인터라서, USTRUCT 같은 일반 구조체에는 사용할 수 없음.
+	// C++의 참조(T&)는 반드시 실제 객체를 가리켜야 하므로 nullptr이라는 개념이 없음.
 	if (ItemData)
 	{
 		return ItemData->FindRow<FItemTemplete>(ItemID, TEXT("GetItemData"));
@@ -26,7 +28,7 @@ const FItemTemplete* USZInventoryBaseComponent::GetItemData(FName ItemID) const
 
 int32 USZInventoryBaseComponent::FindMatchingSlot(FName ItemID) const
 {
-	const FItemTemplete* Item = GetItemData(ItemID);
+	const FItemTemplete* Item = FindItemData(ItemID);
 	if (!Item) 
 		return INDEX_NONE;
 
@@ -64,7 +66,7 @@ void USZInventoryBaseComponent::AddToSlot(FName ItemID, int32 Index, int32 ItemC
 		return;
 	}
 
-	const FItemTemplete* Item = GetItemData(ItemID);
+	const FItemTemplete* Item = FindItemData(ItemID);
 	if (!Item)
 		return;
 
@@ -95,14 +97,10 @@ void USZInventoryBaseComponent::PlayItemSFX(USoundBase* Sound) const
 	}
 }
 
-USoundBase* USZInventoryBaseComponent::GetItemSFX(FName ItemID) const
+const FItemSFX* USZInventoryBaseComponent::GetItemSFX(FName ItemID) const
 {
-	const FItemTemplete* Item = GetItemData(ItemID);
-	if (Item)
-	{
-		return Item->ItemSFX.Pickup;
-	}
-	return nullptr;
+	const FItemTemplete* Item = FindItemData(ItemID);
+	return Item ? &Item->ItemSFX : nullptr;
 }
 
 int32 USZInventoryBaseComponent::PickUp(FName ItemID, int32 ItemCount)
@@ -132,10 +130,116 @@ int32 USZInventoryBaseComponent::PickUp(FName ItemID, int32 ItemCount)
 		}
 
 		LItemCount -= 1;
-		PlayItemSFX(GetItemSFX(ItemID));
+		PlayItemSFX(GetItemSFX(ItemID)->Pickup);
 	}
 
 	return LItemCount;
+}
+
+void USZInventoryBaseComponent::UpdateInventory()
+{
+	OnInventoryUpdated.Broadcast();
+}
+
+void USZInventoryBaseComponent::TransferSlots(int32 Index, int32 SourceIndex, USZInventoryBaseComponent* SourceInventory)
+{
+	if (!ItemSlots.IsValidIndex(Index) ||
+		!IsValid(SourceInventory) ||
+		!SourceInventory->ItemSlots.IsValidIndex(SourceIndex))
+	{
+		return;
+	}
+
+	FItemSlot& DestinationSlot = ItemSlots[Index];
+	FItemSlot& SourceSlot = SourceInventory->ItemSlots[SourceIndex];
+
+	// 이동 불가
+	if (SourceSlot.ItemID.IsNone() || SourceSlot.StackCount <= 0)
+	{
+		return;
+	}
+
+	const bool bSameItem = (DestinationSlot.ItemID == SourceSlot.ItemID) && !DestinationSlot.ItemID.IsNone();
+	if (bSameItem)
+	{
+		// 동일한 아이템 -> 수량 합침 및 이동
+		ItemTransfer(SourceInventory, DestinationSlot, SourceSlot, Index, SourceIndex);
+	}
+	else
+	{
+		// 다른 아이템 -> 스왑
+		const FName  TempID = DestinationSlot.ItemID;
+		const int32  TempCount = DestinationSlot.StackCount;
+
+		AddToNewSlot(SourceSlot.ItemID, SourceSlot.StackCount, Index);
+		SourceInventory->AddToNewSlot(TempID, TempCount, SourceIndex);
+	}
+
+	// TODO. SFX 사운드 넣기 
+	if (const auto* Sfx = GetItemSFX(SourceSlot.ItemID))
+	{
+		if (Sfx->Move)
+		{
+			PlayItemSFX(Sfx->Move);
+		}
+	}
+
+	// 브로드 캐스트
+	UpdateInventory();
+	if (SourceInventory != this)
+	{
+		SourceInventory->UpdateInventory();
+	}
+}
+
+void USZInventoryBaseComponent::ItemTransfer(USZInventoryBaseComponent* SourceInventory,
+	FItemSlot& DestinationSlot, FItemSlot& SourceSlot,
+	int32 Index, int32 SourceIndex)
+{
+	if (!IsValid(SourceInventory))
+	{
+		return;
+	}
+
+	// 같은 아이템일 때만 호출
+	if (DestinationSlot.ItemID != SourceSlot.ItemID || DestinationSlot.ItemID.IsNone())
+	{
+		return;
+	}
+
+	const FItemTemplete* Item = FindItemData(DestinationSlot.ItemID);
+	if (!Item)
+	{
+		return;
+	}
+
+	const int32 MaxStack = Item->MaxStackCount;
+	const int32 OriginalStack = DestinationSlot.StackCount;
+	const int32 RemainingStack = MaxStack - OriginalStack;
+	
+	// 이미 꽉 참
+	if (RemainingStack <= 0)
+	{
+		return; 
+	}
+
+	// 배치 가능
+	const int32 SourceStackCount = SourceSlot.StackCount;
+	const int32 CanMove = FMath::Min(RemainingStack, SourceStackCount);
+	const int32 MergedStack = OriginalStack + CanMove;
+	AddToNewSlot(DestinationSlot.ItemID, MergedStack, Index);
+
+	// TODO. 빈 슬롯 규칙
+	// 소스가 0이 되면 비우기
+	const int32 RemainingSourceStack = SourceStackCount - CanMove;
+	if (RemainingSourceStack <= 0)
+	{
+		AddToNewSlot(NAME_None, 0, SourceIndex);
+	}
+	else
+	{
+		SourceInventory->AddToNewSlot(SourceSlot.ItemID, RemainingSourceStack, SourceIndex);
+	}
 }
 
 void USZInventoryBaseComponent::PrintInventory()

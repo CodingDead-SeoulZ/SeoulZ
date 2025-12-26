@@ -56,7 +56,7 @@ void USZInventoryBaseUI::CreateInventorySlots()
 				SlotUI->ItemID = ItemSlot.ItemID;
 				SlotUI->StackCount = ItemSlot.StackCount;
 				SlotUI->SlotIndex = i;
-				SlotUI->SZInventory = SZInventory;
+				SlotUI->SZInventoryBase = SZInventory;
 
 				WrapBox_Inventory->AddChildToWrapBox(SlotUI);
 			}
@@ -73,7 +73,7 @@ bool USZInventoryBaseUI::FilterItem(const FItemSlot& InSlot) const
 		return true;
 	}
 
-	const FItemTemplete* Item = SZInventory->GetItemData(InSlot.ItemID);
+	const FItemTemplete* Item = SZInventory->FindItemData(InSlot.ItemID);
 	if (!Item)
 	{
 		return false;

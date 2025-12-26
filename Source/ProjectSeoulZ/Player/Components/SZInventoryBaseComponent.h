@@ -42,7 +42,7 @@ public:
 
 #pragma region 아이템 줍기
 	// 데이터 테이블
-	const FItemTemplete* GetItemData(FName ItemID) const;
+	const FItemTemplete* FindItemData(FName ItemID) const;
 	// 슬롯
 	int32 FindMatchingSlot(FName ItemID) const;
 	int32 FindEmptySlot() const;
@@ -50,9 +50,18 @@ public:
 	void AddToNewSlot(FName ItemID, int32 ItemCount, int32 Index);
 	// 사운드
 	void PlayItemSFX(USoundBase* Sound) const;
-	USoundBase* GetItemSFX(FName ItemID) const;
+	const FItemSFX* GetItemSFX(FName ItemID) const;
 	// 아이템 줍기
 	int32 PickUp(FName ItemID, int32 ItemCount);
+#pragma endregion
+
+#pragma region 아이템 이동
+	void UpdateInventory();
+
+	// 슬롯 이동
+	void TransferSlots(int32 index, int32 SourceIndex, USZInventoryBaseComponent* SourceInventory);
+	// 같은 아이템 수량 계산
+	void ItemTransfer(USZInventoryBaseComponent* SourceInventory, FItemSlot& DestinationSlot, FItemSlot& SourceSlot,int32 Index, int32 SourceIndex);
 #pragma endregion
 
 	UFUNCTION(BlueprintCallable)
