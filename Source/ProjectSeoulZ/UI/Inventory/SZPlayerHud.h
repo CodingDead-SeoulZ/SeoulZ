@@ -27,6 +27,6 @@ public:
 	virtual void NativePreConstruct() override;
 
 public:
-	UPROPERTY(meta = (BindWidget))
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 	TObjectPtr<USZQuickSlotDisplay > WB_QuickSlotDisplay;
 };

@@ -106,6 +106,15 @@ void ASZCharacterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 	EnhancedInputComponent->BindAction(PickUpAction, ETriggerEvent::Started, this, &ASZCharacterPlayer::PickUp);
 	// 인벤토리 열고 줍기
 	EnhancedInputComponent->BindAction(InventoryAction, ETriggerEvent::Started, this, &ASZCharacterPlayer::ToggleInventory);
+	// 퀵 슬롯 선택
+	EnhancedInputComponent->BindAction(SelectedF1Action, ETriggerEvent::Started, this, &ASZCharacterPlayer::SelectedF1);
+	EnhancedInputComponent->BindAction(SelectedF2Action, ETriggerEvent::Started, this, &ASZCharacterPlayer::SelectedF2);
+	EnhancedInputComponent->BindAction(SelectedF3Action, ETriggerEvent::Started, this, &ASZCharacterPlayer::SelectedF3);
+	EnhancedInputComponent->BindAction(SelectedF4Action, ETriggerEvent::Started, this, &ASZCharacterPlayer::SelectedF4);
+	EnhancedInputComponent->BindAction(SelectedF5Action, ETriggerEvent::Started, this, &ASZCharacterPlayer::SelectedF5);
+	EnhancedInputComponent->BindAction(SelectedF6Action, ETriggerEvent::Started, this, &ASZCharacterPlayer::SelectedF6);
+	EnhancedInputComponent->BindAction(SelectedF7Action, ETriggerEvent::Started, this, &ASZCharacterPlayer::SelectedF7);
+	EnhancedInputComponent->BindAction(SelectedF8Action, ETriggerEvent::Started, this, &ASZCharacterPlayer::SelectedF8);
 }
 
 void ASZCharacterPlayer::OnConstruction(const FTransform& Transform)
@@ -283,6 +292,70 @@ void ASZCharacterPlayer::ToggleInventory(const FInputActionValue& Value)
 	if (SZPC) 
 	{
 		SZPC->ToggleInventory();
+	}
+}
+
+void ASZCharacterPlayer::SelectedF1(const FInputActionValue& Value)
+{
+	if (SZQuickSlot) 
+	{
+		SZQuickSlot->GetSelectedSlot(0);
+	}
+}
+
+void ASZCharacterPlayer::SelectedF2(const FInputActionValue& Value)
+{
+	if (SZQuickSlot)
+	{
+		SZQuickSlot->GetSelectedSlot(1);
+	}
+}
+
+void ASZCharacterPlayer::SelectedF3(const FInputActionValue& Value)
+{
+	if (SZQuickSlot)
+	{
+		SZQuickSlot->GetSelectedSlot(2);
+	}
+}
+
+void ASZCharacterPlayer::SelectedF4(const FInputActionValue& Value)
+{
+	if (SZQuickSlot)
+	{
+		SZQuickSlot->GetSelectedSlot(3);
+	}
+}
+
+void ASZCharacterPlayer::SelectedF5(const FInputActionValue& Value)
+{
+	if (SZQuickSlot)
+	{
+		SZQuickSlot->GetSelectedSlot(4);
+	}
+}
+
+void ASZCharacterPlayer::SelectedF6(const FInputActionValue& Value)
+{
+	if (SZQuickSlot)
+	{
+		SZQuickSlot->GetSelectedSlot(5);
+	}
+}
+
+void ASZCharacterPlayer::SelectedF7(const FInputActionValue& Value)
+{
+	if (SZQuickSlot)
+	{
+		SZQuickSlot->GetSelectedSlot(6);
+	}
+}
+
+void ASZCharacterPlayer::SelectedF8(const FInputActionValue& Value)
+{
+	if (SZQuickSlot)
+	{
+		SZQuickSlot->GetSelectedSlot(7);
 	}
 }
 

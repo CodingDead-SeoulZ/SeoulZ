@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
 #include "InputMappingContext.h"
+#include "UI/Inventory/SZPlayerHud.h"
 #include "SZPlayerController.generated.h"
 
 //---------------------------------------------------------------------------------------------------------
@@ -54,7 +55,7 @@ protected:
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widget", meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UUserWidget> PlayerHUD;
+	TObjectPtr<USZPlayerHud> PlayerHUD;
 
 protected:
 	// 연동
@@ -76,5 +77,5 @@ private:
 	TObjectPtr<UInputMappingContext> CurrentCharacterContext;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widget", meta = (AllowPrivateAccess = "true"))
-	TSubclassOf<UUserWidget> PlayerHUDClass;
+	TSubclassOf<USZPlayerHud> PlayerHUDClass;
 };

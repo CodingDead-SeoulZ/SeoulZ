@@ -123,6 +123,7 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UInputAction> SkillAction;
 
+#pragma region 인벤토리 입력 값
 	// 아이템 줍기 - 입력 값
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UInputAction> PickUpAction;
@@ -130,6 +131,32 @@ protected:
 	// 인벤토리 열기 - 입력 값
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UInputAction> InventoryAction;
+
+	// 퀵 슬롯 선택
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UInputAction> SelectedF1Action;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UInputAction> SelectedF2Action;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UInputAction> SelectedF3Action;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UInputAction> SelectedF4Action;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UInputAction> SelectedF5Action;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UInputAction> SelectedF6Action;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UInputAction> SelectedF7Action;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UInputAction> SelectedF8Action;
+#pragma endregion
 
 	void Move(const FInputActionValue& Value);
 	void MouseLook(const FInputActionValue& Value);
@@ -140,10 +167,23 @@ protected:
 	void FirstMove(const FInputActionValue& Value);
 	void FirstLook(const FInputActionValue& Value);
 
+#pragma region 인벤토리 함수
 	// 아이템 줍기
 	void PickUp(const FInputActionValue& Value);
+
 	// 인벤토리 열고 닫기
 	void ToggleInventory(const FInputActionValue& Value);
+
+	// 퀵 슬롯 선택
+	void SelectedF1(const FInputActionValue& Value);
+	void SelectedF2(const FInputActionValue& Value);
+	void SelectedF3(const FInputActionValue& Value);
+	void SelectedF4(const FInputActionValue& Value);
+	void SelectedF5(const FInputActionValue& Value);
+	void SelectedF6(const FInputActionValue& Value);
+	void SelectedF7(const FInputActionValue& Value);
+	void SelectedF8(const FInputActionValue& Value);
+#pragma endregion
 
 	virtual class UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 
@@ -172,6 +212,7 @@ private:
 	float BlendAlpha = 1.0f; // 0=3인칭, 1=1인칭
 	ECharacterControlType TargetControlType = ECharacterControlType::ThirdPerson;
 
+#pragma region 플레이어 컴포넌트 및 인벤토리 컴포넌트
 	// 플레이어 컨트롤러
 	UPROPERTY(Transient)
 	TObjectPtr<ASZPlayerController> SZPC;
@@ -184,7 +225,8 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<USZInventoryComponent> SZInventory;
 
-	// 퀵슬롯 컴포넌트
+	// 퀵 슬롯 컴포넌트
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<USZQuickSlotComponent> SZQuickSlot;
+#pragma endregion
 };

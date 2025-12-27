@@ -12,7 +12,7 @@ void ASZPlayerController::ShowPlayerHud()
 {
 	if (PlayerHUDClass)
 	{
-		PlayerHUD = CreateWidget<UUserWidget>(this, PlayerHUDClass);
+		PlayerHUD = CreateWidget<USZPlayerHud>(this, PlayerHUDClass);
 
 		if (PlayerHUD) 
 		{
