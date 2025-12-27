@@ -20,4 +20,8 @@ UCLASS()
 class PROJECTSEOULZ_API USZItemTool : public UUserWidget
 {
 	GENERATED_BODY()
+
+public:
+	UPROPERTY(BlueprintReadOnly, Category = "Inventory", meta = (AllowPrivateAccess = "true"))
+	FName ItemID;
 };
