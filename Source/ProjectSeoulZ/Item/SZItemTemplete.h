@@ -123,8 +123,8 @@ struct FItemTemplete : public FTableRowBase
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FItemConsumpables Consumpables;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	EItemRarity ItemRarity = EItemRarity::Common;
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	//EItemRarity ItemRarity = EItemRarity::Common;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 MaxStackCount = 1;
