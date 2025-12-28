@@ -22,10 +22,7 @@ USZInteractionUI* USZInteractionComponent::GetInteractionUI() const
 	ASZPlayerController* SZPC = Cast<ASZPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
     if (SZPC) 
     {
-        if (UUserWidget* InteractionUI = SZPC->PlayerHUD->WidgetTree->FindWidget<UUserWidget>(TEXT("WB_InteractionUI")))
-        {
-            return Cast<USZInteractionUI>(InteractionUI);
-        }
+        return SZPC->PlayerHUD->WB_InteractionUI;
     }
     
     return nullptr;
@@ -34,7 +31,11 @@ USZInteractionUI* USZInteractionComponent::GetInteractionUI() const
 void USZInteractionComponent::InteractionTrace()
 {
     USZInteractionUI* UI = GetInteractionUI();
-    
+    if (!IsValid(UI))
+    {
+        return; 
+    }
+
 #pragma region 충돌
     FHitResult Hit;
 
@@ -69,8 +70,11 @@ void USZInteractionComponent::InteractionTrace()
     }
     else 
     {
-        UI->SetMessage(FText::GetEmpty());
-		// 이후 USZInteractionUI에서 메시지가 비어있으면 아이템 정보 안 뜨도록 처리
+        if (UI) 
+        {
+            UI->SetMessage(FText::GetEmpty());
+            // 이후 USZInteractionUI에서 메시지가 비어있으면 아이템 정보 안 뜨도록 처리
+        }
     }
 
 #pragma region 디버그
@@ -114,16 +118,34 @@ void USZInteractionComponent::BeginPlay()
 	BeginInteract();
 }
 
+void USZInteractionComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+    Super::EndPlay(EndPlayReason);
+
+    if (UWorld* World = GetWorld())
+    {
+        World->GetTimerManager().ClearTimer(InteractionTimerHandle);
+    }
+}
+
 void USZInteractionComponent::BeginInteract()
 {
     // Tick 대신 Timer로 상호작용 처리
     GetWorld()->GetTimerManager().SetTimer(
-        TimerHandle,
+        InteractionTimerHandle,
         this,
         &USZInteractionComponent::UpdateInteract,
         0.1f,
         true
     );
+
+    /*GetWorld()->GetTimerManager().SetTimer(
+        TimerHandle,
+        this,
+        &USZInteractionComponent::UpdateInteract,
+        0.1f,
+        true
+    );*/
 }
 
 void USZInteractionComponent::UpdateInteract()

@@ -50,8 +50,8 @@ public:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<USZSelectedSlot> Slot_4;
 
-	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<USZSelectedSlot> Slot_5;
+	/*UPROPERTY(meta = (BindWidget))
+	TObjectPtr<USZSelectedSlot> Slot_5;*/
 
 	/*UPROPERTY(meta = (BindWidget))
 	TObjectPtr<USZSelectedSlot> Slot_6;

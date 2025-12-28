@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "UI/Inventory/SZInteractionUI.h"
 #include "UI/Inventory/SZQuickSlotDisplay.h"
 #include "SZPlayerHud.generated.h"
 
@@ -28,5 +29,8 @@ public:
 
 public:
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-	TObjectPtr<USZQuickSlotDisplay > WB_QuickSlotDisplay;
+	TObjectPtr<USZInteractionUI> WB_InteractionUI;
+
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+	TObjectPtr<USZQuickSlotDisplay> WB_QuickSlotDisplay;
 };

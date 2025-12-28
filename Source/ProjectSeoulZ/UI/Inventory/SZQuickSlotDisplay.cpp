@@ -18,7 +18,7 @@ void USZQuickSlotDisplay::NativeConstruct()
 	Slots.Add(Slot_2);
 	Slots.Add(Slot_3);
 	Slots.Add(Slot_4);
-	Slots.Add(Slot_5);
+	// Slots.Add(Slot_5);
 	// Slots.Add(Slot_6);
 	// Slots.Add(Slot_7);
 	// Slots.Add(Slot_8);

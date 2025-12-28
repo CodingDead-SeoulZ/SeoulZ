@@ -16,6 +16,11 @@ void USZInteractionUI::SetMessage(const FText& InMessage)
 {
 	Message = InMessage;
 
+	if (!IsValid(Txt_Interact))
+	{
+		return;
+	}
+
 	Txt_Interact->SetText(Message);
 	SetVisibility(Txt_Interact->GetText().IsEmpty() ?
 		ESlateVisibility::Collapsed
