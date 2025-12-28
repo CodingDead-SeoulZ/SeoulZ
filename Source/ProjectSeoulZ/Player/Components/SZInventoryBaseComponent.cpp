@@ -71,7 +71,7 @@ void USZInventoryBaseComponent::AddToSlot(FName ItemID, int32 Index, int32 ItemC
 		return;
 
 	// TODO. MaxStackCount에서 남은 아이템 처리 어떻게 할지
-	ItemSlots[Index].StackCount += ItemSlots[Index].StackCount;
+	ItemSlots[Index].StackCount += ItemCount;
 }
 
 void USZInventoryBaseComponent::AddToNewSlot(FName ItemID, int32 ItemCount, int32 Index)
