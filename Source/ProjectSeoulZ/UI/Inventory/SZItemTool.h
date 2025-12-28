@@ -16,6 +16,7 @@
 //                 
 //----------------------------------------------------------------------------------------------------------
 
+class USZInventoryBaseComponent;
 class UVerticalBox;
 class UTextBlock;
 class UImage;
@@ -35,13 +36,24 @@ public:
 	void DisplayItemInfo();
 	void DisplayItemStat();
 	void CheckIsEquipment();
+	void CheckMoveToQuickSlot();
+
+	UFUNCTION()
+	void OnMoveToQuickSlot();
 
 public:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Data")
+	TObjectPtr<UDataTable> ItemData;
+
+	// InventorySlot에서 전달
 	UPROPERTY(BlueprintReadOnly, Category = "Inventory", meta = (AllowPrivateAccess = "true"))
 	FName ItemID;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Data")
-	TObjectPtr<UDataTable> ItemData;
+	UPROPERTY(BlueprintReadOnly, Transient, meta = (ExposeOnSpawn = "true"))
+	TObjectPtr<USZInventoryBaseComponent> Inventory;
+
+	UPROPERTY(BlueprintReadOnly, Transient, meta = (ExposeOnSpawn = "true"))
+	int32 Index = INDEX_NONE;
 
 public:
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
@@ -69,7 +81,7 @@ public:
 	TObjectPtr<USZItemActionUI> Btn_Use;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-	TObjectPtr<USZItemActionUI> Btn_MoveToHotbar;
+	TObjectPtr<USZItemActionUI> Btn_MoveToQuickSlot;
 	
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 	TObjectPtr<USZItemActionUI> Btn_Drop;

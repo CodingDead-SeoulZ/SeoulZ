@@ -242,6 +242,131 @@ void USZInventoryBaseComponent::ItemTransfer(USZInventoryBaseComponent* SourceIn
 	}
 }
 
+bool USZInventoryBaseComponent::CheckInventory(const USZInventoryBaseComponent* InInventory, const FItemSlot& InSourceSlot, int32& OutIndex, FItemSlot& OutItemSlot) const
+{
+	OutIndex = -1;
+	OutItemSlot = FItemSlot{};
+
+	if (!IsValid(InInventory) || InSourceSlot.ItemID.IsNone())
+	{
+		return false;
+	}
+
+	const FItemTemplete* Item = FindItemData(InSourceSlot.ItemID);
+	if (!Item)
+	{
+		return false;
+	}
+
+	const int32 MaxStack = Item->MaxStackCount;
+	for (int32 i = 0; i < InInventory->ItemSlots.Num(); ++i)
+	{
+		const FItemSlot& Slot = InInventory->ItemSlots[i];
+
+		// 같은 ItemIDd의 아이템 중 아직 MaxStack에 도달하지 않은 슬롯 발견
+		const bool bSameItem = (Slot.ItemID == InSourceSlot.ItemID);
+		const bool bHasSpace = (Slot.StackCount < MaxStack);
+		if (bSameItem && bHasSpace)
+		{
+			OutIndex = i;
+			OutItemSlot = Slot;     
+			return true;           
+		}
+	}
+
+	return false;
+}
+
+void USZInventoryBaseComponent::MoveToInventory(USZInventoryBaseComponent* DestinationInventory, int32 SourceIndex)
+{
+	if (!IsValid(DestinationInventory) || !ItemSlots.IsValidIndex(SourceIndex))
+	{
+		return;
+	}
+
+	FItemSlot& SourceSlot = ItemSlots[SourceIndex];
+	if (SourceSlot.ItemID.IsNone() || SourceSlot.StackCount <= 0)
+	{
+		return;
+	}
+
+	const FItemTemplete* Item = FindItemData(SourceSlot.ItemID);
+	if (!Item)
+	{
+		return;
+	}
+
+#pragma region CheckInventory
+	const int32 MaxStack = Item->MaxStackCount;
+
+	int32 MatchingIndex = INDEX_NONE;
+	FItemSlot MatchingSlot{};
+	// 1) 목적지에 같은 아이템이면서 공간 있는 슬롯이 있는지 체크
+	const bool bHasMatching = CheckInventory(DestinationInventory, SourceSlot, MatchingIndex, MatchingSlot);
+	if (bHasMatching && DestinationInventory->ItemSlots.IsValidIndex(MatchingIndex))
+	{
+		const int32 Total = MatchingSlot.StackCount + SourceSlot.StackCount;
+		if (Total > MaxStack)
+		{
+			// MaxStack까지 채움
+			DestinationInventory->AddToNewSlot(SourceSlot.ItemID, MaxStack, MatchingIndex);
+			
+			// 남은 수량 처리
+			const int32 Remainder = Total - MaxStack;
+			const int32 EmptyIndex = DestinationInventory->FindEmptySlot();
+			if (EmptyIndex != INDEX_NONE && EmptyIndex >= 0)
+			{
+				// 빈 슬롯에서 처리
+				DestinationInventory->AddToNewSlot(SourceSlot.ItemID, Remainder, EmptyIndex);
+				AddToNewSlot(NAME_None, 0, SourceIndex);
+			}
+			else
+			{
+				// 목적지에 더 넣을 공간이 없으니, 소스 슬롯에 남은 수량 유지
+				SourceSlot.StackCount = Remainder;
+			}
+		}
+		else
+		{
+			// 2-2) 목적지에 같은 아이템 슬롯이 없으면 빈 슬롯에 아이템 전부 넣기
+			DestinationInventory->AddToNewSlot(SourceSlot.ItemID, Total, MatchingIndex);
+			// 현재 슬롯 비우기
+			AddToNewSlot(NAME_None, 0, SourceIndex);
+		}
+	}
+	else
+	{
+		const int32 EmptyIndex = DestinationInventory->FindEmptySlot();
+		if (EmptyIndex != INDEX_NONE && EmptyIndex >= 0)
+		{
+			// 3) 목적지에 같은 아이템 슬롯이 없으면 빈 슬롯에 아이템 전부 넣기
+			DestinationInventory->AddToNewSlot(SourceSlot.ItemID, SourceSlot.StackCount, EmptyIndex);
+			// 현재 슬롯 비우기
+			AddToNewSlot(NAME_None, 0, SourceIndex);
+		}
+		else
+		{
+			// 빈 슬롯도 없으면
+		}
+	}
+
+#pragma endregion
+
+	if (const FItemSFX* Sfx = GetItemSFX(SourceSlot.ItemID))
+	{
+		if (Sfx->Move)
+		{
+			PlayItemSFX(Sfx->Move);
+		}
+	}
+
+	UpdateInventory();
+	if (DestinationInventory != this)
+	{
+		DestinationInventory->UpdateInventory();
+	}
+}
+
 void USZInventoryBaseComponent::PrintInventory()
 {
 	for (int32 i = 0; i < ItemSlots.Num(); ++i)

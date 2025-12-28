@@ -64,6 +64,16 @@ public:
 	void ItemTransfer(USZInventoryBaseComponent* SourceInventory, FItemSlot& DestinationSlot, FItemSlot& SourceSlot,int32 Index, int32 SourceIndex);
 #pragma endregion
 
+#pragma region 아이템 상세보기 - 퀵 슬롯
+	bool CheckInventory(
+		const USZInventoryBaseComponent* InInventory, const FItemSlot& InSourceSlot,
+		int32& OutIndex, FItemSlot& OutItemSlot
+	) const;
+
+	UFUNCTION(BlueprintCallable, Category = "Inventory|QuickSlot")
+	void MoveToInventory(USZInventoryBaseComponent* DestinationInventory, int32 SourceIndex);
+#pragma endregion
+
 	UFUNCTION(BlueprintCallable)
 	void PrintInventory();
 

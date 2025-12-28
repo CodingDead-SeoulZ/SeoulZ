@@ -127,6 +127,8 @@ void USZInventorySlot::DisplayItemTool(FName InItemID)
 
 	USZItemTool* ItemToolWidget = CreateWidget<USZItemTool>(SZPC, ItemToolClass);
 	ItemToolWidget->ItemID = InItemID;
+	ItemToolWidget->Inventory = SZInventoryBase;
+	ItemToolWidget->Index = SlotIndex;
 	ItemToolWidget->AddToViewport();
 }
 

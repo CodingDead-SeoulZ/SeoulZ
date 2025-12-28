@@ -10,6 +10,11 @@
 #include "Blueprint/WidgetLayoutLibrary.h"
 #include "Components/CanvasPanelSlot.h"
 #include "Item/SZItemTemplete.h"
+#include "Kismet/GameplayStatics.h"
+#include "Player/SZCharacterPlayer.h"
+#include "Player/Components/SZInventoryBaseComponent.h"
+#include "Player/Components/SZInventoryComponent.h"
+#include "Player/Components/SZQuickSlotComponent.h"
 
 void USZItemTool::NativeConstruct()
 {
@@ -18,6 +23,13 @@ void USZItemTool::NativeConstruct()
 	SetItemToolPose();
 	DisplayItemInfo();
 	CheckIsEquipment();
+	
+	if (IsValid(Btn_MoveToQuickSlot))
+	{
+		CheckMoveToQuickSlot();
+		Btn_MoveToQuickSlot->OnItemActionClicked.AddDynamic(this, &USZItemTool::OnMoveToQuickSlot);
+	}
+	CheckMoveToQuickSlot();
 }
 
 void USZItemTool::NativeOnMouseLeave(const FPointerEvent& InMouseEvent)
@@ -157,4 +169,70 @@ void USZItemTool::CheckIsEquipment()
 	{
 		VBox_Effects->SetVisibility(ESlateVisibility::Hidden);
 	} 
+}
+
+void USZItemTool::CheckMoveToQuickSlot()
+{
+	if (!IsValid(Btn_MoveToQuickSlot) || !IsValid(Btn_MoveToQuickSlot->Txt_txt))
+	{
+		return;
+	}
+
+	ASZCharacterPlayer* Player = Cast<ASZCharacterPlayer>(UGameplayStatics::GetPlayerCharacter(this, 0));
+	if (!IsValid(Player))
+	{
+		return;
+	}
+
+	USZQuickSlotComponent* SZQuickSlot = Player->FindComponentByClass<USZQuickSlotComponent>();
+	if (!IsValid(SZQuickSlot))
+	{
+		return;
+	}
+
+	const bool bCheck = (Inventory == SZQuickSlot);
+	const FText NewText = bCheck ? 
+		FText::FromString(TEXT("퀵 슬롯에서 가져오기")) : FText::FromString(TEXT("퀵 슬롯에 놓기"));
+
+	Btn_MoveToQuickSlot->Txt_txt->SetText(NewText);
+}
+
+void USZItemTool::OnMoveToQuickSlot()
+{
+	if (!IsValid(Inventory))
+	{
+		return;
+	}
+
+	ASZCharacterPlayer* Player = Cast<ASZCharacterPlayer>(UGameplayStatics::GetPlayerCharacter(this, 0));
+	if (!IsValid(Player))
+	{
+		return;
+	}
+
+	USZInventoryComponent* SZInventory = Player->FindComponentByClass<USZInventoryComponent>();
+	if (!IsValid(SZInventory))
+	{
+		return;
+	}
+
+	USZQuickSlotComponent* SZQuickSlot = Player->FindComponentByClass<USZQuickSlotComponent>();
+	if (!IsValid(SZQuickSlot))
+	{
+		return;
+	}
+
+	const bool bIsNotQuickSlot = (Inventory != SZQuickSlot);
+	if (bIsNotQuickSlot)
+	{
+		// 인벤 -> 핫바
+		Inventory->MoveToInventory(SZQuickSlot, Index);
+	}
+	else
+	{
+		// 핫바 -> 인벤
+		SZQuickSlot->MoveToInventory(SZInventory, Index);
+	}
+
+	RemoveFromParent();
 }

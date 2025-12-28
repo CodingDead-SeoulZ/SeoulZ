@@ -18,6 +18,7 @@ void USZItemActionUI::NativeConstruct()
 	{
 		Button_ItemAction->OnHovered.AddDynamic(this, &USZItemActionUI::OnHovered);
 		Button_ItemAction->OnUnhovered.AddDynamic(this, &USZItemActionUI::OnUnHovered);
+		Button_ItemAction->OnClicked.AddDynamic(this, &USZItemActionUI::HandleInternalClicked);
 	}
 }
 
@@ -35,4 +36,9 @@ void USZItemActionUI::OnUnHovered()
 	{
 		Txt_txt->SetColorAndOpacity(FSlateColor(FLinearColor::White));
 	}
+}
+
+void USZItemActionUI::HandleInternalClicked()
+{
+	OnItemActionClicked.Broadcast();
 }

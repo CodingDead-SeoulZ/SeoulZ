@@ -19,6 +19,8 @@
 class UButton;
 class UTextBlock;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSZItemActionClicked);
+
 /**
  * 
  */
@@ -37,7 +39,13 @@ public:
 	UFUNCTION()
 	void OnUnHovered();
 
+	UFUNCTION()
+	void HandleInternalClicked();
+
 public:
+	UPROPERTY(BlueprintAssignable)
+	FOnSZItemActionClicked OnItemActionClicked;
+
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UButton> Button_ItemAction;
 
