@@ -12,9 +12,15 @@
 // Copyright    : 
 //
 // Description  : Item Tool
-//               아이템 상세 보기. 임시로 툴팁은 BP에서 작업
+//               아이템 상세 보기
 //                 
 //----------------------------------------------------------------------------------------------------------
+
+class UVerticalBox;
+class UTextBlock;
+class UImage;
+class USZItemActionUI;
+class UBorder;
 
 UCLASS()
 class PROJECTSEOULZ_API USZItemTool : public UUserWidget
@@ -22,6 +28,55 @@ class PROJECTSEOULZ_API USZItemTool : public UUserWidget
 	GENERATED_BODY()
 
 public:
+	virtual void NativeConstruct() override;
+	virtual void NativeOnMouseLeave(const FPointerEvent& InMouseEvent) override;
+
+	void SetItemToolPose();
+	void DisplayItemInfo();
+	void DisplayItemStat();
+	void CheckIsEquipment();
+
+public:
 	UPROPERTY(BlueprintReadOnly, Category = "Inventory", meta = (AllowPrivateAccess = "true"))
 	FName ItemID;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Data")
+	TObjectPtr<UDataTable> ItemData;
+
+public:
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+	TObjectPtr<UVerticalBox> VBox_Stats;
+
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+	TObjectPtr<UVerticalBox> VBox_Effects;
+
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+	TObjectPtr<UTextBlock> Txt_ItemName;
+
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+	TObjectPtr<UTextBlock> Txt_ItemStat;
+
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+	TObjectPtr<UTextBlock> Txt_ItemEffects;
+
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+	TObjectPtr<UTextBlock> Txt_ItemDescription;
+
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+	TObjectPtr<UImage> Img_Icon;
+
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+	TObjectPtr<USZItemActionUI> Btn_Use;
+
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+	TObjectPtr<USZItemActionUI> Btn_MoveToHotbar;
+	
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+	TObjectPtr<USZItemActionUI> Btn_Drop;
+	
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+	TObjectPtr<USZItemActionUI> Btn_Split;
+
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+	TObjectPtr<UBorder> Border_ItemTool;
 };

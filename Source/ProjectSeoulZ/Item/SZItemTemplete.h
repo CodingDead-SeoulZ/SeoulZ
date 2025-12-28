@@ -80,15 +80,15 @@ struct FItemEquipment : public FTableRowBase
 };
 
 USTRUCT(BlueprintType)
-struct FItemConsumpables : public FTableRowBase
+struct FItemConsumables : public FTableRowBase
 {
 	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 HealthAmount = 0;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int32 EnergyAmount = 0;
+	/*UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 EnergyAmount = 0;*/
 };
 
 USTRUCT(BlueprintType)
@@ -100,10 +100,22 @@ struct FItemTemplete : public FTableRowBase
 	FText Name;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TObjectPtr<UTexture2D> Icon = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FText Description;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TObjectPtr<UTexture2D> Icon = nullptr;
+	EItemCategory ItemCategory = EItemCategory::None;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FItemEquipment Equipment;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FItemConsumables Consumables;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 MaxStackCount = 1;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FItemMesh ItemMesh;
@@ -113,19 +125,4 @@ struct FItemTemplete : public FTableRowBase
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FItemSFX ItemSFX;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	EItemCategory ItemCategory = EItemCategory::None;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FItemEquipment Equipment;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FItemConsumpables Consumpables;
-
-	//UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	//EItemRarity ItemRarity = EItemRarity::Common;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int32 MaxStackCount = 1;
 };
