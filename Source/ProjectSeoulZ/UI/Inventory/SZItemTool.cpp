@@ -11,7 +11,6 @@
 #include "Components/CanvasPanelSlot.h"
 
 #include "Item/SZItemTemplete.h"
-#include "Interface/SZItemFragmentInterface.h"
 
 #include "Kismet/GameplayStatics.h"
 #include "Player/SZCharacterPlayer.h"
