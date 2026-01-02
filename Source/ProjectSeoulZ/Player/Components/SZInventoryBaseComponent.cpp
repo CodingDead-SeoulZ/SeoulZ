@@ -4,6 +4,7 @@
 #include "Player/Components/SZInventoryBaseComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundBase.h"
+#include "Player/SZCharacterPlayer.h"
 
 // Sets default values for this component's properties
 USZInventoryBaseComponent::USZInventoryBaseComponent()
@@ -365,6 +366,61 @@ void USZInventoryBaseComponent::MoveToInventory(USZInventoryBaseComponent* Desti
 	{
 		DestinationInventory->UpdateInventory();
 	}
+}
+
+bool USZInventoryBaseComponent::RequestUseItem(FName ItemID, int32 Index)
+{
+#pragma region 아이템 검증
+	if (ItemID.IsNone() || !ItemSlots.IsValidIndex(Index))
+	{
+		return false;
+	}
+
+	// 슬롯에 해당 아이템이 있는지
+	if ((ItemSlots[Index].ItemID != ItemID) || (ItemSlots[Index].StackCount <= 0))
+	{
+		return false;
+	}
+
+	const FItemTemplete* Item = FindItemData(ItemID);
+	if (!Item)
+	{
+		return false;
+	}
+#pragma endregion
+
+#pragma region 아이템 사용
+	ASZCharacterPlayer* Player = Cast<ASZCharacterPlayer>(GetOwner());
+	if (!Player)
+	{
+		return false;
+	}
+
+	const TSubclassOf<UGameplayEffect> GE = Item->ItemFragment.GE;
+	const float Level = Item->ItemFragment.Level;
+
+	// 카테고리 별
+	/*if (Item->ItemCategory == EItemCategory::Consumables)
+	{
+		
+	}*/
+
+	const bool bIsValid = Player->ApplyItemConsumeEffect(GE, Level);
+	if (!bIsValid)
+	{
+		return false;
+	}
+
+	ItemSlots[Index].StackCount = FMath::Max(0, ItemSlots[Index].StackCount - 1);
+	// 0이면 아이템 제거
+	if (ItemSlots[Index].StackCount == 0)
+	{
+		ItemSlots[Index].ItemID = NAME_None;
+	}
+
+	UpdateInventory();
+	return true;
+#pragma endregion
 }
 
 void USZInventoryBaseComponent::PrintInventory()

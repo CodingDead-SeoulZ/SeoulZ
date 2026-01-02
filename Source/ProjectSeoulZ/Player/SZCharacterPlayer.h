@@ -1,5 +1,14 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
+
+#pragma once
+
+#include "CoreMinimal.h"
+#include "Character/SZCharacterBase.h"
+#include "AbilitySystemInterface.h"
+#include "InputActionValue.h"
+#include "SZCharacterPlayer.generated.h"
+
 //---------------------------------------------------------------------------------------------------------
 // Author       : 박지훈
 // Date       : 2025-12-15
@@ -11,19 +20,15 @@
 //                 
 //----------------------------------------------------------------------------------------------------------
 
-#pragma once
-
-#include "CoreMinimal.h"
-#include "Character/SZCharacterBase.h"
-#include "AbilitySystemInterface.h"
-#include "InputActionValue.h"
-#include "SZCharacterPlayer.generated.h"
-
 class ASZPlayerController;
-class USZInteractionComponent;
 class USZInventoryComponent;
 class USZQuickSlotComponent;
+class USZInteractionComponent;
 
+class UGameplayEffect;                
+class UAbilitySystemComponent;
+
+//
 UENUM()
 enum class ECharacterControlType : uint8
 {
@@ -42,13 +47,26 @@ class PROJECTSEOULZ_API ASZCharacterPlayer : public ASZCharacterBase
 public:
 	ASZCharacterPlayer();
 
+	//
 	virtual void PossessedBy(AController* NewController) override;
+	//
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	//
 	virtual void OnConstruction(const FTransform& Transform) override;
+
+	//
+	virtual class UAbilitySystemComponent* GetAbilitySystemComponent() const override;
+
+#pragma region 인벤토리 함수
+	// 아이템 소모품 사용
+	bool ApplyItemConsumeEffect(const TSubclassOf<UGameplayEffect>& GE, const float Level);
+#pragma endregion
 
 protected:
 	// 캐릭터 게임 시작 및 죽음
 	virtual void BeginPlay() override;
+	virtual void PostInitializeComponents() override;
+
 	virtual void SetDead() override;
 
 	// 캐릭터 컨트롤
@@ -65,9 +83,11 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera|Mode")
 	ECharacterControlType CurrentControlType = ECharacterControlType::ThirdPerson;
 
+	//
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class USpringArmComponent> CameraBoom;
 
+	//
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UCameraComponent> FollowCamera;
 
@@ -83,6 +103,7 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Camera|Third")
 	float ThirdArmLength = 400.f;
 
+	//
 	UPROPERTY(EditAnywhere, Category = "Camera|Third")
 	FVector ThirdSocketOffset = FVector(0.f, 60.f, 70.f); // 어깨 카메라 느낌
 
@@ -90,36 +111,38 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Camera|First")
 	FVector FirstPersonRelativeLocation = FVector(0.f, 0.f, 64.f);
 
+	//
 	UPROPERTY(EditAnywhere, Category = "Camera|Blend")
 	float CameraBlendSpeed = 12.f;
 
+	//
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UInputAction> JumpAction;
-
+	//
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UInputAction> ChangeControlAction;
-
+	//
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UInputAction> MoveAction;
-
+	//
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UInputAction> MouseLookAction;
-
+	//
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UInputAction> ThirdMoveAction;
-
+	//
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UInputAction> ThirdLookAction;
-
+	//
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UInputAction> FirstMoveAction;
-
+	//
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UInputAction> FirstLookAction;
-
+	//
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UInputAction> AttackAction;
-
+	//
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UInputAction> SkillAction;
 
@@ -144,26 +167,17 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UInputAction> SelectedF4Action;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<class UInputAction> SelectedF5Action;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<class UInputAction> SelectedF6Action;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<class UInputAction> SelectedF7Action;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<class UInputAction> SelectedF8Action;
 #pragma endregion
 
+	//
 	void Move(const FInputActionValue& Value);
 	void MouseLook(const FInputActionValue& Value);
-
+	
+	//
 	void ThirdMove(const FInputActionValue& Value);
 	void ThirdLook(const FInputActionValue& Value);
 
+	//
 	void FirstMove(const FInputActionValue& Value);
 	void FirstLook(const FInputActionValue& Value);
 
@@ -179,35 +193,47 @@ protected:
 	void SelectedF2(const FInputActionValue& Value);
 	void SelectedF3(const FInputActionValue& Value);
 	void SelectedF4(const FInputActionValue& Value);
-	void SelectedF5(const FInputActionValue& Value);
-	void SelectedF6(const FInputActionValue& Value);
-	void SelectedF7(const FInputActionValue& Value);
-	void SelectedF8(const FInputActionValue& Value);
 #pragma endregion
 
-	virtual class UAbilitySystemComponent* GetAbilitySystemComponent() const override;
-
 protected:
+#pragma region 캐릭터 메쉬. 의상
 	// 캐릭터 메쉬 컴포넌트
-	/*UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Meshes")
-	TObjectPtr<USkeletalMeshComponent> Helmet;*/
+// UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Meshes")
+// TObjectPtr<USkeletalMeshComponent> FullBody;
 
+/*UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Meshes")
+TObjectPtr<USkeletalMeshComponent> Helmet;*/
+
+//
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Meshes")
 	TObjectPtr<USkeletalMeshComponent> Vest;
 
+	//
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Meshes")
 	TObjectPtr<USkeletalMeshComponent> Gloves;
 
+	//
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Meshes")
 	TObjectPtr<USkeletalMeshComponent> Holster;
 
+	//
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Meshes")
 	TObjectPtr<USkeletalMeshComponent> Magazine;
 
-	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Meshes")
-	//TObjectPtr<USkeletalMeshComponent> PrimaryWeapon;
+	/*UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Meshes")
+	TObjectPtr<USkeletalMeshComponent> PrimaryWeapon;*/
+#pragma endregion
+
+	// GAS
+	UPROPERTY(EditAnywhere, Category = "GAS")
+	TSubclassOf<class UGameplayEffect> PlayerInitGE;
+
+	// UI Section
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<class USZWidgetComponent> HpBar;
 
 private:
+	//
 	bool bWantsBlend = false;
 	float BlendAlpha = 1.0f; // 0=3인칭, 1=1인칭
 	ECharacterControlType TargetControlType = ECharacterControlType::ThirdPerson;
@@ -217,10 +243,6 @@ private:
 	UPROPERTY(Transient)
 	TObjectPtr<ASZPlayerController> SZPC;
 
-	// 상호작용 컴포넌트
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<USZInteractionComponent> SZInteraction;
-
 	// 인벤토리 컴포넌트
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<USZInventoryComponent> SZInventory;
@@ -228,5 +250,9 @@ private:
 	// 퀵 슬롯 컴포넌트
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<USZQuickSlotComponent> SZQuickSlot;
+
+	// 상호작용 컴포넌트
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<USZInteractionComponent> SZInteraction;
 #pragma endregion
 };

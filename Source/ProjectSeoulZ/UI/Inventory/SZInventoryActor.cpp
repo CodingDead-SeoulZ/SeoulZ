@@ -67,7 +67,6 @@ void ASZInventoryActor::OpenInventory()
 	EnableInput(SZPC);
 }
 
-
 void ASZInventoryActor::CloseInventory()
 {
 	if (!IsValid(PlayerDisplay))

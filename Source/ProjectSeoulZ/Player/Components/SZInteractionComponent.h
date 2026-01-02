@@ -40,9 +40,6 @@ public:
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
-	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
-
-	FTimerHandle InteractionTimerHandle;
 
 public:	
 	// Called every frame

@@ -23,6 +23,7 @@
 class ASZWardrobe;
 class ASZInventoryActor;
 
+//
 USTRUCT(BlueprintType)
 struct FSpawnWardrobeResult
 {
@@ -44,16 +45,33 @@ class PROJECTSEOULZ_API ASZPlayerController : public APlayerController
 	GENERATED_BODY()
 	
 public:
+	//
 	void ShowPlayerHud();
+	//
 	void ToggleInventory();
+	//
 	FSpawnWardrobeResult CreateWardrobeActor();
+	//
 	ASZInventoryActor* CreateInventoryActor();
 
 protected:
+	//
 	virtual void BeginPlay() override;
+	//
 	virtual void SetupInputComponent() override;
+	//
+	virtual void OnPossess(APawn* InPawn) override;
+
+	//
+	UFUNCTION(BlueprintCallable, Category = "Input")
+	void ApplyGameInputMode();
+
+	//
+	UFUNCTION(BlueprintCallable, Category = "Input")
+	void ApplyUIOnlyMode(UUserWidget* FocusWidget = nullptr);
 
 public:
+	//
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widget", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<USZPlayerHud> PlayerHUD;
 
@@ -62,6 +80,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Spawn")
 	TSubclassOf<ASZWardrobe> WardrobeClass;
 
+	//
 	UPROPERTY(EditDefaultsOnly, Category = "Spawn")
 	TSubclassOf<ASZInventoryActor> InventoryActorClass;
 
@@ -69,13 +88,19 @@ protected:
 	UPROPERTY(VisibleInstanceOnly, Category = "Spawn")
 	TObjectPtr<ASZWardrobe> WardrobeActor;
 
+	//
 	UPROPERTY(VisibleInstanceOnly, Category = "Spawn")
 	TObjectPtr<ASZInventoryActor> InventoryActor;
  
 private:
+	//
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "IMC", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UInputMappingContext> CurrentCharacterContext;
 
+	//
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widget", meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<USZPlayerHud> PlayerHUDClass;
+
+	UPROPERTY(VisibleAnywhere, Category = "UI")
+	bool bInventoryOpen = false;
 };

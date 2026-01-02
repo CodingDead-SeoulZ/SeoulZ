@@ -74,6 +74,10 @@ public:
 	void MoveToInventory(USZInventoryBaseComponent* DestinationInventory, int32 SourceIndex);
 #pragma endregion
 
+#pragma region 아이템 상세보기 - 아이템 사용
+	bool RequestUseItem(FName ItemID, int32 Index);
+#pragma endregion
+
 	UFUNCTION(BlueprintCallable)
 	void PrintInventory();
 
@@ -93,7 +97,7 @@ public:
 	TObjectPtr<UDataTable> ItemData;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Inventory | Inventory Count")
-	int32 MaxSlotCount = 14;
+	int32 MaxSlotCount = 4;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Inventory")
 	TArray<FItemSlot> ItemSlots;

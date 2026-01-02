@@ -14,6 +14,51 @@ class UMaterialInterface;
 class UTexture2D;
 
 USTRUCT(BlueprintType)
+struct FItemFragment : public FTableRowBase
+{
+	GENERATED_BODY()
+
+	/*UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float HealthAmount = 0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float Damage = 0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float Defense = 0;*/
+
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<UGameplayEffect> GE;
+
+	UPROPERTY(EditDefaultsOnly) 
+	FName CurveDataTableRow = NAME_None;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float Level = 0;
+
+	//UPROPERTY(EditDefaultsOnly)
+	//TSubclassOf<UGameplayEffect> InstantGE; // 즉시 반영
+
+	//UPROPERTY(EditDefaultsOnly)
+	//TSubclassOf<UGameplayEffect> InfiniteGE; // 장비 착용 중
+
+	//UPROPERTY(EditDefaultsOnly)
+	//TSubclassOf<UGameplayEffect> DurationGE; // 해당 시간 동안
+};
+
+USTRUCT(BlueprintType)
+struct FItemEquipment : public FTableRowBase
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	EEquipmentType EquipmentType = EEquipmentType::None;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	EEquipmentSlotType EquipmentSlotType = EEquipmentSlotType::None;
+};
+
+USTRUCT(BlueprintType)
 struct FItemMesh : public FTableRowBase
 {
 	GENERATED_BODY()
@@ -29,18 +74,6 @@ struct FItemMesh : public FTableRowBase
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mesh")
 	TArray<TObjectPtr<UMaterialInterface>> Materials;
-};
-
-USTRUCT(BlueprintType)
-struct FItemFragment : public FTableRowBase
-{
-	GENERATED_BODY()
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FText Description;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "GE")
-	TArray<TSubclassOf<UGameplayEffect>> Fragments;
 };
 
 USTRUCT(BlueprintType)
@@ -62,36 +95,6 @@ struct FItemSFX : public FTableRowBase
 };
 
 USTRUCT(BlueprintType)
-struct FItemEquipment : public FTableRowBase
-{
-	GENERATED_BODY()
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	EEquipmentType EquipmentType = EEquipmentType::None;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	EEquipmentSlotType EquipmentSlotType = EEquipmentSlotType::None;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int32 Damage = 0;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int32 Defense = 0;
-};
-
-USTRUCT(BlueprintType)
-struct FItemConsumables : public FTableRowBase
-{
-	GENERATED_BODY()
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int32 HealthAmount = 0;
-
-	/*UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int32 EnergyAmount = 0;*/
-};
-
-USTRUCT(BlueprintType)
 struct FItemTemplete : public FTableRowBase
 {
 	GENERATED_BODY()
@@ -106,22 +109,19 @@ struct FItemTemplete : public FTableRowBase
 	FText Description;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 MaxStackCount = 1;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	EItemCategory ItemCategory = EItemCategory::None;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FItemFragment ItemFragment;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FItemEquipment Equipment;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FItemConsumables Consumables;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int32 MaxStackCount = 1;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FItemMesh ItemMesh;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FItemFragment ItemFragment;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FItemSFX ItemSFX;

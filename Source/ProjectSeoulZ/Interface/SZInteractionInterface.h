@@ -30,9 +30,11 @@ class PROJECTSEOULZ_API ISZInteractionInterface
 
 	
 public:
+	//
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Interact")
 	void OnInteractWith(AActor* Interactor);
 
+	//
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Interact")
 	FText OnLookAt() const;
 };

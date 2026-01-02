@@ -9,7 +9,10 @@
 #include "Components/Border.h"
 #include "Blueprint/WidgetLayoutLibrary.h"
 #include "Components/CanvasPanelSlot.h"
+
 #include "Item/SZItemTemplete.h"
+#include "Interface/SZItemFragmentInterface.h"
+
 #include "Kismet/GameplayStatics.h"
 #include "Player/SZCharacterPlayer.h"
 #include "Player/Components/SZInventoryBaseComponent.h"
@@ -29,7 +32,13 @@ void USZItemTool::NativeConstruct()
 		CheckMoveToQuickSlot();
 		Btn_MoveToQuickSlot->OnItemActionClicked.AddDynamic(this, &USZItemTool::OnMoveToQuickSlot);
 	}
-	CheckMoveToQuickSlot();
+	// CheckMoveToQuickSlot();
+
+	// 아이템 사용
+	if (IsValid(Btn_Use))
+	{
+		Btn_Use->OnItemActionClicked.AddDynamic(this, &USZItemTool::OnRequestUseItem);
+	}
 }
 
 void USZItemTool::NativeOnMouseLeave(const FPointerEvent& InMouseEvent)
@@ -99,7 +108,10 @@ void USZItemTool::DisplayItemStat()
 	{
 	case EItemCategory::Consumables:
 	{
-		const int32 Health = Item->Consumables.HealthAmount;
+		const FName Row = Item->ItemFragment.CurveDataTableRow;
+		const float Level = Item->ItemFragment.Level;
+
+		const float Health = EvalStatFromCurve(Row, Level);
 		StatText = FText::Format(
 			NSLOCTEXT("SZItemTool", "ConsumableHealthFmt", "체력: {0}"),
 			FText::AsNumber(Health)
@@ -111,7 +123,10 @@ void USZItemTool::DisplayItemStat()
 		const bool bArmor = (Item->Equipment.EquipmentType == EEquipmentType::Armor);
 		if (bArmor)
 		{
-			const int32 Defense = Item->Equipment.Defense;
+			const FName Row = Item->ItemFragment.CurveDataTableRow;
+			const float Level = Item->ItemFragment.Level;
+
+			const float Defense = EvalStatFromCurve(Row, Level);
 			StatText = FText::Format(
 				NSLOCTEXT("SZItemTool", "DefenseFmt", "방어력: {0}"), 
 				FText::AsNumber(Defense)
@@ -125,9 +140,13 @@ void USZItemTool::DisplayItemStat()
 		const bool bAccessory = (Item->Equipment.EquipmentType == EEquipmentType::Accessory);
 		if (bGun)
 		{
+			const FName Row = Item->ItemFragment.CurveDataTableRow;
+			const float Level = Item->ItemFragment.Level;
+
+			const float Damage = EvalStatFromCurve(Row, Level);
 			StatText = FText::Format(
 				NSLOCTEXT("SZItemTool", "DamageFmt", "공격력: {0}"),
-				FText::AsNumber(Item->Equipment.Damage));
+				FText::AsNumber(Damage));
 		}
 		//else if (bAccessory)
 		//{
@@ -197,6 +216,18 @@ void USZItemTool::CheckMoveToQuickSlot()
 	Btn_MoveToQuickSlot->Txt_txt->SetText(NewText);
 }
 
+float USZItemTool::EvalStatFromCurve(FName Row, float Level, float Fallback) const
+{
+	if (!ItemStats || Row.IsNone())
+		return Fallback;
+
+	const FRealCurve* Curve = ItemStats->FindCurve(Row, TEXT("ItemStat"));
+	if (!Curve)
+		return Fallback;
+
+	return Curve->Eval(Level);
+}
+
 void USZItemTool::OnMoveToQuickSlot()
 {
 	if (!IsValid(Inventory))
@@ -236,3 +267,24 @@ void USZItemTool::OnMoveToQuickSlot()
 
 	RemoveFromParent();
 }
+
+void USZItemTool::OnRequestUseItem()
+{
+	if (ItemID.IsNone() || (Index == INDEX_NONE) || !IsValid(Inventory))
+	{
+		return;
+	}
+
+	// 인벤토리한테 아이템 사용 요청
+	const bool bSuccess = Inventory->RequestUseItem(ItemID, Index);
+	if (bSuccess)
+	{
+		// 상세 UI 닫기
+		RemoveFromParent();
+	}
+	else
+	{
+		// “사용 불가” 표시
+	}
+}
+

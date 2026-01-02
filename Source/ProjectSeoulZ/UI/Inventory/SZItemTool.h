@@ -38,12 +38,20 @@ public:
 	void CheckIsEquipment();
 	void CheckMoveToQuickSlot();
 
+	float EvalStatFromCurve(FName Row, float Level, float Fallback = 0.f) const;
+
 	UFUNCTION()
 	void OnMoveToQuickSlot();
 
+	UFUNCTION()
+	void OnRequestUseItem();
+
 public:
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Data")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Item Data")
 	TObjectPtr<UDataTable> ItemData;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Curve Data")
+	TObjectPtr<UCurveTable> ItemStats;
 
 	// InventorySlot에서 전달
 	UPROPERTY(BlueprintReadOnly, Category = "Inventory", meta = (AllowPrivateAccess = "true"))

@@ -70,11 +70,8 @@ void USZInteractionComponent::InteractionTrace()
     }
     else 
     {
-        if (UI) 
-        {
-            UI->SetMessage(FText::GetEmpty());
-            // 이후 USZInteractionUI에서 메시지가 비어있으면 아이템 정보 안 뜨도록 처리
-        }
+        UI->SetMessage(FText::GetEmpty());
+        // 이후 USZInteractionUI에서 메시지가 비어있으면 아이템 정보 안 뜨도록 처리
     }
 
 #pragma region 디버그
@@ -105,7 +102,7 @@ void USZInteractionComponent::PickUpItem()
     USZItemDataComp* ItemDataComp = Item->FindComponentByClass<USZItemDataComp>();
     if (ItemDataComp)
     {
-		// ItemDataComp의 OnInteractWith 실행
+	// ItemDataComp의 OnInteractWith 실행
         ISZInteractionInterface::Execute_OnInteractWith(ItemDataComp, GetOwner());
     }
 }
@@ -118,21 +115,21 @@ void USZInteractionComponent::BeginPlay()
 	BeginInteract();
 }
 
-void USZInteractionComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
-{
-    Super::EndPlay(EndPlayReason);
-
-    if (UWorld* World = GetWorld())
-    {
-        World->GetTimerManager().ClearTimer(InteractionTimerHandle);
-    }
-}
+//void USZInteractionComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
+//{
+//    Super::EndPlay(EndPlayReason);
+//
+//    if (UWorld* World = GetWorld())
+//    {
+//        World->GetTimerManager().ClearTimer(InteractionTimerHandle);
+//    }
+//}
 
 void USZInteractionComponent::BeginInteract()
 {
     // Tick 대신 Timer로 상호작용 처리
     GetWorld()->GetTimerManager().SetTimer(
-        InteractionTimerHandle,
+        TimerHandle,
         this,
         &USZInteractionComponent::UpdateInteract,
         0.1f,
