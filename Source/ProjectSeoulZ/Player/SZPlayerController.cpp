@@ -8,6 +8,9 @@
 #include "UI/Inventory/SZWardrobe.h"
 #include "UI/Inventory/SZInventoryActor.h"
 #include "UI/Inventory/SZPlayerHud.h"
+#include "Item/SZItemTemplete.h"
+#include "Player/SZCharacterPlayer.h"
+#include "Player/Components/SZInventoryBaseComponent.h"
 
 void ASZPlayerController::ShowPlayerHud()
 {
@@ -63,7 +66,6 @@ void ASZPlayerController::ToggleInventory()
 	}
 }
 
-
 FSpawnWardrobeResult ASZPlayerController::CreateWardrobeActor()
 {
 	FSpawnWardrobeResult Out;
@@ -84,6 +86,7 @@ FSpawnWardrobeResult ASZPlayerController::CreateWardrobeActor()
 
 	ASZWardrobe* Spawned = GetWorld()->SpawnActor<ASZWardrobe>(WardrobeClass, SpawnTM, Params);
 	WardrobeActor = Spawned;
+
 
 	Out.Transform = SpawnTM;
 	Out.WardrobeActor = Spawned;
@@ -152,8 +155,56 @@ void ASZPlayerController::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);
 
+#pragma region 델리게이트 수신. 옷장에서 아이템 장착
+	ASZCharacterPlayer* SZPlayer = Cast<ASZCharacterPlayer>(GetCharacter());
+	if (!SZPlayer)
+	{
+		return;
+	}
+
+	USZInventoryBaseComponent* SZInventoryBase = SZPlayer->FindComponentByClass<USZInventoryBaseComponent>();
+	if (!SZInventoryBase)
+	{
+		return;
+	}
+	// SZInventoryBase->OnWardrobeActorChanged.AddDynamic(this, &ASZPlayerController::UpdateWardrobe);
+
+	// 중복 바인딩 방지. 이미 같은 항목이 바인딩돼 있으면 추가하지 않음.
+	SZInventoryBase->OnWardrobeActorChanged.AddUniqueDynamic(this, &ASZPlayerController::UpdateWardrobe);
+#pragma endregion
+
 	// Possess 타이밍이 늦는 프로젝트도 있어 OnPossess에서 한 번 더 고정하면 안정적
 	ApplyGameInputMode();
+}
+
+void ASZPlayerController::OnUnPossess()
+{
+#pragma region 델리게이트 수신 해제. 옷장에서 아이템 장착
+	ASZCharacterPlayer* SZPlayer = Cast<ASZCharacterPlayer>(GetCharacter());
+	if (!SZPlayer)
+	{
+		return;
+	}
+
+	USZInventoryBaseComponent* SZInventoryBase = SZPlayer->FindComponentByClass<USZInventoryBaseComponent>();
+	if (!SZInventoryBase)
+	{
+		return;
+	}
+	SZInventoryBase->OnWardrobeActorChanged.RemoveDynamic(this, &ASZPlayerController::UpdateWardrobe);
+#pragma endregion	
+
+	Super::OnUnPossess();
+}
+
+void ASZPlayerController::UpdateWardrobe(EEquipmentSlotType SlotType, USkeletalMesh* NewMesh)
+{
+	if (!IsValid(WardrobeActor)) 
+	{
+		return;
+	}
+
+	WardrobeActor->UpdateSKM(SlotType, NewMesh);
 }
 
 void ASZPlayerController::ApplyGameInputMode()

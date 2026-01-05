@@ -32,6 +32,7 @@ struct FItemSlot
 class ASZCharacterPlayer;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnInventoryUpdated);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnWardrobeActorChanged, EEquipmentSlotType, SlotType, USkeletalMesh*, NewMesh);
 
 UCLASS(Blueprintable, ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class PROJECTSEOULZ_API USZInventoryBaseComponent : public UActorComponent
@@ -80,7 +81,7 @@ public:
 	USkeletalMeshComponent* GetPlayerPartBySlotType(ASZCharacterPlayer* Player, EEquipmentSlotType SlotType) const;
 	bool RequestUseItem(FName ItemID, int32 Index);
 	bool RemoveEquippedItem(int32 Index, EEquipmentSlotType EquipmentSlot);
-	static bool EquipPlayerCharacter(USkeletalMeshComponent* SkeletalComponent, USkeletalMesh* NewMesh);
+	bool EquipPlayerCharacter(USkeletalMeshComponent* SkeletalComponent, EEquipmentSlotType EquipmentSlot, USkeletalMesh* NewMesh);
 	bool EquipItem(const FName InItemID, const TSubclassOf<UGameplayEffect>& GE, const float Level);
 #pragma endregion
 
@@ -98,6 +99,9 @@ public:
 public:
 	UPROPERTY(BlueprintAssignable, Category = "Inventory")
 	FOnInventoryUpdated OnInventoryUpdated;
+
+	UPROPERTY(BlueprintAssignable, Category = "Inventory")
+	FOnWardrobeActorChanged OnWardrobeActorChanged;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Inventory | Data")
 	TObjectPtr<UDataTable> ItemData;

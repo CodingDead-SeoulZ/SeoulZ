@@ -62,6 +62,11 @@ protected:
 	//
 	virtual void OnPossess(APawn* InPawn) override;
 
+	virtual void OnUnPossess() override;
+
+	UFUNCTION(BlueprintCallable, Category = "Wardrobe")
+	void UpdateWardrobe(EEquipmentSlotType SlotType, USkeletalMesh* NewMesh);
+
 	//
 	UFUNCTION(BlueprintCallable, Category = "Input")
 	void ApplyGameInputMode();

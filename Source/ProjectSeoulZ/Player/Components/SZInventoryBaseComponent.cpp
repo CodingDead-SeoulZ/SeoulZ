@@ -435,7 +435,7 @@ bool USZInventoryBaseComponent::RequestUseItem(FName ItemID, int32 Index)
 	}
 	case EItemCategory::Appeal:
 	{
-		// TODO. EquipSlot 작업하기 -> 장비 해제 및 교체 
+		// TODO. WardrobeUI 및 EquipSlot 작업하기 -> 장비 해제 및 교체 
 		const bool bEquip = EquipItem(ItemID, GE, Level);
 		if (!bEquip) 
 		{
@@ -502,7 +502,7 @@ bool USZInventoryBaseComponent::RemoveEquippedItem(int32 Index, EEquipmentSlotTy
 	return true;
 }
 
-bool USZInventoryBaseComponent::EquipPlayerCharacter(USkeletalMeshComponent* SkeletalComponent, USkeletalMesh* NewMesh)
+bool USZInventoryBaseComponent::EquipPlayerCharacter(USkeletalMeshComponent* SkeletalComponent, EEquipmentSlotType EquipmentSlot, USkeletalMesh* NewMesh)
 {
 	if (!IsValid(SkeletalComponent) || !IsValid(NewMesh))
 	{
@@ -516,6 +516,8 @@ bool USZInventoryBaseComponent::EquipPlayerCharacter(USkeletalMeshComponent* Ske
 	}
 
 	SkeletalComponent->SetSkeletalMesh(NewMesh);
+	// 델리게이트
+	OnWardrobeActorChanged.Broadcast(EquipmentSlot, NewMesh);
 	return true;
 }
 
@@ -557,7 +559,7 @@ bool USZInventoryBaseComponent::EquipItem(const FName InItemID, const TSubclassO
 		return false;
 	}
 
-	return EquipPlayerCharacter(TargetPart, NewMesh);
+	return EquipPlayerCharacter(TargetPart, SlotType, NewMesh);
 }
 
 void USZInventoryBaseComponent::PrintInventory()
@@ -594,4 +596,3 @@ void USZInventoryBaseComponent::TickComponent(float DeltaTime, ELevelTick TickTy
 
 	// ...
 }
-

@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "UI/Inventory/SZWardrobeUI.h"
 #include "UI/Inventory/SZInventoryUI.h"
 #include "UI/Inventory/SZQuickSlotUI.h"
 #include "UI/Inventory/SZQuickSlotDisplay.h"
@@ -42,6 +43,9 @@ public:
 	void DisplayQuickSlot();
 
 public:
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+	TObjectPtr<USZWardrobeUI> WB_WardrobeUI;
+
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 	TObjectPtr<USZInventoryUI> WB_InventoryUI;
 };

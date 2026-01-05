@@ -2,6 +2,7 @@
 
 
 #include "UI/Inventory/SZWardrobe.h"
+#include "Item/SZItemTemplete.h"
 
 // Sets default values
 ASZWardrobe::ASZWardrobe()
@@ -15,18 +16,28 @@ ASZWardrobe::ASZWardrobe()
 	CharacterMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Character"));
 	CharacterMesh->SetupAttachment(Root);
 
+	// 1. 의상
+	Helmet = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Helmet"));
+	Helmet->SetupAttachment(CharacterMesh);
+
 	Vest = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Vest"));
 	Vest->SetupAttachment(CharacterMesh);
 
 	Gloves = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Gloves"));
 	Gloves->SetupAttachment(CharacterMesh);
 
+	// 2. 무기
 	Holster = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Holster"));
 	Holster->SetupAttachment(CharacterMesh);
 
 	Magazine = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Magazine"));
 	Magazine->SetupAttachment(CharacterMesh);
 
+	PrimaryGun = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("PrimaryGun"));
+	PrimaryGun->SetupAttachment(CharacterMesh);
+
+	SecondaryGun = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("SecondaryGun"));
+	SecondaryGun->SetupAttachment(CharacterMesh);
 }
 
 void ASZWardrobe::OnConstruction(const FTransform& Transform)
@@ -58,11 +69,33 @@ void ASZWardrobe::OnConstruction(const FTransform& Transform)
 	Equipment(Magazine);
 }
 
+void ASZWardrobe::UpdateSKM(EEquipmentSlotType SlotType, USkeletalMesh* NewMesh)
+{
+	GetPlayerPartBySlotType(SlotType)->SetSkeletalMesh(NewMesh);
+}
+
 // Called when the game starts or when spawned
 void ASZWardrobe::BeginPlay()
 {
 	Super::BeginPlay();
 	
+}
+
+USkeletalMeshComponent* ASZWardrobe::GetPlayerPartBySlotType(EEquipmentSlotType SlotType) const
+{
+	switch (SlotType)
+	{
+	// 의상
+	case EEquipmentSlotType::Helmet:     return Helmet;
+	case EEquipmentSlotType::Vest:       return Vest;
+	case EEquipmentSlotType::Gloves:     return Gloves;
+	// 무기
+	case EEquipmentSlotType::Holster:       return Holster;
+	case EEquipmentSlotType::Magazine:      return Magazine;
+	case EEquipmentSlotType::PrimaryGun:   return PrimaryGun;
+	case EEquipmentSlotType::SecondaryGun: return SecondaryGun;
+	default: return nullptr;
+	}
 }
 
 // Called every frame
