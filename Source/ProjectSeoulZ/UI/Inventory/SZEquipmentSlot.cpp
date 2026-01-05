@@ -141,7 +141,8 @@ void USZEquipmentSlot::RefreshEquipmentSlot()
 
 void USZEquipmentSlot::EquipItem() 
 {
-	// SZCharacterEquipment->EquipItem(ItemID);
+	// TODO. 여기서 SZItemTool의 OnRequestUseItem()이 실행되는 게 
+
 }
 
 /*void USZEquipmentSlot::HandleSlotClicked()

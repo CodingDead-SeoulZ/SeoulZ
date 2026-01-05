@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -6,9 +6,16 @@
 #include "BehaviorTree/BTTaskNode.h"
 #include "BTTask_Attack.generated.h"
 
-/**
- * 
- */
+//---------------------------------------------------------------------------------------------------------
+// Author       : ì´í˜œì„±
+// Date         : 2025-12-00
+// Copyright    : CodingDead
+//
+// Description  : ì¼ë°˜ ì¢€ë¹„ ëª¬ìŠ¤í„°ì˜ ë¹„í—¤ì´ë¹„ì–´ íŠ¸ë¦¬ì—ì„œ ì‚¬ìš©í•  ë…¸ë“œ.
+//                ê³µê²©ì„ ìˆ˜í–‰í•œë‹¤.
+//                
+//----------------------------------------------------------------------------------------------------------
+
 UCLASS()
 class PROJECTSEOULZ_API UBTTask_Attack : public UBTTaskNode
 {
@@ -17,15 +24,16 @@ class PROJECTSEOULZ_API UBTTask_Attack : public UBTTaskNode
 public:
 	UBTTask_Attack();
 
+	//
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
 
-	// µ¨¸®°ÔÀÌÆ® Á¾·á ½Ã È£ÃâµÇ´Â ÇÔ¼ö.
+	// ë¸ë¦¬ê²Œì´íŠ¸ ì¢…ë£Œ ì‹œ í˜¸ì¶œë˜ëŠ” í•¨ìˆ˜.
 	UFUNCTION()
 	void OnAttackFinished(bool bSuccess);
 
 private:
 
-	// µ¨¸®°ÔÀÌÆ®¿¡¼­ ÀÚ½ÅÀÇ Á¤º¸¸¦ ³Ñ±â°í Á¾·á ½ÃÁ¡¿¡ È£ÃâµÇ¾î¾ß ÇÏ´Âµ¥ ÀÌ¸¦ À§ÇØ ÀÚ±â ÀÚ½ÅÀ» ÀúÀåÇÏ±â À§ÇÑ º¯¼ö
+	// ë¸ë¦¬ê²Œì´íŠ¸ì—ì„œ ìì‹ ì˜ ì •ë³´ë¥¼ ë„˜ê¸°ê³  ì¢…ë£Œ ì‹œì ì— í˜¸ì¶œë˜ì–´ì•¼ í•˜ëŠ”ë° ì´ë¥¼ ìœ„í•´ ìê¸° ìì‹ ì„ ì €ì¥í•˜ê¸° ìœ„í•œ ë³€ìˆ˜
 	UPROPERTY()
 	UBehaviorTreeComponent* CachedOwnerComp;
 	

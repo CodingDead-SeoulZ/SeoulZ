@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -6,6 +6,17 @@
 #include "Engine/DataAsset.h"
 #include "SZNormalMonsterAttackData.generated.h"
 
+//---------------------------------------------------------------------------------------------------------
+// Author       : 
+// Date         : 2025-12-00
+// Copyright    : 
+//
+// Description  : 
+//                
+//                
+//----------------------------------------------------------------------------------------------------------
+
+//
 USTRUCT(BlueprintType)
 struct FMonsterAttackData
 {
@@ -18,15 +29,13 @@ struct FMonsterAttackData
 	int SectionCount;
 };
 
-/**
- * 
- */
 UCLASS()
 class PROJECTSEOULZ_API USZNormalMonsterAttackData : public UPrimaryDataAsset
 {
 	GENERATED_BODY()
 
 public:
+	//
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	FMonsterAttackData AttackData;
 };

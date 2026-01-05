@@ -33,18 +33,19 @@ ASZCharacterBase::ASZCharacterBase()
 	GetMesh()->SetAnimationMode(EAnimationMode::AnimationBlueprint);
 	//GetMesh()->SetCollisionProfileName(TEXT("NoCollision"));
 
+	//
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh> CharacterMeshRef(TEXT("/Game/Characters/Player/QuantumCharacter/Mesh/SKM_QuantumCharacter.SKM_QuantumCharacter"));
 	if (CharacterMeshRef.Object)
 	{
 		GetMesh()->SetSkeletalMesh(CharacterMeshRef.Object);
 	}
 
+	//
 	static ConstructorHelpers::FClassFinder<UAnimInstance> AnimInstanceClassRef(TEXT("/Game/Characters/Player/QuantumCharacter/Mesh/ABP_SZCharacterPlayer.ABP_SZCharacterPlayer_C"));
 	if (AnimInstanceClassRef.Class)
 	{
 		GetMesh()->SetAnimInstanceClass(AnimInstanceClassRef.Class);
 	}
-
 
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	//PrimaryActorTick.bCanEverTick = true;
@@ -70,8 +71,6 @@ void ASZCharacterBase::SetDead()
 	if (AnimInstance)
 	{
 		AnimInstance->StopAllMontages(0.0f);
-
-
 	}
 }
 

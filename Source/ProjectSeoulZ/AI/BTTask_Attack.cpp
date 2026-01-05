@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "AI/BTTask_Attack.h"
@@ -9,11 +9,12 @@ UBTTask_Attack::UBTTask_Attack()
 {
 }
 
+// ë…¸ë“œë¥¼ ì‹¤í–‰. ì´ í•¨ìˆ˜ë¥¼ êµ¬í˜„í•´ì•¼ ë¹„í—¤ì´ë¹„ì–´íŠ¸ë¦¬ì—ì„œ ë…¸ë“œ ì‹¤í–‰.
 EBTNodeResult::Type UBTTask_Attack::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
 	EBTNodeResult::Type Result = Super::ExecuteTask(OwnerComp, NodeMemory);
 
-	// AIController°¡ Á¶Á¾ÇÏ°í ÀÖ´Â PawnÀ» °¡Á®¿Í¼­ °Ë»çÇÔ.
+	// AIControllerê°€ ì¡°ì¢…í•˜ê³  ìˆëŠ” Pawnì„ ê°€ì ¸ì™€ì„œ ê²€ì‚¬í•¨.
 	APawn* ControllingPawn = Cast<APawn>(OwnerComp.GetAIOwner()->GetPawn());
 	if (ControllingPawn == nullptr)
 	{
@@ -21,31 +22,31 @@ EBTNodeResult::Type UBTTask_Attack::ExecuteTask(UBehaviorTreeComponent& OwnerCom
 	}
 	
 
-	// ÆùÀÌ Æ¯Á¤ ÀÎÅÍÆäÀÌ½º¸¦ ±¸ÇöÇÏ°í ÀÖ´ÂÁö¸¦ È®ÀÎ(¸ó½ºÅÍÀÇ µ¥ÀÌÅÍ¸¦ °¡Á®¿À´Â ÀÎÅÍÆäÀÌ½º).
+	// í°ì´ íŠ¹ì • ì¸í„°í˜ì´ìŠ¤ë¥¼ êµ¬í˜„í•˜ê³  ìˆëŠ”ì§€ë¥¼ í™•ì¸(ëª¬ìŠ¤í„°ì˜ ë°ì´í„°ë¥¼ ê°€ì ¸ì˜¤ëŠ” ì¸í„°í˜ì´ìŠ¤).
 	ISZNormalAIInterface* AIPawn = Cast<ISZNormalAIInterface>(ControllingPawn);
 	if (AIPawn == nullptr)
 	{
 		return EBTNodeResult::Failed;
 	}
 
-	// ÀÚ±â ÀÚ½ÅÀ» ÀúÀå.
+	// ìê¸° ìì‹ ì„ ì €ì¥.
 	CachedOwnerComp = &OwnerComp;
 
-	// ÀÎÅÍÆäÀÌ½º¿¡¼­ AttackByAi È£Ãâ, È£ÃâÇÏ¸é¼­ Á¾·á½ÃÁ¡À» ¹Ş±â À§ÇØ ÀÚ±â ÀÚ½ÅÀ» ¸Å°³º¯¼ö·Î ³Ñ±ä´Ù.
+	// ì¸í„°í˜ì´ìŠ¤ì—ì„œ AttackByAi í˜¸ì¶œ, í˜¸ì¶œí•˜ë©´ì„œ ì¢…ë£Œì‹œì ì„ ë°›ê¸° ìœ„í•´ ìê¸° ìì‹ ì„ ë§¤ê°œë³€ìˆ˜ë¡œ ë„˜ê¸´ë‹¤.
 	AIPawn->AttackByAI(this);
 
 	return EBTNodeResult::InProgress;
 }
 
-//
 void UBTTask_Attack::OnAttackFinished(bool bSuccess)
 {
+	// ìê¸° ìì‹ ì„ í• ë‹¹ë˜ì–´ ìˆì–´ì•¼ë§Œ íƒœìŠ¤í¬ êµ¬ë¶„ ê°€ëŠ¥.
 	if (!CachedOwnerComp)
 	{
 		return;
 	}
 
-	// InProgress·Î ½ÇÇàÁßÀÎ Task¸¦ ³¡³»´Â ÇÔ¼ö.
+	// InProgressë¡œ ì‹¤í–‰ì¤‘ì¸ Taskë¥¼ ëë‚´ëŠ” í•¨ìˆ˜.
 	FinishLatentTask(
 		*CachedOwnerComp, bSuccess ? EBTNodeResult::Succeeded : EBTNodeResult::Failed
 	);

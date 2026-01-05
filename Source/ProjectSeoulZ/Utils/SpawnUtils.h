@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -7,20 +7,30 @@
 #include "NavigationSystem.h"
 #include "NavigationPath.h"
 
+//---------------------------------------------------------------------------------------------------------
+// Author       : 
+// Date         : 2025-12-00
+// Copyright    : 
+//
+// Description  : 
+//                
+//                
+//----------------------------------------------------------------------------------------------------------
+
 class SpawnUtil
 {
 public:
-    // NavMesh ±âÁØ ·£´ý À§Ä¡ °¡Á®¿À±â
+    // NavMesh ê¸°ì¤€ ëžœë¤ ìœ„ì¹˜ ê°€ì ¸ì˜¤ê¸°
     static bool GetRandomSpawnLocation(UWorld* World, const FVector& Origin, float Radius, FVector& OutLocation)
     {
-        // World°¡ Á¸ÀçÇÏÁö ¾ÊÀ¸¸é Á¾·á
+        // Worldê°€ ì¡´ìž¬í•˜ì§€ ì•Šìœ¼ë©´ ì¢…ë£Œ
         if (!World) return false;
 
-        // ÇöÀç ¿ùµå¿¡¼­ »ç¿ëµÇ´Â ³×ºñ°ÔÀÌ¼Ç ½Ã½ºÅÛ °´Ã¼¸¦ °¡Á®¿À°í ±×°ÍÀÌ nullptrÀÌ¸é Á¾·á
+        // í˜„ìž¬ ì›”ë“œì—ì„œ ì‚¬ìš©ë˜ëŠ” ë„¤ë¹„ê²Œì´ì…˜ ì‹œìŠ¤í…œ ê°ì²´ë¥¼ ê°€ì ¸ì˜¤ê³  ê·¸ê²ƒì´ nullptrì´ë©´ ì¢…ë£Œ
         UNavigationSystemV1* NavSys = UNavigationSystemV1::GetCurrent(World);
         if (!NavSys) return false;
         
-        // NavMesh »ó¿¡¼­ ·£´ýÇÑ À§Ä¡¸¦ ¾òÀ½.
+        // NavMesh ìƒì—ì„œ ëžœë¤í•œ ìœ„ì¹˜ë¥¼ ì–»ìŒ.
         FNavLocation NavLoc;
         if (NavSys->GetRandomReachablePointInRadius(Origin, Radius, NavLoc))
         {
@@ -31,14 +41,14 @@ public:
         return false;
     }
 
-    // Ãæµ¹ Ã¼Å©
+    // ì¶©ëŒ ì²´í¬
     static bool IsLocationFree(UWorld* World, const FVector& Location, float Radius = 50.f, float HalfHeight = 88.f)
     {
-        // World°¡ Á¸ÀçÇÏÁö ¾ÊÀ¸¸é Á¾·á
+        // Worldê°€ ì¡´ìž¬í•˜ì§€ ì•Šìœ¼ë©´ ì¢…ë£Œ
         if (!World) return false;
 
         
-        // Ãæµ¹ÇÏ´Â °ÍÀÌ ÀÖÀ¸¸é 
+        // ì¶©ëŒí•˜ëŠ” ê²ƒì´ ìžˆìœ¼ë©´ 
         FHitResult Hit;
         return World->SweepSingleByChannel(
             Hit,

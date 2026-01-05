@@ -390,16 +390,16 @@ USkeletalMeshComponent* USZInventoryBaseComponent::GetPlayerPartBySlotType(ASZCh
 	}
 }
 
-bool USZInventoryBaseComponent::RequestUseItem(FName ItemID, int32 Index)
+bool USZInventoryBaseComponent::RequestUseItem(FName ItemID, int32 InIndex)
 {
 #pragma region 아이템 검증
-	if (ItemID.IsNone() || !ItemSlots.IsValidIndex(Index))
+	if (ItemID.IsNone() || !ItemSlots.IsValidIndex(InIndex))
 	{
 		return false;
 	}
 
 	// 슬롯에 해당 아이템이 있는지
-	if ((ItemSlots[Index].ItemID != ItemID) || (ItemSlots[Index].StackCount <= 0))
+	if ((ItemSlots[InIndex].ItemID != ItemID) || (ItemSlots[InIndex].StackCount <= 0))
 	{
 		return false;
 	}
@@ -436,7 +436,7 @@ bool USZInventoryBaseComponent::RequestUseItem(FName ItemID, int32 Index)
 	case EItemCategory::Appeal:
 	{
 		// TODO. WardrobeUI 및 EquipSlot 작업하기 -> 장비 해제 및 교체 
-		const bool bEquip = EquipItem(ItemID, GE, Level);
+		const bool bEquip = EquipItem(ItemID);
 		if (!bEquip) 
 		{
 			return false;
@@ -457,13 +457,14 @@ bool USZInventoryBaseComponent::RequestUseItem(FName ItemID, int32 Index)
 		break;
 	}
 
-	ItemSlots[Index].StackCount = FMath::Max(0, ItemSlots[Index].StackCount - 1);
+	ItemSlots[InIndex].StackCount = FMath::Max(0, ItemSlots[InIndex].StackCount - 1);
 	// 0이면 아이템 제거
-	if (ItemSlots[Index].StackCount == 0)
+	if (ItemSlots[InIndex].StackCount == 0)
 	{
-		ItemSlots[Index].ItemID = NAME_None;
+		ItemSlots[InIndex].ItemID = NAME_None;
 	}
 
+	//UseItem();
 	UpdateInventory();
 	return true;
 #pragma endregion
@@ -521,7 +522,7 @@ bool USZInventoryBaseComponent::EquipPlayerCharacter(USkeletalMeshComponent* Ske
 	return true;
 }
 
-bool USZInventoryBaseComponent::EquipItem(const FName InItemID, const TSubclassOf<UGameplayEffect>& GE, const float Level)
+bool USZInventoryBaseComponent::EquipItem(const FName InItemID)
 {
 	if (!ItemData || InItemID.IsNone()) 
 	{
@@ -533,6 +534,9 @@ bool USZInventoryBaseComponent::EquipItem(const FName InItemID, const TSubclassO
 	{
 		return false;
 	}
+
+	const TSubclassOf<UGameplayEffect>& GE = Item->ItemFragment.GE;
+	const float Level = Item->ItemFragment.Level;
 
 	ASZCharacterPlayer* Player = Cast<ASZCharacterPlayer>(GetOwner());
 	if (!Player) 
@@ -560,6 +564,11 @@ bool USZInventoryBaseComponent::EquipItem(const FName InItemID, const TSubclassO
 	}
 
 	return EquipPlayerCharacter(TargetPart, SlotType, NewMesh);
+}
+
+void USZInventoryBaseComponent::UseItem()
+{
+	
 }
 
 void USZInventoryBaseComponent::PrintInventory()

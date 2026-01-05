@@ -6,6 +6,16 @@
 #include "UObject/Interface.h"
 #include "SZNormalAIInterface.generated.h"
 
+//---------------------------------------------------------------------------------------------------------
+// Author       : 
+// Date         : 2025-12-00
+// Copyright    : 
+//
+// Description  : 
+//                
+//                
+//----------------------------------------------------------------------------------------------------------
+
 // This class does not need to be modified.
 UINTERFACE(MinimalAPI)
 class USZNormalAIInterface : public UInterface
@@ -21,17 +31,22 @@ class PROJECTSEOULZ_API ISZNormalAIInterface
 
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
+	//
 	virtual float GetAIPatrolRadius() = 0;
 	virtual float GetAIDetectRange() = 0;
 	virtual float GetAIAttackRange() = 0;
 	virtual float GetAITurnSpeed() = 0;
 
-	virtual void SetAIAttackDelegate(const FAICharacterAttackFinished& InOnAttackFinished) = 0;
-	virtual void AttackByAI(class UBTTask_Attack* Task) = 0;
+	//
+	virtual void SetAIAttackDelegate(const FAICharacterAttackFinished& InOnAttackFinished);
+	//
+	virtual void AttackByAI(class UBTTask_Attack* Task);
 
-	virtual UAnimMontage* GetAttackAnimMontage() = 0;
-	virtual int GetSectionCount() = 0;
+	//
+	virtual UAnimMontage* GetAttackAnimMontage();
+	virtual int GetSectionCount();
 
-	virtual void OnAttackHitNotify() = 0;
+	//
+	virtual void OnAttackHitNotify();
 
 };

@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "AI/BTTask_TurnToTarget.h"
@@ -10,6 +10,7 @@
 
 UBTTask_TurnToTarget::UBTTask_TurnToTarget()
 {
+	// ë¹„í—¤ì´ë¹„ì–´ íŠ¸ë¦¬ì—ì„œ ì‚¬ìš©í•  ë•Œ í‘œì‹œë˜ëŠ” ë…¸ë“œì˜ ì´ë¦„.
 	NodeName = TEXT("Turn");
 }
 
@@ -17,30 +18,38 @@ EBTNodeResult::Type UBTTask_TurnToTarget::ExecuteTask(UBehaviorTreeComponent& Ow
 {
 	EBTNodeResult::Type Result = Super::ExecuteTask(OwnerComp, NodeMemory);
 
-	// AIController°¡ Á¶Á¾ÇÏ°í ÀÖ´Â PawnÀ» °¡Á®¿Í¼­ °Ë»çÇÔ.
+	// AIControllerê°€ ì¡°ì¢…í•˜ê³  ìˆëŠ” Pawnì„ ê°€ì ¸ì™€ì„œ ê²€ì‚¬í•¨.
 	APawn* ControllingPawn = Cast<APawn>(OwnerComp.GetAIOwner()->GetPawn());
 	if (ControllingPawn == nullptr)
 	{
 		return EBTNodeResult::Failed;
 	}
 
+	// ë¸”ë™ë³´ë“œì˜ BBKEY_TARGETì— ëª©í‘œê°€ ì„¤ì •ë˜ì–´ ìˆëŠ”ì§€ í™•ì¸.
 	APawn* TargetPawn = Cast<APawn>(OwnerComp.GetBlackboardComponent()->GetValueAsObject(BBKEY_TARGET));
 	if (TargetPawn == nullptr)
 	{
 		return EBTNodeResult::Failed;
 	}
 
-	// ÆùÀÌ Æ¯Á¤ ÀÎÅÍÆäÀÌ½º¸¦ ±¸ÇöÇÏ°í ÀÖ´ÂÁö¸¦ È®ÀÎ(¸ó½ºÅÍÀÇ µ¥ÀÌÅÍ¸¦ °¡Á®¿À´Â ÀÎÅÍÆäÀÌ½º).
+	// í°ì´ íŠ¹ì • ì¸í„°í˜ì´ìŠ¤ë¥¼ êµ¬í˜„í•˜ê³  ìˆëŠ”ì§€ë¥¼ í™•ì¸(ëª¬ìŠ¤í„°ì˜ ë°ì´í„°ë¥¼ ê°€ì ¸ì˜¤ëŠ” ì¸í„°í˜ì´ìŠ¤).
 	ISZNormalAIInterface* AIPawn = Cast<ISZNormalAIInterface>(ControllingPawn);
 	if (AIPawn == nullptr)
 	{
 		return EBTNodeResult::Failed;
 	}
 
+	// íšŒì „ ì†ë„ í• ë‹¹.
 	float TurnSpeed = AIPawn->GetAITurnSpeed();
+	
+	//
 	FVector LookVector = TargetPawn->GetActorLocation() - ControllingPawn->GetActorLocation();
 	LookVector.Z = 0.0f;
+
+	//
 	FRotator TargetRot = FRotationMatrix::MakeFromX(LookVector).Rotator();
+
+	//
 	ControllingPawn->SetActorRotation(FMath::RInterpTo(ControllingPawn->GetActorRotation(), TargetRot, GetWorld()->GetDeltaSeconds(),TurnSpeed));
 
 	return EBTNodeResult::Type();

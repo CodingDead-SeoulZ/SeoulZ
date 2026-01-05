@@ -9,13 +9,15 @@
 #include "DrawDebugHelpers.h"
 #include "Physics/SZCollision.h"
 #include "Engine/OverlapResult.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "GameFramework/Character.h"
 
 UBTService_Detect::UBTService_Detect()
 {
-	// ºñÇìÀÌºñ¾î Æ®¸®¿¡¼­ÀÇ ³ëµå ÀÌ¸§.
+	// ï¿½ï¿½ï¿½ï¿½ï¿½Ìºï¿½ï¿½ Æ®ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½Ì¸ï¿½.
 	NodeName = TEXT("Detect");
 
-	// TickÀÇ ÁøÇà °£°Ý
+	// Tickï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 	Interval = 1.0f;
 }
 
@@ -23,35 +25,35 @@ void UBTService_Detect::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeM
 {
 	Super::TickNode(OwnerComp, NodeMemory, DeltaSeconds);
 
-	// OwnerÀÇ ÆùÀÌ Á¸ÀçÇÏ´ÂÁö °Ë»ç
+	// Ownerï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½ï¿½ï¿½ ï¿½Ë»ï¿½
 	APawn* ControllingPawn = OwnerComp.GetAIOwner()->GetPawn();
 	if (ControllingPawn == nullptr)
 	{
 		return;
 	}
 
-	// ÆùÀÇ À§Ä¡
+	// ï¿½ï¿½(ï¿½ï¿½ï¿½ï¿½)ï¿½ï¿½ ï¿½ï¿½Ä¡
 	FVector Center = ControllingPawn->GetActorLocation();
-	// ÆùÀÌ ¼ÓÇÑ ¿ùµå
+	// ï¿½ï¿½(ï¿½ï¿½ï¿½ï¿½)ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 	UWorld* World = ControllingPawn->GetWorld();
 	
-	// ¿ùµå°¡ Á¸ÀçÇÏ´ÂÁö °Ë»ç
+	// ï¿½ï¿½ï¿½å°¡ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½ï¿½ï¿½ ï¿½Ë»ï¿½
 	if (World == nullptr)
 	{
 		return;
 	}
 
-	// ¸ó½ºÅÍÀÇ µ¥ÀÌÅÍ¸¦ ¹ÝÈ¯ÇÏ´Â ÀÎÅÍÆäÀÌ½º°¡ ÀÖ´ÂÁö °Ë»ç
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Í¸ï¿½ ï¿½ï¿½È¯ï¿½Ï´ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ì½ï¿½ï¿½ï¿½ ï¿½Ö´ï¿½ï¿½ï¿½ ï¿½Ë»ï¿½
 	ISZNormalAIInterface* AIPawn = Cast<ISZNormalAIInterface>(ControllingPawn);
 	if (AIPawn == nullptr)
 	{
 		return;
 	}
 
-	// ÇÃ·¹ÀÌ¾î °¨Áö ¹üÀ§ 
+	// ï¿½Ã·ï¿½ï¿½Ì¾ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ 
 	float DetectRadius = AIPawn->GetAIDetectRange();
 
-	// 
+	// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ã·ï¿½ï¿½Ì¾î°¡ ï¿½Ö´ï¿½ï¿½ï¿½ È®ï¿½ï¿½ï¿½Ï´ï¿½ ï¿½ï¿½ï¿½ï¿½. ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½.
 	TArray<FOverlapResult> OverlapResults;
 	FCollisionQueryParams CollisionQueryParam(SCENE_QUERY_STAT(Detect), false, ControllingPawn);
 	bool bResult = World->OverlapMultiByChannel(
@@ -63,27 +65,41 @@ void UBTService_Detect::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeM
 		CollisionQueryParam
 	);
 
-	// Ãæµ¹ °á°úµé Áß ÇÃ·¹ÀÌ¾î¸¦ Ã£¾Æ ºí·¢º¸µåÀÇ º¯¼ö¿¡ ÇÒ´ç.
+	// ï¿½æµ¹ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½Ã·ï¿½ï¿½Ì¾î¸¦ Ã£ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ò´ï¿½.
 	if (bResult)
 	{
+		// ï¿½æµ¹ ï¿½ï¿½ï¿½ï¿½ï¿½ Å½ï¿½ï¿½
 		for (auto const& OverlapResult : OverlapResults)
 		{
 			APawn* Pawn = Cast<APawn>(OverlapResult.GetActor());
 
-			// °Ë»ç °Å¸® ´Ã¸®´Â ·ÎÁ÷ ³ªÁß¿¡ ½ÇÇà
-			if (Pawn && Pawn->GetController()->IsPlayerController())
+			//ï¿½æµ¹ï¿½ï¿½ ï¿½ï¿½Ã¼ï¿½ï¿½ ï¿½Ã·ï¿½ï¿½Ì¾ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+			if (Pawn && Pawn->IsPlayerControlled())
 			{
+				// ï¿½ï¿½ï¿½ï¿½ï¿½å¿¡ BBKEY_TARGETï¿½ï¿½ ï¿½Ã·ï¿½ï¿½Ì¾î¸¦ ï¿½ï¿½ï¿½ï¿½.
 				OwnerComp.GetBlackboardComponent()->SetValueAsObject(BBKEY_TARGET, Pawn);
 				DrawDebugSphere(World, Center, DetectRadius, 16, FColor::Green, false, 0.2f);
 				
 				DrawDebugPoint(World, Pawn->GetActorLocation(), 10.0f , FColor::Green, false, 0.2f);
 				DrawDebugLine(World, ControllingPawn->GetActorLocation(), Pawn->GetActorLocation(), FColor::Green, false, 0.2f);
+
+				// ï¿½Ã·ï¿½ï¿½Ì¾î¸¦ Å½ï¿½ï¿½ï¿½Ï¸ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ó·ï¿½ ï¿½ï¿½ï¿½ï¿½.
+				if (ACharacter* MonsterCharacter = Cast<ACharacter>(ControllingPawn))
+				{
+					UCharacterMovementComponent* MoveComp = MonsterCharacter->GetCharacterMovement();
+					if (MoveComp)
+					{
+						UE_LOG(LogTemp, Log, TEXT("Boss a"));
+						MoveComp->MaxWalkSpeed = 300.f; // ï¿½ï¿½: ï¿½Óµï¿½ ï¿½ï¿½ï¿½ï¿½
+					}
+				}
+
 				return;
 			}
 		}	
 	}
 
-	// ÇÃ·¹ÀÌ¾î¸¦ Ã£Áö ¸øÇß´Ù¸é BBKEY_TARGET¿¡ nullptr ÇÒ´ç
+	// ï¿½Ã·ï¿½ï¿½Ì¾î¸¦ Ã£ï¿½ï¿½ ï¿½ï¿½ï¿½ß´Ù¸ï¿½ BBKEY_TARGETï¿½ï¿½ nullptr ï¿½Ò´ï¿½
 	OwnerComp.GetBlackboardComponent()->SetValueAsObject(BBKEY_TARGET, nullptr);
 	DrawDebugSphere(World, Center, DetectRadius, 16, FColor::Red, false, 0.2f);
 }

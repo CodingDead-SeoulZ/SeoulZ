@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+Ôªø// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "Monster/GA/SZGA_NormalAttack.h"
@@ -13,9 +13,13 @@
 #include "AbilitySystemComponent.h"
 #include "Attribute/SZAttributeSet.h"
 #include "AbilitySystemBlueprintLibrary.h"
+#include "AI/SZNormalAIController.h"
+#include "BehaviorTree/BlackboardComponent.h"
+
 
 USZGA_NormalAttack::USZGA_NormalAttack()
 {
+	//
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 }
 
@@ -23,34 +27,39 @@ void USZGA_NormalAttack::ActivateAbility(const FGameplayAbilitySpecHandle Handle
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
-	// NormalMonster «¸¿∏∑Œ ActorInfo∏¶ ƒ≥Ω∫∆√
+	// NormalMonster ÌòïÏúºÎ°ú ActorInfoÎ•º Ï∫êÏä§ÌåÖ
 	ASZNormalMonster* NormalMonster = CastChecked<ASZNormalMonster>(ActorInfo->AvatarActor.Get());
 
+	//
 	if (NormalMonster)
 	{
 		NormalMonster->SetCurrentAttackAbility(this);
 	}
 
 
-	// ∞¯∞› ∏˘≈∏¡÷ø° ¥Î«— ¡§∫∏∏¶ ∞°¡Æø¿±‚ ¿ß«— «¸∫Ø»Ø »ƒ nullptr √º≈©
+	// Í≥µÍ≤© Î™ΩÌÉÄÏ£ºÏóê ÎåÄÌïú Ï†ïÎ≥¥Î•º Í∞ÄÏ†∏Ïò§Í∏∞ ÏúÑÌïú ÌòïÎ≥ÄÌôò ÌõÑ nullptr Ï≤¥ÌÅ¨
 	ISZNormalAIInterface* Monster = Cast<ISZNormalAIInterface>(NormalMonster);
 	if (Monster == nullptr)
 	{
+		//
+		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
 		return ;
 	}
 
-	// ¿Œ≈Õ∆‰¿ÃΩ∫∏¶ ¿ÃøÎ«ÿº≠ ∞¯∞› ∏˘≈∏¡÷∏¶ ∞°¡Æø». ∏ÛΩ∫≈Õø° µ˚∂Û ¥ﬁ∂Û¡¸.
+	// Ïù∏ÌÑ∞ÌéòÏù¥Ïä§Î•º Ïù¥Ïö©Ìï¥ÏÑú Í≥µÍ≤© Î™ΩÌÉÄÏ£ºÎ•º Í∞ÄÏ†∏Ïò¥. Î™¨Ïä§ÌÑ∞Ïóê Îî∞Îùº Îã¨ÎùºÏßê.
 	UAnimMontage* AttackMontage = Monster->GetAttackAnimMontage();
 	if (AttackMontage == nullptr)
 	{
+		//
+		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
 		return;
 	}
 
-	// 1∫Œ≈Õ ∏˘≈∏¡÷¿« ºΩº« ºˆ±Ó¡ˆ ¡ﬂ «œ≥™∏¶ 
+	// 1Î∂ÄÌÑ∞ Î™ΩÌÉÄÏ£ºÏùò ÏÑπÏÖò ÏàòÍπåÏßÄ Ï§ë ÌïòÎÇòÎ•º 
 	int SectionNumber = FMath::RandRange(1, Monster->GetSectionCount());
 	UE_LOG(LogTemp, Log, TEXT("%d"),SectionNumber);
 
-	// «√∑π¿Ã«“ ºΩº« ¿Ã∏ß ª˝º∫.
+	// ÌîåÎ†àÏù¥Ìï† ÏÑπÏÖò Ïù¥Î¶Ñ ÏÉùÏÑ±.
 	FName SectionName = FName(*FString::Printf(TEXT("Attack%d"), SectionNumber));
 
 	/*UE_LOG(LogTemp, Warning, TEXT("Avatar: %s"), *GetNameSafe(GetAvatarActorFromActorInfo()));
@@ -61,24 +70,40 @@ void USZGA_NormalAttack::ActivateAbility(const FGameplayAbilitySpecHandle Handle
 	UE_LOG(LogTemp, Warning, TEXT("Mesh: %s"), *GetNameSafe(Mesh));
 	UE_LOG(LogTemp, Warning, TEXT("AnimInstance: %s"), *GetNameSafe(Mesh ? Mesh->GetAnimInstance() : nullptr));*/
 
+	/*ASZNormalAIController* AIController = Cast<ASZNormalAIController>(NormalMonster->GetController());
+	AIController->GetBlackboardComponent()->SetValueAsBool("IsAttacking", true);*/
+	//
 	UAbilityTask_PlayMontageAndWait* PlayAttackTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(this, TEXT("PlayAttack"), AttackMontage,1.0f, SectionName);
+	//
 	PlayAttackTask->OnCompleted.AddDynamic(this, &USZGA_NormalAttack::OnCompleteCallback);
+	//
 	PlayAttackTask->OnInterrupted.AddDynamic(this, &USZGA_NormalAttack::OnInterruptedCallback);
+	//
 	PlayAttackTask->ReadyForActivation();
 }
 
 void USZGA_NormalAttack::CancelAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateCancelAbility)
 {
+	//
+	if (UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo())
+	{
+		ASC->CurrentMontageStop();
+	}
+
 	Super::CancelAbility(Handle, ActorInfo, ActivationInfo, bReplicateCancelAbility);
 }
 
 void USZGA_NormalAttack::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
 {
+	//
 	ASZNormalMonster* NormalMonster = CastChecked<ASZNormalMonster>(ActorInfo->AvatarActor.Get());
 
+	//
 	if (NormalMonster)
 	{
 		NormalMonster->SetCurrentAttackAbility(nullptr);
+		/*ASZNormalAIController* AIController = Cast<ASZNormalAIController>(NormalMonster->GetController());
+		AIController->GetBlackboardComponent()->SetValueAsBool("IsAttacking", false);*/
 	}
 
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
@@ -88,25 +113,34 @@ void USZGA_NormalAttack::EndAbility(const FGameplayAbilitySpecHandle Handle, con
 
 void USZGA_NormalAttack::OnCompleteCallback()
 {
+	//
 	bool bReplicatedEndAbility = true;
+	//
 	bool bWasCancelled = false;
 
+	//
 	if (ASZNormalMonster* Monster = Cast<ASZNormalMonster>(GetAvatarActorFromActorInfo()))
 	{
+		//
 		if (Monster->GetAttackTask())
 		{
+			//
 			Monster->GetAttackTask()->OnAttackFinished(true);
 		}
 	}
 
+	//
 	EndAbility(CurrentSpecHandle, CurrentActorInfo,CurrentActivationInfo, bReplicatedEndAbility, bWasCancelled);
 }
 
 void USZGA_NormalAttack::OnInterruptedCallback()
 {
+	//
 	bool bReplicatedEndAbility = true;
+	//
 	bool bWasCancelled = true;
 
+	//
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, bReplicatedEndAbility, bWasCancelled);
 }
 
@@ -114,51 +148,79 @@ void USZGA_NormalAttack::HitCheck()
 {
 	UE_LOG(LogTemp, Log, TEXT("HitCheck Ok"));
 
+	//
 	ASZNormalMonster* NormalMonster = CastChecked<ASZNormalMonster>(GetAvatarActorFromActorInfo());
 
+	//
 	FHitResult OutHitResult;
+	//
 	FCollisionQueryParams Params(NAME_None, false, NormalMonster);
 
+	//
 	UAbilitySystemComponent* ASC =  UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(NormalMonster);
-	if (!ASC)
+	/*if (!ASC)
 	{
 		UE_LOG(LogTemp, Log, TEXT("ASC is nullptr"));
 		return;
-	}
+	}*/
 
+	//
 	const USZAttributeSet* AttributeSet = ASC->GetSet<USZAttributeSet>();
-	if (!AttributeSet)
+	/*if (!AttributeSet)
 	{
 		UE_LOG(LogTemp, Log, TEXT("AttributeSet is null"));
 		return;
-	}
+	}*/
 
-	// ≥™¡ﬂø° ∞™¿∏∑Œ æÓ∆Æ∏Æ∫‰∆Æ º¬¿∏∑Œ ±≥√º«ÿæﬂ «‘.
+	// @Todo: ÎÇòÏ§ëÏóê Í∞íÏúºÎ°ú Ïñ¥Ìä∏Î¶¨Î∑∞Ìä∏ ÏÖãÏúºÎ°ú ÍµêÏ≤¥Ìï¥Ïïº Ìï®.
 	const float AttackRange = AttributeSet->GetAttackRange();
 	const float AttackRadius = AttributeSet->GetAttackRadius();
 	const float AttackDamage = AttributeSet->GetAttackDamage();
 	const FVector Start = NormalMonster->GetActorLocation() + NormalMonster->GetActorForwardVector() 
 						  * NormalMonster ->GetCapsuleComponent()->GetScaledCapsuleRadius();
-	const FVector End = Start + NormalMonster->GetActorForwardVector() * AttackRange;
+	const FVector End = Start + NormalMonster->GetActorForwardVector() * AttackRange/3;
 
-	// »ƒø° «√∑π¿ÃæÓ ¿¸øÎ √§≥Œ∑Œ πŸ≤„æﬂ «‘.
+	// ÌõÑÏóê ÌîåÎ†àÏù¥Ïñ¥ Ï†ÑÏö© Ï±ÑÎÑêÎ°ú Î∞îÍøîÏïº Ìï®.
 	bool HitDetected = GetWorld()->SweepSingleByChannel(OutHitResult, Start, End, FQuat::Identity, CCHANNEL_SZACTION, FCollisionShape::MakeSphere(AttackRadius), Params);
+	
+	//
 	if (HitDetected)
 	{
-		UAbilitySystemComponent* SourceASC = GetAbilitySystemComponentFromActorInfo_Ensured();
-		UAbilitySystemComponent* TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(OutHitResult.GetActor());
-		if (!SourceASC || !TargetASC)
-		{
-			UE_LOG(LogTemp, Log, TEXT("ASC not found!"));
-			return;
-		}
+		//
+		AActor* HitActor = OutHitResult.GetActor();
 
-		const USZAttributeSet* SourceAttribute = SourceASC->GetSet<USZAttributeSet>();
-		USZAttributeSet* TargetAttribute = const_cast<USZAttributeSet*>(TargetASC->GetSet<USZAttributeSet>());
-		if (!SourceAttribute || !TargetAttribute)
+		//
+		if (HitActor && HitActor->ActorHasTag(FName("Player")))
 		{
-			UE_LOG(LogTemp, Log, TEXT("ASC not found!"));
-			return;
+			//
+			UAbilitySystemComponent* SourceASC = GetAbilitySystemComponentFromActorInfo_Ensured();
+			//
+			UAbilitySystemComponent* TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(OutHitResult.GetActor());
+			/*UE_LOG(LogTemp, Log, TEXT("Implements ASI: %d"),
+				HitActor->GetClass()->ImplementsInterface(UAbilitySystemInterface::StaticClass()));
+
+			UE_LOG(LogTemp, Log, TEXT("ASC from interface: %s"),
+				*GetNameSafe(Cast<IAbilitySystemInterface>(HitActor)
+					? Cast<IAbilitySystemInterface>(HitActor)->GetAbilitySystemComponent()
+					: nullptr));*/
+
+					/*if (!SourceASC || !TargetASC)
+					{
+						UE_LOG(LogTemp, Log, TEXT("ASC not found!"));
+						return;
+					}*/
+
+			//
+			const USZAttributeSet* SourceAttribute = SourceASC->GetSet<USZAttributeSet>();
+			//
+			USZAttributeSet* TargetAttribute = const_cast<USZAttributeSet*>(TargetASC->GetSet<USZAttributeSet>());
+			/*if (!SourceAttribute || !TargetAttribute)
+			{
+				UE_LOG(LogTemp, Log, TEXT("AttributeSet not found!"));
+				return;
+			}*/
+
+#pragma region ÏïÑÏù¥ÌÖú ÌååÌä∏. Î∞©Ïñ¥Î†• Í≥ÑÏÇ∞
 			// ÌòÑÏû¨ Ï≤¥Î†•
 			float Health = TargetAttribute->GetHealth();
 			// ÌòÑÏû¨ Î∞©Ïñ¥Î†•
@@ -168,18 +230,30 @@ void USZGA_NormalAttack::HitCheck()
 			// ÏµúÏ¢Ö Îç∞ÎØ∏ÏßÄ Í≥ÑÏÇ∞
 			float Damage = AttackDamage - Defense * 2; // Defense * 0.5
 			TargetAttribute->SetHealth(Health - Damage);
+#pragma endregion
+
+			// ÏÇ¨Îßù Ï≤òÎ¶¨
+			if (TargetAttribute->GetHealth() <= 0.f)
+			{
+				//
+				ASZCharacterBase* CharacterBase = Cast<ASZCharacterBase>(OutHitResult.GetActor());
+
+				//
+				if (CharacterBase)
+				{
+					CharacterBase->SetDead();
+				}
+			}
 		}
-
-		TargetAttribute->SetHealth(TargetAttribute->GetHealth() - AttackDamage);
-
 	}
 
+//
 #if ENABLE_DRAW_DEBUG
 	FVector CapsuleOrigin = Start + (End - Start) * 0.5f;
 	float CapsuleHalfHeight = AttackRange * 0.5;
 	FColor DrawColor = HitDetected ? FColor::Green : FColor::Red;
 
-	DrawDebugCapsule(GetWorld(), CapsuleOrigin, CapsuleHalfHeight, AttackRadius, FRotationMatrix::MakeFromZ(NormalMonster->GetActorForwardVector()).ToQuat(),DrawColor, false, 0.5f);
+	//DrawDebugCapsule(GetWorld(), CapsuleOrigin, CapsuleHalfHeight, AttackRadius, FRotationMatrix::MakeFromZ(NormalMonster->GetActorForwardVector()).ToQuat(),DrawColor, false, 0.5f);
 
 
 #endif

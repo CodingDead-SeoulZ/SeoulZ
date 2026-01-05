@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -7,9 +7,16 @@
 #include "Monster/SZMonsterSpawner.h"
 #include "SZGameModeBase.generated.h"
 
-/**
- * 
- */
+//---------------------------------------------------------------------------------------------------------
+// Author       : 
+// Date         : 2025-12-00
+// Copyright    : 
+//
+// Description  : 
+//                
+//                
+//----------------------------------------------------------------------------------------------------------
+
 UCLASS()
 class PROJECTSEOULZ_API ASZGameModeBase : public AGameModeBase
 {
@@ -20,25 +27,32 @@ public:
     
     //void SpawnMonster();
         
+    //
     void SpawnStageMonsters();
 
+    FORCEINLINE int32 GetMonsterCount() { return AliveMonsterCount; }
+    FORCEINLINE void SetMonsterCount(int32 Count) { AliveMonsterCount = Count; }
+
+    //
+    FORCEINLINE USZPoolManager* GetPoolManager() { return PoolManager; }
+
 protected:
-    // »ı¼º½ÃÅ³ ¸ó½ºÅÍÀÇ Å¬·¡½º
+    // ìƒì„±ì‹œí‚¬ ëª¬ìŠ¤í„°ì˜ í´ë˜ìŠ¤
     /*UPROPERTY(EditAnywhere, BlueprintReadOnly)
     TSubclassOf<AActor> MonsterClass;*/
 
-    // ½ºÆù ¹İ°æ
+    // ìŠ¤í° ë°˜ê²½
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
     float SpawnRadius = 800.f;
 
-    // ½ºÆ÷³ÊµéÀÇ ¹è¿­, ½ºÆ÷³Ê¸¦ ¿©·¯°³ µÎ´Â °Ô ÁÁÀ½.
+    // ìŠ¤í¬ë„ˆë“¤ì˜ ë°°ì—´, ìŠ¤í¬ë„ˆë¥¼ ì—¬ëŸ¬ê°œ ë‘ëŠ” ê²Œ ì¢‹ìŒ.
     UPROPERTY()
     TArray<ASZMonsterSpawner*> Spawners;
 
-    // ½ºÆùµÇ°í »ì¾ÆÀÖ´Â ¸ó½ºÅÍÀÇ ¼ö¸¦ ÀúÀå.
+    // ìŠ¤í°ë˜ê³  ì‚´ì•„ìˆëŠ” ëª¬ìŠ¤í„°ì˜ ìˆ˜ë¥¼ ì €ì¥.
     int32 AliveMonsterCount = 0;
 
-    // ¿ÀºêÁ§Æ® Ç®¸µÀ» À§ÇÑ PoolManager
+    // ì˜¤ë¸Œì íŠ¸ í’€ë§ì„ ìœ„í•œ PoolManager
     UPROPERTY()
     USZPoolManager* PoolManager;
 

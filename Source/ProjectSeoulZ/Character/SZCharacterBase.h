@@ -28,19 +28,22 @@ public:
 
 	// GAS 시스템을 가져오는 함수.
 	virtual class UAbilitySystemComponent* GetAbilitySystemComponent() const override;
-
-
-protected:
+	
 	// 죽음 상태를 설정하는 함수.
 	virtual void SetDead();
 
 protected:
-
-
+	//
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = GAS)
 	TObjectPtr<class UAbilitySystemComponent> ASC;
 
+	//
 	UPROPERTY()
 	TObjectPtr<class USZAttributeSet> AttributeSet;
+
+	// 죽을 때의 애니메이션
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation, meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UAnimMontage> DeadMontage;
+
 
 };

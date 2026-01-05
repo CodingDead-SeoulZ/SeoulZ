@@ -16,6 +16,7 @@ void USZAnimInstance::NativeInitializeAnimation()
 {
 	Super::NativeInitializeAnimation();
 
+	//
 	Owner = Cast<ACharacter>(GetOwningActor());
 	if (Owner)
 	{
@@ -27,6 +28,7 @@ void USZAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 {
 	Super::NativeUpdateAnimation(DeltaSeconds);
 
+	//
 	if (Movement)
 	{
 		Velocity = Movement->Velocity;

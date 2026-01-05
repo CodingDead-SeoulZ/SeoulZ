@@ -1,5 +1,12 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
+
+#pragma once
+
+#include "CoreMinimal.h"
+#include "GameFramework/GameModeBase.h"
+#include "SZLobbyMode.generated.h"
+
 //﻿---------------------------------------------------------------------------------------------------------
 // Author		: 안재범
 // Date			: 2025-12-15
@@ -8,27 +15,8 @@
 //				  
 //----------------------------------------------------------------------------------------------------------
 
-#pragma once
-
-#include "CoreMinimal.h"
-#include "GameFramework/GameModeBase.h"
-#include "SZLobbyMode.generated.h"
-
-/**
- * 
- */
 UCLASS()
 class PROJECTSEOULZ_API ASZLobbyMode : public AGameModeBase
 {
 	GENERATED_BODY()
-	
-public:
-
-
-protected:
-
-
-protected:
-
-
 };

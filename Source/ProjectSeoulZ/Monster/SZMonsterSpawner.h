@@ -1,10 +1,20 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "SZMonsterSpawner.generated.h"
+
+//---------------------------------------------------------------------------------------------------------
+// Author       : 
+// Date         : 2025-12-00
+// Copyright    : 
+//
+// Description  : 
+//                
+//                
+//----------------------------------------------------------------------------------------------------------
 
 UCLASS()
 class PROJECTSEOULZ_API ASZMonsterSpawner : public AActor
@@ -15,8 +25,10 @@ public:
 	// Sets default values for this actor's properties
 	ASZMonsterSpawner();
 
+	//
 	void SpawnMonster(class USZPoolManager* PoolManager);
 
+	//
 	void SpawnAll(class USZPoolManager* PoolManager);
 
 protected:
@@ -24,24 +36,25 @@ protected:
 	virtual void BeginPlay() override;
 
 public:	
+	//
 	FORCEINLINE int32 GetSpawnCount() { return SpawnCount; }
 
 protected:
-	// ½ºÆù ¹üÀ§ º¯¼ö
+	// ìŠ¤í° ë²”ìœ„ ë³€ìˆ˜
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float SpawnRadius = 1000.f;
 
-	// Àå¾Ö¹° Á¸Àç µîÀ¸·Î ½ºÆùÀÇ ½ÇÆĞ ÇßÀ» °æ¿ì, ÃÖ´ë ½Ãµµ È½¼ö.
+	// ì¥ì• ë¬¼ ì¡´ì¬ ë“±ìœ¼ë¡œ ìŠ¤í°ì˜ ì‹¤íŒ¨ í–ˆì„ ê²½ìš°, ìµœëŒ€ ì‹œë„ íšŸìˆ˜.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 MaxRetries = 5;
 
-	// ½ºÆùÇÒ ¸ó½ºÅÍ¸¦ ´ã´Â º¯¼ö.
+	// ìŠ¤í°í•  ëª¬ìŠ¤í„°ë¥¼ ë‹´ëŠ” ë³€ìˆ˜.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite,Category = "MonsterClass")
 	TSubclassOf<AActor> MonsterClass;
 
-	// ½ºÆùÇÒ ¸ó½ºÅÍÀÇ ¼ö
+	// ìŠ¤í°í•  ëª¬ìŠ¤í„°ì˜ ìˆ˜
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	int32 SpawnCount = 4;
+	int32 SpawnCount = 2;
 
 
 };

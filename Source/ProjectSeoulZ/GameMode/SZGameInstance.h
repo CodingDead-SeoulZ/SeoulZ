@@ -1,12 +1,5 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
-//﻿---------------------------------------------------------------------------------------------------------
-// Author		: 안재범
-// Date			: 2025-12-15
-// Copyright	: CodingDead
-// Description	: GameInstance 클래스.
-//				  레벨 불러오는 용도.
-//----------------------------------------------------------------------------------------------------------
 
 #pragma once
 
@@ -14,16 +7,28 @@
 #include "Engine/GameInstance.h"
 #include "SZGameInstance.generated.h"
 
-/**
- * 
- */
+//﻿---------------------------------------------------------------------------------------------------------
+// Author		: 안재범
+// Date			: 2025-12-15
+// Copyright	: CodingDead
+// Description	: GameInstance 클래스.
+//				  맵 목록 정보만 들어있음.
+//----------------------------------------------------------------------------------------------------------
 
-// 게임 모드 열거형.
-UENUM(BlueprintType)
-enum class EGameModeType : uint8
+// 맵 이름과 미리보기 이미지를 구조체에 담음.
+USTRUCT(BlueprintType)
+struct FMapData
 {
-	Lobby UMETA(DisplayName = "Lobby"),
-	Playing UMETA(DisplayName = "Playing")
+	GENERATED_BODY()
+
+public:
+	//
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FName LevelName;
+
+	//
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UTexture2D* PreviewImage;
 };
 
 UCLASS()
@@ -32,20 +37,17 @@ class PROJECTSEOULZ_API USZGameInstance : public UGameInstance
 	GENERATED_BODY()
 
 public:
-	USZGameInstance();
-
-	// 선택한 맵을 바탕으로 레벨을 불러온다.
-	UFUNCTION(BlueprintCallable)
-	void OpenLevel(FName InSelectedMapName);
+	virtual void Init() override;
 
 public:
-	// 게임 맵 배열.
+	// 맵 + 이미지 목록.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TArray<FName> MapNames;
+	TArray<FMapData> MapList;
 
-	// 선택된 게임 맵.
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Game Settings")
-	FName SelectedMapName;
+	// 맵 인덱스 -> 모듈러 써야해서.
+	UPROPERTY(BlueprintReadWrite)
+	int32 SelectedMapIndex = 0;
 
+	// 상점 재화.
 
 };

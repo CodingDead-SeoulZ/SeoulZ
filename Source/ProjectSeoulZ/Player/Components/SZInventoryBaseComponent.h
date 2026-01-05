@@ -79,10 +79,11 @@ public:
 
 #pragma region 아이템 상세보기 - 아이템 사용
 	USkeletalMeshComponent* GetPlayerPartBySlotType(ASZCharacterPlayer* Player, EEquipmentSlotType SlotType) const;
-	bool RequestUseItem(FName ItemID, int32 Index);
+	bool RequestUseItem(FName ItemID, int32 InIndex);
 	bool RemoveEquippedItem(int32 Index, EEquipmentSlotType EquipmentSlot);
 	bool EquipPlayerCharacter(USkeletalMeshComponent* SkeletalComponent, EEquipmentSlotType EquipmentSlot, USkeletalMesh* NewMesh);
-	bool EquipItem(const FName InItemID, const TSubclassOf<UGameplayEffect>& GE, const float Level);
+	bool EquipItem(const FName InItemID);
+	void UseItem();
 #pragma endregion
 
 	UFUNCTION(BlueprintCallable)

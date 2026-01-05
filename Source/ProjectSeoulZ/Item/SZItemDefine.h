@@ -3,10 +3,10 @@
 UENUM(BlueprintType, meta = (Bitflags))
 enum class EItemCategory : uint8
 {
-	None        = 0,
-	Weapons     = 1 << 0, // 장착템
-	Appeal      = 1 << 1, // 장착템
-	Consumables = 1 << 2  // 소모품
+	None        ,
+	Weapons     , // 장착템
+	Appeal      , // 장착템
+	Consumables   // 소모품
 };
 ENUM_CLASS_FLAGS(EItemCategory);
 
