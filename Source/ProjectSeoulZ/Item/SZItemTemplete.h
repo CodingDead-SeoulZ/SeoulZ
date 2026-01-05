@@ -72,8 +72,8 @@ struct FItemMesh : public FTableRowBase
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mesh")
 	TObjectPtr<UStaticMesh> StaticMesh = nullptr;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mesh")
-	TArray<TObjectPtr<UMaterialInterface>> Materials;
+	/*UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mesh")
+	TArray<TObjectPtr<UMaterialInterface>> Materials;*/
 };
 
 USTRUCT(BlueprintType)

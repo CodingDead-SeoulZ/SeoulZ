@@ -276,14 +276,14 @@ void USZItemTool::OnRequestUseItem()
 
 	// 인벤토리한테 아이템 사용 요청
 	const bool bSuccess = Inventory->RequestUseItem(ItemID, Index);
+	RemoveFromParent();
+
 	if (bSuccess)
 	{
-		// 상세 UI 닫기
-		RemoveFromParent();
 	}
 	else
 	{
-		// “사용 불가” 표시
+		// TODO. 사용 불가 표시
 	}
 }
 

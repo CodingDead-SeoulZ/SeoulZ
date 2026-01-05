@@ -27,9 +27,9 @@ UENUM(BlueprintType)
 enum class EEquipmentSlotType : uint8
 {
 	None,
-	Gun_Primary,
-	Gun_Secondary,
-	Helemet,
+	PrimaryGun,
+	SecondaryGun,
+	Helmet,
 	Vest,
 	Magazine,
 	Gloves,

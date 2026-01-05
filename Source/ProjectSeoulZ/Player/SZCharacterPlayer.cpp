@@ -14,6 +14,7 @@
 #include "Player/Components/SZInventoryComponent.h"
 #include "Player/Components/SZQuickSlotComponent.h"
 #include "Player/Components/SZInteractionComponent.h"
+#include "Player/Components/SZCharacterEquipmentComponent.h"
 
 #include "GameplayEffect.h" 
 
@@ -96,11 +97,14 @@ Magazine->SetupAttachment(GetMesh());*/
 #pragma endregion
 
 #pragma region 인벤토리 컴포넌트
-	//인벤토리 컴포넌트 생성
+	//인벤토리 컴포넌트
 	SZInventory = CreateDefaultSubobject<USZInventoryComponent>(TEXT("SZInventory")); 
 	
-	//퀵 슬롯 컴포넌트는 BPC로 연결
+	//퀵 슬롯 컴포넌트
 	SZQuickSlot = CreateDefaultSubobject<USZQuickSlotComponent>(TEXT("SZQuickSlot"));
+
+	// 의상 착용 컴포넌트
+	SZCharacterEquipment = CreateDefaultSubobject<USZCharacterEquipmentComponent>(TEXT("SZCharacterEquipment"));
 
 	//
 	SZInteraction = CreateDefaultSubobject<USZInteractionComponent>(TEXT("SZInteraction"));
@@ -216,10 +220,14 @@ void ASZCharacterPlayer::OnConstruction(const FTransform& Transform)
 		};
 
 	//
+	Equipment(Helmet);
 	Equipment(Vest);
 	Equipment(Gloves);
+	//
 	Equipment(Holster);
 	Equipment(Magazine);
+	Equipment(PrimaryGun);
+	Equipment(SecondaryGun);
 #pragma endregion
 
 }
@@ -229,7 +237,7 @@ UAbilitySystemComponent* ASZCharacterPlayer::GetAbilitySystemComponent() const
 	return ASC;
 }
 
-bool ASZCharacterPlayer::ApplyItemConsumeEffect(const TSubclassOf<UGameplayEffect>& GE, float EffectLevel)
+bool ASZCharacterPlayer::ApplyInstantGE(const TSubclassOf<UGameplayEffect>& GE, float Level)
 {
 	if (!ASC || !GE) 
 	{
@@ -239,7 +247,7 @@ bool ASZCharacterPlayer::ApplyItemConsumeEffect(const TSubclassOf<UGameplayEffec
 	FGameplayEffectContextHandle Context = ASC->MakeEffectContext();
 	Context.AddSourceObject(this);
 
-	FGameplayEffectSpecHandle SpecHandle = ASC->MakeOutgoingSpec(GE, EffectLevel, Context);
+	FGameplayEffectSpecHandle SpecHandle = ASC->MakeOutgoingSpec(GE, Level, Context);
 	if (!SpecHandle.IsValid()) 
 	{
 		return false;
@@ -247,6 +255,27 @@ bool ASZCharacterPlayer::ApplyItemConsumeEffect(const TSubclassOf<UGameplayEffec
 
 	ASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
 	return true;
+}
+
+FActiveGameplayEffectHandle ASZCharacterPlayer::ApplyInfiniteGE(const TSubclassOf<UGameplayEffect>& GE, float Level)
+{
+	if (!ASC || !GE)
+	{
+		return FActiveGameplayEffectHandle();
+	}
+
+	FGameplayEffectContextHandle Context = ASC->MakeEffectContext();
+	Context.AddSourceObject(this);
+
+	FGameplayEffectSpecHandle SpecHandle = ASC->MakeOutgoingSpec(GE, Level, Context);
+	if (!SpecHandle.IsValid())
+	{
+		return FActiveGameplayEffectHandle();
+	}
+
+	// 추후 장비 장착·해제 시 사용할 핸들 반환
+	const FActiveGameplayEffectHandle ActiveHandle = ASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
+	return ActiveHandle;
 }
 
 void ASZCharacterPlayer::BeginPlay()

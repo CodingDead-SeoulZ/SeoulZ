@@ -368,6 +368,28 @@ void USZInventoryBaseComponent::MoveToInventory(USZInventoryBaseComponent* Desti
 	}
 }
 
+USkeletalMeshComponent* USZInventoryBaseComponent::GetPlayerPartBySlotType(ASZCharacterPlayer* Player, EEquipmentSlotType SlotType) const
+{
+	if (!Player) 
+	{
+		return nullptr;
+	}
+
+	switch (SlotType)
+	{
+	// 의상
+	case EEquipmentSlotType::Helmet:     return Player->Helmet.Get();
+	case EEquipmentSlotType::Vest:       return Player->Vest.Get();
+	case EEquipmentSlotType::Gloves:     return Player->Gloves.Get();
+	// 무기
+	case EEquipmentSlotType::Holster:       return Player->Holster.Get();
+	case EEquipmentSlotType::Magazine:      return Player->Magazine.Get();
+	case EEquipmentSlotType::PrimaryGun:   return Player->PrimaryGun.Get();
+	case EEquipmentSlotType::SecondaryGun: return Player->SecondaryGun.Get();
+	default: return nullptr;
+	}
+}
+
 bool USZInventoryBaseComponent::RequestUseItem(FName ItemID, int32 Index)
 {
 #pragma region 아이템 검증
@@ -400,15 +422,39 @@ bool USZInventoryBaseComponent::RequestUseItem(FName ItemID, int32 Index)
 	const float Level = Item->ItemFragment.Level;
 
 	// 카테고리 별
-	/*if (Item->ItemCategory == EItemCategory::Consumables)
+	switch (Item->ItemCategory)
+	{
+	case EItemCategory::Consumables:
+	{
+		const bool bIsValid = Player->ApplyInstantGE(GE, Level);
+		if (!bIsValid)
+		{
+			return false;
+		}
+		break;
+	}
+	case EItemCategory::Appeal:
+	{
+		// TODO. EquipSlot 작업하기 -> 장비 해제 및 교체 
+		const bool bEquip = EquipItem(ItemID, GE, Level);
+		if (!bEquip) 
+		{
+			return false;
+		}
+		break;
+	}
+	case EItemCategory::Weapons:
 	{
 		
-	}*/
-
-	const bool bIsValid = Player->ApplyItemConsumeEffect(GE, Level);
-	if (!bIsValid)
-	{
-		return false;
+		//else if (bAccessory)
+		//{
+		//	// TODO. 
+		//	StatText = FText::FromString(TEXT("공격력 없음"));
+		//}
+		break;
+	}
+	default:
+		break;
 	}
 
 	ItemSlots[Index].StackCount = FMath::Max(0, ItemSlots[Index].StackCount - 1);
@@ -421,6 +467,97 @@ bool USZInventoryBaseComponent::RequestUseItem(FName ItemID, int32 Index)
 	UpdateInventory();
 	return true;
 #pragma endregion
+}
+
+bool USZInventoryBaseComponent::RemoveEquippedItem(int32 Index, EEquipmentSlotType EquipmentSlot)
+{
+	if (!ItemSlots.IsValidIndex(Index))
+	{
+		return false;
+	}
+
+	const FItemSlot& Slot = ItemSlots[Index];
+	if (Slot.ItemID.IsNone() || Slot.StackCount <= 0)
+	{
+		return false;
+	}
+
+	const FItemTemplete* Item = FindItemData(Slot.ItemID);
+	if (!Item)
+	{
+		return false;
+	}
+
+	const bool bIsWeapon = (Item->ItemCategory == EItemCategory::Weapons);
+	const bool bIsApparel = (Item->ItemCategory == EItemCategory::Appeal);
+	const bool bEquip = (Item->Equipment.EquipmentSlotType == EquipmentSlot);
+	const bool bCheck = ((bIsWeapon || bIsApparel) && (bEquip));
+	if (!bCheck)
+	{
+		return false;
+	}
+
+	AddToNewSlot(NAME_None, 0, Index);
+	UpdateInventory();
+	return true;
+}
+
+bool USZInventoryBaseComponent::EquipPlayerCharacter(USkeletalMeshComponent* SkeletalComponent, USkeletalMesh* NewMesh)
+{
+	if (!IsValid(SkeletalComponent) || !IsValid(NewMesh))
+	{
+		return false;
+	}
+
+	// 중복 방지
+	if (SkeletalComponent->GetSkeletalMeshAsset() == NewMesh)
+	{
+		return false;
+	}
+
+	SkeletalComponent->SetSkeletalMesh(NewMesh);
+	return true;
+}
+
+bool USZInventoryBaseComponent::EquipItem(const FName InItemID, const TSubclassOf<UGameplayEffect>& GE, const float Level)
+{
+	if (!ItemData || InItemID.IsNone()) 
+	{
+		return false;
+	}
+
+	const FItemTemplete* Item = FindItemData(InItemID);
+	if (!Item) 
+	{
+		return false;
+	}
+
+	ASZCharacterPlayer* Player = Cast<ASZCharacterPlayer>(GetOwner());
+	if (!Player) 
+	{
+		return false;
+	}
+
+	const FActiveGameplayEffectHandle ActiveHandle = Player->ApplyInfiniteGE(GE, Level);
+	if (!ActiveHandle.IsValid())
+	{
+		return false;
+	}
+
+	USkeletalMesh* NewMesh = Item->ItemMesh.SkeletalMesh;
+	if (!IsValid(NewMesh)) 
+	{
+		return false;
+	}
+
+	const EEquipmentSlotType SlotType = Item->Equipment.EquipmentSlotType;
+	USkeletalMeshComponent* TargetPart = GetPlayerPartBySlotType(Player, SlotType);
+	if (!IsValid(TargetPart)) 
+	{
+		return false;
+	}
+
+	return EquipPlayerCharacter(TargetPart, NewMesh);
 }
 
 void USZInventoryBaseComponent::PrintInventory()

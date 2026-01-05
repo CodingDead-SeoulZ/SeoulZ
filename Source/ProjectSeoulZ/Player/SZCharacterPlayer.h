@@ -7,6 +7,7 @@
 #include "Character/SZCharacterBase.h"
 #include "AbilitySystemInterface.h"
 #include "InputActionValue.h"
+#include "GameplayEffectTypes.h"
 #include "SZCharacterPlayer.generated.h"
 
 //---------------------------------------------------------------------------------------------------------
@@ -24,6 +25,7 @@ class ASZPlayerController;
 class USZInventoryComponent;
 class USZQuickSlotComponent;
 class USZInteractionComponent;
+class USZCharacterEquipmentComponent;
 
 class UGameplayEffect;                
 class UAbilitySystemComponent;
@@ -58,8 +60,10 @@ public:
 	virtual class UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 
 #pragma region 인벤토리 함수
-	// 아이템 소모품 사용
-	bool ApplyItemConsumeEffect(const TSubclassOf<UGameplayEffect>& GE, const float Level);
+	// InstantGE 사용
+	bool ApplyInstantGE(const TSubclassOf<UGameplayEffect>& GE, const float Level);
+	// InfiniteGE 사용
+	FActiveGameplayEffectHandle ApplyInfiniteGE(const TSubclassOf<UGameplayEffect>& GE, float Level);
 #pragma endregion
 
 protected:
@@ -195,35 +199,34 @@ protected:
 	void SelectedF4(const FInputActionValue& Value);
 #pragma endregion
 
-protected:
+public:
 #pragma region 캐릭터 메쉬. 의상
 	// 캐릭터 메쉬 컴포넌트
-// UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Meshes")
-// TObjectPtr<USkeletalMeshComponent> FullBody;
+	// 1. 의상
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Meshes")
+	TObjectPtr<USkeletalMeshComponent> Helmet;
 
-/*UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Meshes")
-TObjectPtr<USkeletalMeshComponent> Helmet;*/
-
-//
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Meshes")
 	TObjectPtr<USkeletalMeshComponent> Vest;
 
-	//
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Meshes")
 	TObjectPtr<USkeletalMeshComponent> Gloves;
 
-	//
+	// 2. 무기
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Meshes")
 	TObjectPtr<USkeletalMeshComponent> Holster;
 
-	//
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Meshes")
 	TObjectPtr<USkeletalMeshComponent> Magazine;
 
-	/*UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Meshes")
-	TObjectPtr<USkeletalMeshComponent> PrimaryWeapon;*/
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Meshes")
+	TObjectPtr<USkeletalMeshComponent> PrimaryGun;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Meshes")
+	TObjectPtr<USkeletalMeshComponent> SecondaryGun;
 #pragma endregion
 
+protected:
 	// GAS
 	UPROPERTY(EditAnywhere, Category = "GAS")
 	TSubclassOf<class UGameplayEffect> PlayerInitGE;
@@ -251,8 +254,12 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<USZQuickSlotComponent> SZQuickSlot;
 
-	// 상호작용 컴포넌트
+	// 의상 착용 컴포넌트
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<USZInteractionComponent> SZInteraction;
+
+	// 상호작용 컴포넌트
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<USZCharacterEquipmentComponent> SZCharacterEquipment;
 #pragma endregion
 };

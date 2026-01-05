@@ -29,6 +29,8 @@ struct FItemSlot
 	int32 StackCount = 0; 
 };
 
+class ASZCharacterPlayer;
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnInventoryUpdated);
 
 UCLASS(Blueprintable, ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -75,7 +77,11 @@ public:
 #pragma endregion
 
 #pragma region 아이템 상세보기 - 아이템 사용
+	USkeletalMeshComponent* GetPlayerPartBySlotType(ASZCharacterPlayer* Player, EEquipmentSlotType SlotType) const;
 	bool RequestUseItem(FName ItemID, int32 Index);
+	bool RemoveEquippedItem(int32 Index, EEquipmentSlotType EquipmentSlot);
+	static bool EquipPlayerCharacter(USkeletalMeshComponent* SkeletalComponent, USkeletalMesh* NewMesh);
+	bool EquipItem(const FName InItemID, const TSubclassOf<UGameplayEffect>& GE, const float Level);
 #pragma endregion
 
 	UFUNCTION(BlueprintCallable)

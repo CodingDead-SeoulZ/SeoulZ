@@ -159,6 +159,15 @@ void USZGA_NormalAttack::HitCheck()
 		{
 			UE_LOG(LogTemp, Log, TEXT("ASC not found!"));
 			return;
+			// 현재 체력
+			float Health = TargetAttribute->GetHealth();
+			// 현재 방어력
+			float Defense = TargetAttribute->GetDefense();
+			// 방어력이 낮을 경우 방어력이 크게 증가. 방어력이 높을 경우 방어력이 낮게 증가.
+			Defense = Defense / (1 + Defense);
+			// 최종 데미지 계산
+			float Damage = AttackDamage - Defense * 2; // Defense * 0.5
+			TargetAttribute->SetHealth(Health - Damage);
 		}
 
 		TargetAttribute->SetHealth(TargetAttribute->GetHealth() - AttackDamage);
