@@ -11,12 +11,13 @@
 // Date         : 2025-01-05
 // Copyright    : 
 //
-// Description  : 
-//              
+// Description  : 옷장 UI
+//              PlayerDisplay의 하위 위젯으로, 의상 및 무기 슬롯을 관리
 //                 
 //----------------------------------------------------------------------------------------------------------
 
 class USZEquipmentSlot;
+class USZInventoryBaseComponent;
 
 UCLASS()
 class PROJECTSEOULZ_API USZWardrobeUI : public UUserWidget
@@ -25,9 +26,10 @@ class PROJECTSEOULZ_API USZWardrobeUI : public UUserWidget
 
 public:
 	virtual void NativePreConstruct() override;
+	virtual void NativeConstruct() override;
 
 	UFUNCTION(BlueprintCallable, Category = "Wardrobe")
-	void SetEquipment();
+	void SetEquipment(const FName ItemID, const int32 Index, const int32 EquipmentSlotIndex);
 	
 public:
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
@@ -53,4 +55,7 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, Category = "Wardrobe")
 	TArray<TObjectPtr<USZEquipmentSlot>> EquipmentSlots;
+
+private:
+	TObjectPtr<USZInventoryBaseComponent> SZInventoryBase;
 };

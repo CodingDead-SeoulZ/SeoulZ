@@ -6,7 +6,7 @@
 
 #include "Kismet/GameplayStatics.h"
 #include "Player/SZCharacterPlayer.h"
-#include "Player/Components/SZCharacterEquipmentComponent.h"
+#include "Player/Components/SZInventoryBaseComponent.h"
 
 void USZWardrobeUI::NativePreConstruct()
 {
@@ -24,35 +24,53 @@ void USZWardrobeUI::NativePreConstruct()
 	EquipmentSlots.Add(Slot_SubGun);
 }
 
-void USZWardrobeUI::SetEquipment()
+void USZWardrobeUI::NativeConstruct()
 {
+	Super::NativeConstruct();
+
 	ASZCharacterPlayer* Player = Cast<ASZCharacterPlayer>(UGameplayStatics::GetPlayerCharacter(this, 0));
 	if (!IsValid(Player))
 	{
 		return;
 	}
 
-	USZCharacterEquipmentComponent* SZCharacterEquipment = Player->FindComponentByClass<USZCharacterEquipmentComponent>();
-	if (!IsValid(SZCharacterEquipment))
+	SZInventoryBase = Player->FindComponentByClass<USZInventoryBaseComponent>();
+	if (!IsValid(SZInventoryBase))
 	{
 		return;
 	}
 
-	for (int32 I = 0; I < EquipmentSlots.Num(); ++I)
+	SZInventoryBase->OnEquipped.RemoveAll(this);
+	SZInventoryBase->OnEquipped.AddUniqueDynamic(this, &USZWardrobeUI::SetEquipment);
+
+	// 옷장 슬롯 델리게이트 수신 직후 테스트
+	UE_LOG(LogTemp, Warning, TEXT("[Bind] EquipComp=%s (%p) Bound=%d Owner=%s"),
+		*GetNameSafe(SZInventoryBase.Get()), SZInventoryBase.Get(),
+		SZInventoryBase ? SZInventoryBase->OnEquipped.IsBound() : 0,
+		SZInventoryBase ? *GetNameSafe(SZInventoryBase->GetOwner()) : TEXT("None"));
+}
+
+void USZWardrobeUI::SetEquipment(const FName ItemID, const int32 Index, const int32 EquipmentSlotIndex)
+{
+	UE_LOG(LogTemp, Error, TEXT("QWER"));
+
+	if (ItemID.IsNone() || !EquipmentSlots.IsValidIndex(EquipmentSlotIndex)) 
 	{
-		USZEquipmentSlot* SlotWidget = EquipmentSlots[I].Get();
-		if (!IsValid(SlotWidget))
-		{
-			continue;
-		}
-
-		if (!SZCharacterEquipment->ItemSlots.IsValidIndex(I)) 
-		{
-			continue;
-		}
-
-		const FItemSlot& ItemSlot = SZCharacterEquipment->ItemSlots[I];
-		SlotWidget->ItemID = ItemSlot.ItemID; 
-		SlotWidget->RefreshEquipmentSlot();
+		return;
 	}
+
+	USZEquipmentSlot* SlotWidget = EquipmentSlots[EquipmentSlotIndex].Get();
+	if (!IsValid(SlotWidget))
+	{
+		return;
+	}
+
+	if (!SZInventoryBase->ItemSlots.IsValidIndex(Index))
+	{
+		return;
+	}
+
+	const FItemSlot& ItemSlot = SZInventoryBase->ItemSlots[Index];
+	SlotWidget->ItemID = ItemSlot.ItemID;
+	SlotWidget->RefreshEquipmentSlot();
 }

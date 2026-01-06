@@ -390,6 +390,23 @@ USkeletalMeshComponent* USZInventoryBaseComponent::GetPlayerPartBySlotType(ASZCh
 	}
 }
 
+int32 USZInventoryBaseComponent::GetEquipmentSlotIndex(const EEquipmentSlotType EquipmemtSlot) const
+{
+	switch (EquipmemtSlot)
+	{
+		// 의상 
+	case EEquipmentSlotType::Helmet: return 0;
+	case EEquipmentSlotType::Vest:   return 1;
+	case EEquipmentSlotType::Gloves: return 2;
+		// 무기
+	case EEquipmentSlotType::Magazine: return 3;
+	case EEquipmentSlotType::Holster:  return 4;
+	case EEquipmentSlotType::PrimaryGun:   return 5;
+	case EEquipmentSlotType::SecondaryGun: return 6;
+	default: return -1;
+	}
+}
+
 bool USZInventoryBaseComponent::RequestUseItem(FName ItemID, int32 InIndex)
 {
 #pragma region 아이템 검증
@@ -436,7 +453,7 @@ bool USZInventoryBaseComponent::RequestUseItem(FName ItemID, int32 InIndex)
 	case EItemCategory::Appeal:
 	{
 		// TODO. WardrobeUI 및 EquipSlot 작업하기 -> 장비 해제 및 교체 
-		const bool bEquip = EquipItem(ItemID);
+		const bool bEquip = EquipItem(ItemID, InIndex);
 		if (!bEquip) 
 		{
 			return false;
@@ -503,7 +520,7 @@ bool USZInventoryBaseComponent::RemoveEquippedItem(int32 Index, EEquipmentSlotTy
 	return true;
 }
 
-bool USZInventoryBaseComponent::EquipPlayerCharacter(USkeletalMeshComponent* SkeletalComponent, EEquipmentSlotType EquipmentSlot, USkeletalMesh* NewMesh)
+bool USZInventoryBaseComponent::EquipPlayerCharacter(USkeletalMeshComponent* SkeletalComponent, const EEquipmentSlotType EquipmentSlot, USkeletalMesh* NewMesh, const FName InItemID, const int32 Index)
 {
 	if (!IsValid(SkeletalComponent) || !IsValid(NewMesh))
 	{
@@ -513,16 +530,26 @@ bool USZInventoryBaseComponent::EquipPlayerCharacter(USkeletalMeshComponent* Ske
 	// 중복 방지
 	if (SkeletalComponent->GetSkeletalMeshAsset() == NewMesh)
 	{
+		// 옷장 슬롯 델리게이트 송신 테스트
+		UE_LOG(LogTemp, Warning, TEXT("[Equip] EarlyReturn: same mesh"));
 		return false;
 	}
 
 	SkeletalComponent->SetSkeletalMesh(NewMesh);
-	// 델리게이트
+	// 옷장 델리게이트
 	OnWardrobeActorChanged.Broadcast(EquipmentSlot, NewMesh);
+
+	// 옷장 슬롯 델리게이트 송신 테스트
+	UE_LOG(LogTemp, Warning, TEXT("[Broadcast] this=%s (%p) Bound=%d Owner=%s"),
+		*GetNameSafe(this), this, OnEquipped.IsBound(), *GetNameSafe(GetOwner()));
+
+	// 옷장 슬롯 델리게이트 송신
+	int32 EquipmentSlotIndex = GetEquipmentSlotIndex(EquipmentSlot);
+	OnEquipped.Broadcast(InItemID, Index, EquipmentSlotIndex);
 	return true;
 }
 
-bool USZInventoryBaseComponent::EquipItem(const FName InItemID)
+bool USZInventoryBaseComponent::EquipItem(const FName InItemID, const int32 Index)
 {
 	if (!ItemData || InItemID.IsNone()) 
 	{
@@ -563,12 +590,7 @@ bool USZInventoryBaseComponent::EquipItem(const FName InItemID)
 		return false;
 	}
 
-	return EquipPlayerCharacter(TargetPart, SlotType, NewMesh);
-}
-
-void USZInventoryBaseComponent::UseItem()
-{
-	
+	return EquipPlayerCharacter(TargetPart, SlotType, NewMesh, InItemID, Index);
 }
 
 void USZInventoryBaseComponent::PrintInventory()

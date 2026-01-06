@@ -24,40 +24,40 @@ void USZEquipmentSlot::NativeConstruct()
 	Refresh();
 }
 
-bool USZEquipmentSlot::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation)
-{
-	const USZDDO_ItemSlot* DDO = Cast<USZDDO_ItemSlot>(InOperation);
-	if (!DDO || !DDO->SourceInventory || DDO->SourceIndex == INDEX_NONE)
-	{
-		// 드랍 처리 안 함
-		return false; 
-	}
-
-	if (!DDO->SourceInventory->ItemSlots.IsValidIndex(DDO->SourceIndex))
-	{
-		return false;
-	}
-
-	const FItemSlot& ItemSlot = DDO->SourceInventory->ItemSlots[DDO->SourceIndex];
-	const FName DroppedItemID = ItemSlot.ItemID;
-	const int32 DroppedStackCount = ItemSlot.StackCount;
-	// const FItemTemplete* Item = ItemData->FindRow<FItemTemplete>(DroppedItemID, TEXT("USZEquipmentSlot::NativeOnDrop"));
-	// const 
-	const bool bSuccess = CheckItemSlot(DroppedItemID, SlotType);
-	if (!bSuccess)
-	{
-		return true;
-	}
-
-	ItemID = DroppedItemID;
-	if (SZCharacterEquipment)
-	{
-		SZCharacterEquipment->AddToNewSlot(DroppedItemID, DroppedStackCount, DDO->SourceIndex);
-		DDO->SourceInventory->RemoveEquippedItem(DDO->SourceIndex, SlotType);
-	}
-	RefreshEquipmentSlot();
-	return true;
-}
+//bool USZEquipmentSlot::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation)
+//{
+//	const USZDDO_ItemSlot* DDO = Cast<USZDDO_ItemSlot>(InOperation);
+//	if (!DDO || !DDO->SourceInventory || DDO->SourceIndex == INDEX_NONE)
+//	{
+//		// 드랍 처리 안 함
+//		return false; 
+//	}
+//
+//	if (!DDO->SourceInventory->ItemSlots.IsValidIndex(DDO->SourceIndex))
+//	{
+//		return false;
+//	}
+//
+//	const FItemSlot& ItemSlot = DDO->SourceInventory->ItemSlots[DDO->SourceIndex];
+//	const FName DroppedItemID = ItemSlot.ItemID;
+//	const int32 DroppedStackCount = ItemSlot.StackCount;
+//	// const FItemTemplete* Item = ItemData->FindRow<FItemTemplete>(DroppedItemID, TEXT("USZEquipmentSlot::NativeOnDrop"));
+//	// const 
+//	const bool bSuccess = CheckItemSlot(DroppedItemID, SlotType);
+//	if (!bSuccess)
+//	{
+//		return true;
+//	}
+//
+//	ItemID = DroppedItemID;
+//	if (SZInventoryBase)
+//	{
+//		SZInventoryBase->AddToNewSlot(DroppedItemID, DroppedStackCount, DDO->SourceIndex);
+//		DDO->SourceInventory->RemoveEquippedItem(DDO->SourceIndex, SlotType);
+//	}
+//	RefreshEquipmentSlot();
+//	return true;
+//}
 
 void USZEquipmentSlot::SetEmptySlot()
 {

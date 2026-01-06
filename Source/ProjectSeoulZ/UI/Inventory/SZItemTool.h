@@ -39,6 +39,7 @@ public:
 	void CheckMoveToQuickSlot();
 
 	float EvalStatFromCurve(FName Row, float Level, float Fallback = 0.f) const;
+	int32 GetEquipmentSlotIndex() const;
 
 	UFUNCTION()
 	void OnMoveToQuickSlot();

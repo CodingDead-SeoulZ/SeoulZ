@@ -33,6 +33,7 @@ class ASZCharacterPlayer;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnInventoryUpdated);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnWardrobeActorChanged, EEquipmentSlotType, SlotType, USkeletalMesh*, NewMesh);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnEquipped, FName, ItemID, int32, Index, int32, EquipmentSlotIndex);
 
 UCLASS(Blueprintable, ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class PROJECTSEOULZ_API USZInventoryBaseComponent : public UActorComponent
@@ -79,11 +80,11 @@ public:
 
 #pragma region 아이템 상세보기 - 아이템 사용
 	USkeletalMeshComponent* GetPlayerPartBySlotType(ASZCharacterPlayer* Player, EEquipmentSlotType SlotType) const;
+	int32 GetEquipmentSlotIndex(const EEquipmentSlotType EquipmemtSlot) const;
 	bool RequestUseItem(FName ItemID, int32 InIndex);
 	bool RemoveEquippedItem(int32 Index, EEquipmentSlotType EquipmentSlot);
-	bool EquipPlayerCharacter(USkeletalMeshComponent* SkeletalComponent, EEquipmentSlotType EquipmentSlot, USkeletalMesh* NewMesh);
-	bool EquipItem(const FName InItemID);
-	void UseItem();
+	bool EquipPlayerCharacter(USkeletalMeshComponent* SkeletalComponent, const EEquipmentSlotType EquipmentSlot, USkeletalMesh* NewMesh, const FName InItemID, const int32 Index);
+	bool EquipItem(const FName InItemID, const int32 Index);
 #pragma endregion
 
 	UFUNCTION(BlueprintCallable)
@@ -103,6 +104,10 @@ public:
 
 	UPROPERTY(BlueprintAssignable, Category = "Inventory")
 	FOnWardrobeActorChanged OnWardrobeActorChanged;
+
+	// TODO. 델리게이트는 상속 및 객체 바인딩 문제 분석하기
+	UPROPERTY(BlueprintAssignable, Category = "Inventory")
+	FOnEquipped OnEquipped;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Inventory | Data")
 	TObjectPtr<UDataTable> ItemData;

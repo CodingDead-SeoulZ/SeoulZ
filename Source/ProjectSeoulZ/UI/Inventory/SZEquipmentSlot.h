@@ -20,7 +20,7 @@
 class UButton;
 class UBorder;
 class UImage;
-class USZCharacterEquipmentComponent;
+class USZInventoryBaseComponent;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSlotSelected,EEquipmentSlotType, SlotType);
 
@@ -36,7 +36,7 @@ public:
 
 protected:
 	virtual void NativeConstruct() override;
-	virtual bool NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation) override;
+	// virtual bool NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation) override;
 
 	UFUNCTION(BlueprintCallable, Category = "EquipmentSlot")
 	void SetEmptySlot();
@@ -73,7 +73,7 @@ public:
 	TObjectPtr<UDataTable> ItemData;
 
 	UPROPERTY(BlueprintReadOnly, Transient, meta = (ExposeOnSpawn = "true"))
-	TObjectPtr<USZCharacterEquipmentComponent> SZCharacterEquipment;
+	TObjectPtr<USZInventoryBaseComponent> SZInventoryBase;
 
 	UPROPERTY(BlueprintAssignable, Category = "EquipmentSlot")
 	FOnSlotSelected OnSlotSelected;
