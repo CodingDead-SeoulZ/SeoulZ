@@ -81,20 +81,17 @@ ASZCharacterPlayer::ASZCharacterPlayer()
 		MouseLookAction = InputActionMouseLookRef.Object;
 	}
 
-#pragma region 캐릭터 메쉬. 의상
-	// 캐릭터 메시
-/*Vest = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Vest"));
-Vest->SetupAttachment(GetMesh());
+	static ConstructorHelpers::FObjectFinder<UInputAction> InputActionCrouchRef(TEXT("/Game/Input/Actions/IA_Crouch.IA_Crouch"));
+	if (nullptr != InputActionCrouchRef.Object)
+	{
+		CrouchAction = InputActionCrouchRef.Object;
+	}
 
-Gloves = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Gloves"));
-Gloves->SetupAttachment(GetMesh());
-
-Holster = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Holster"));
-Holster->SetupAttachment(GetMesh());
-
-Magazine = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Magazine"));
-Magazine->SetupAttachment(GetMesh());*/
-#pragma endregion
+	static ConstructorHelpers::FObjectFinder<UInputAction> InputActionRollRef(TEXT("/Game/Input/Actions/IA_Roll.IA_Roll"));
+	if (nullptr != InputActionRollRef.Object)
+	{
+		RollAction = InputActionRollRef.Object;
+	}
 
 #pragma region 인벤토리 컴포넌트
 	//인벤토리 컴포넌트
@@ -115,17 +112,10 @@ Magazine->SetupAttachment(GetMesh());*/
 	AttributeSet = CreateDefaultSubobject<USZAttributeSet>(TEXT("AttributeSet"));
 
 	// 체력 바 설정
-	HpBar = CreateDefaultSubobject<USZWidgetComponent>(TEXT("Widget"));
-	HpBar->SetupAttachment(GetMesh());
-	HpBar->SetRelativeLocation(FVector(0.0f, 0.0f, 8.0f));
 	static ConstructorHelpers::FClassFinder<UUserWidget> HpBarWidgetRef(TEXT("/Game/UI/HUD/WBP_HpBar.WBP_HpBar_C"));
 	if (HpBarWidgetRef.Class)
 	{
-		HpBar->SetWidgetClass(HpBarWidgetRef.Class);
-		HpBar->SetWidgetSpace(EWidgetSpace::Screen);
-		HpBar->SetDrawSize(FVector2D(200.0f, 30.f));
-		HpBar->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-
+		HpBarWidgetClass = HpBarWidgetRef.Class;
 	}
 }
 
@@ -174,6 +164,9 @@ void ASZCharacterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 	EnhancedInputComponent->BindAction(MoveAction,			ETriggerEvent::Triggered,	this,	&ASZCharacterPlayer::Move);
 	EnhancedInputComponent->BindAction(MouseLookAction,		ETriggerEvent::Triggered,	this,	&ASZCharacterPlayer::MouseLook);
 	EnhancedInputComponent->BindAction(ChangeControlAction,	ETriggerEvent::Started,		this,	&ASZCharacterPlayer::ChangeCharacterControl);
+	EnhancedInputComponent->BindAction(CrouchAction, ETriggerEvent::Started, this, &ASZCharacterPlayer::Crouched);
+	EnhancedInputComponent->BindAction(CrouchAction, ETriggerEvent::Completed, this, &ASZCharacterPlayer::Uncrouched);
+	EnhancedInputComponent->BindAction(RollAction, ETriggerEvent::Started, this, &ASZCharacterPlayer::Roll);
 
 #pragma region 인벤토리
 	//
@@ -344,6 +337,38 @@ void ASZCharacterPlayer::BeginPlay()
 	{
 		UE_LOG(LogTemp, Warning, TEXT(" - %s"), *GetNameSafe(C));
 	}
+
+	// 체력 바 설정
+	APlayerController* PC = Cast<APlayerController>(GetController());
+	if (!PC || !PC->IsLocalController())
+	{
+		return; // 로컬 플레이어만 HUD 생성
+	}
+
+	if (!HpBarWidgetClass || HudHpBarWidget)
+	{
+		return;
+	}
+
+	// 1) 뷰포트 HUD 생성
+	UUserWidget* Created = CreateWidget<UUserWidget>(PC, HpBarWidgetClass);
+	HudHpBarWidget = Cast<USZHpBarUserWidget>(Created);
+	if (!HudHpBarWidget)
+	{
+		return;
+	}
+
+	HudHpBarWidget->AddToViewport(0);
+
+	// 2) 좌상단 고정(UMG 앵커를 안 만져도 코드로 고정 가능)
+	HudHpBarWidget->SetAnchorsInViewport(FAnchors(0.f, 0.f));
+	HudHpBarWidget->SetAlignmentInViewport(FVector2D(0.f, 0.f));
+	HudHpBarWidget->SetPositionInViewport(FVector2D(20.f, 20.f), false);
+	HudHpBarWidget->SetDesiredSizeInViewport(FVector2D(450.f, 24.f));
+	HudHpBarWidget->SetRenderScale(FVector2D(1.5f, 1.5f));
+
+	// 3) HUD 위젯에 "플레이어"를 Owner로 주입
+	HudHpBarWidget->SetAbilitySystemComponent(this);
 }
 
 void ASZCharacterPlayer::PostInitializeComponents()
@@ -379,69 +404,81 @@ void ASZCharacterPlayer::ChangeCharacterControl()
 
 }
 
-void ASZCharacterPlayer::SetCharacterControl(ECharacterControlType NewCharacterControlType)
+void ASZCharacterPlayer::SetCharacterControl(ECharacterControlType NewType)
 {
-	//
-	if (CurrentControlType == NewCharacterControlType)
+	if (CurrentControlType == NewType)
 		return;
 
-	//
-	AController* PlayerControllerCon = GetController();
-	const FRotator SavedControlRotation = PlayerControllerCon ? PlayerControllerCon->GetControlRotation() : FRotator::ZeroRotator;
+	AController* PC = GetController();
+	const FRotator Saved = PC ? PC->GetControlRotation() : FRotator::ZeroRotator;
 
-	//
-	CurrentControlType = NewCharacterControlType;
+	CurrentControlType = NewType;
 
-	// 즉시 전환
-	if (NewCharacterControlType == ECharacterControlType::ThirdPerson)
+	if (NewType == ECharacterControlType::ThirdPerson)
 	{
 		ApplyThirdPersonSettings(true);
+
+		// 1) 컨트롤러 회전 복원
+		if (PC)
+		{
+			PC->SetControlRotation(Saved);
+		}
+
+		// 2) ★ 몸(하체)도 컨트롤러 Yaw로 즉시 정렬
+		if (PC)
+		{
+			const float Third_Yaw = PC->GetControlRotation().Yaw;
+			SetActorRotation(FRotator(0.f, Third_Yaw, 0.f));
+		}
 	}
 	else
 	{
 		ApplyFirstPersonSettings(true);
-	}
 
-	if (PlayerControllerCon)
-	{
-		PlayerControllerCon->SetControlRotation(SavedControlRotation);
+		if (PC)
+		{
+			PC->SetControlRotation(Saved);
+		}
+
+		// (FP는 어차피 UseControllerRotationYaw=true라 보통 추가 정렬 불필요)
 	}
 }
 
 void ASZCharacterPlayer::ApplyThirdPersonSettings(bool bInstant)
 {
-	//
 	FirstPersonCamera->SetActive(false);
 	ThirdPersonCamera->SetActive(true);
 
-	// 스프링암 세팅
 	CameraBoom->TargetArmLength = ThirdArmLength;
 	CameraBoom->SocketOffset = ThirdSocketOffset;
 	CameraBoom->bUsePawnControlRotation = true;
 	CameraBoom->bDoCollisionTest = true;
 
-	// 3인칭에서 보통: 캐릭터는 이동 방향으로 회전하고, 컨트롤 회전은 카메라만
-	bUseControllerRotationYaw = false;
-	GetCharacterMovement()->bOrientRotationToMovement = true;
-	GetCharacterMovement()->RotationRate = FRotator(0.f, 720.f, 0.f);
+	UCharacterMovementComponent* Move = GetCharacterMovement();
+
+	// 3인칭에서도 카메라(Yaw) = 캐릭터(Yaw)로 동기화
+	bUseControllerRotationYaw = true;
+	Move->bOrientRotationToMovement = false;
+	Move->bUseControllerDesiredRotation = true;
+	Move->RotationRate = FRotator(0.f, 720.f, 0.f);
 }
 
 void ASZCharacterPlayer::ApplyFirstPersonSettings(bool bInstant)
 {
-	// 카메라 활성화
 	ThirdPersonCamera->SetActive(false);
 	FirstPersonCamera->SetActive(true);
 
-	// 1인칭에서는 스프링암을 사실상 “무력화”하는 편이 안전
 	CameraBoom->TargetArmLength = 0.f;
 	CameraBoom->SocketOffset = FVector::ZeroVector;
 	CameraBoom->bUsePawnControlRotation = false;
 	CameraBoom->bDoCollisionTest = false;
 
-	// 1인칭에서 보통: 컨트롤 Yaw가 곧 캐릭터 Yaw
+	UCharacterMovementComponent* Move = GetCharacterMovement();
+
 	bUseControllerRotationYaw = true;
-	GetCharacterMovement()->bOrientRotationToMovement = false;
-	GetCharacterMovement()->RotationRate = FRotator(0.f, 0.f, 0.f);
+	Move->bOrientRotationToMovement = false;
+	Move->bUseControllerDesiredRotation = true;
+	Move->RotationRate = FRotator(0.f, 720.f, 0.f);
 }
 
 void ASZCharacterPlayer::SetCharacterControlData(const USZCharacterControlData* CharacterControlData)
@@ -459,7 +496,6 @@ void ASZCharacterPlayer::SetCharacterControlData(const USZCharacterControlData* 
 void ASZCharacterPlayer::Move(const FInputActionValue& Value)
 {
 	//
-	UE_LOG(LogTemp, Error, TEXT("[void ASZCharacterPlayer::Move(const FInputActionValue& Value)]"));
 	FVector2D MovementVector = Value.Get<FVector2D>();
 
 	//
@@ -485,20 +521,53 @@ void ASZCharacterPlayer::MouseLook(const FInputActionValue& Value)
 	AddControllerPitchInput(LookAxisVector.Y);
 }
 
-void ASZCharacterPlayer::ThirdMove(const FInputActionValue& Value)
+void ASZCharacterPlayer::Crouched(const FInputActionValue& Value)
 {
+	Super::Crouch();
 }
 
-void ASZCharacterPlayer::ThirdLook(const FInputActionValue& Value)
+void ASZCharacterPlayer::Uncrouched(const FInputActionValue& Value)
 {
+	Super::UnCrouch();
 }
 
-void ASZCharacterPlayer::FirstMove(const FInputActionValue& Value)
+
+void ASZCharacterPlayer::Roll(const FInputActionValue& Value)
 {
+	const UCharacterMovementComponent* Move = GetCharacterMovement();
+	if (!Move || Move->MovementMode != MOVE_Walking)
+		return;
+
+	if (bIsRolling) return;
+	if (!RollMontage) return;
+
+	const float Speed2D = GetVelocity().Size2D();
+	constexpr float MinRollSpeed = 200.f;
+
+	if (Speed2D < MinRollSpeed)
+	{
+		// Idle 상태(또는 거의 정지)면 롤 금지
+		return;
+	}
+
+	UAnimInstance* AnimInst = GetMesh()->GetAnimInstance();
+	if (!AnimInst) return;
+
+	bIsRolling = true;
+
+	AnimInst->Montage_Play(RollMontage, 2.0f);
+
+	FOnMontageEnded EndDelegate;
+	EndDelegate.BindUObject(this, &ASZCharacterPlayer::OnRollMontageEnded);
+	AnimInst->Montage_SetEndDelegate(EndDelegate, RollMontage);
 }
 
-void ASZCharacterPlayer::FirstLook(const FInputActionValue& Value)
+void ASZCharacterPlayer::OnRollMontageEnded(UAnimMontage* Montage, bool bInterrupted)
 {
+	if (Montage == RollMontage)
+	{
+		bIsRolling = false;
+	}
 }
 
 #pragma region 인벤토리

@@ -68,7 +68,7 @@ public:
 
 	// InstantGE 사용
 	bool ApplyInstantGE(const TSubclassOf<UGameplayEffect>& GE, const float Level);
-	
+
 	// InfiniteGE 사용
 	FActiveGameplayEffectHandle ApplyInfiniteGE(const TSubclassOf<UGameplayEffect>& GE, float Level);
 	// InfiniteGE 제거
@@ -160,6 +160,24 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UInputAction> SkillAction;
 
+	// 쪼그려 앉기
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UInputAction> CrouchAction;
+
+	// 구르기 관련
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UInputAction> RollAction;
+
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Animation|Roll", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UAnimMontage> RollMontage = nullptr;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Roll")
+	bool bIsRolling = false;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Roll")
+	bool bIsJumping = false;
+
 #pragma region 인벤토리 입력 값
 	// 아이템 줍기 - 입력 값
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
@@ -187,13 +205,13 @@ protected:
 	void Move(const FInputActionValue& Value);
 	void MouseLook(const FInputActionValue& Value);
 	
-	//
-	void ThirdMove(const FInputActionValue& Value);
-	void ThirdLook(const FInputActionValue& Value);
+	void Crouched(const FInputActionValue& Value);
+	void Uncrouched(const FInputActionValue& Value);
 
-	//
-	void FirstMove(const FInputActionValue& Value);
-	void FirstLook(const FInputActionValue& Value);
+	// 구르기 관련
+	void Roll(const FInputActionValue& Value);
+	UFUNCTION()
+	void OnRollMontageEnded(UAnimMontage* Montage, bool bInterrupted);
 
 #pragma region 인벤토리 함수
 	// 아이템 줍기
@@ -245,9 +263,12 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "GAS")
 	TSubclassOf<class UGameplayEffect> PlayerInitGE;
 
-	// UI Section
-	UPROPERTY(VisibleAnywhere)
-	TObjectPtr<class USZWidgetComponent> HpBar;
+	// /Game/UI/HUD/WBP_HpBar
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
+	TSubclassOf<UUserWidget> HpBarWidgetClass;
+
+	UPROPERTY()
+	TObjectPtr<class USZHpBarUserWidget> HudHpBarWidget;
 
 private:
 	//

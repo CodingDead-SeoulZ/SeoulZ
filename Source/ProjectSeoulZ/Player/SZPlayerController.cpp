@@ -88,6 +88,7 @@ FSpawnWardrobeResult ASZPlayerController::CreateWardrobeActor()
 	ASZWardrobe* Spawned = GetWorld()->SpawnActor<ASZWardrobe>(WardrobeClass, SpawnTM, Params);
 	WardrobeActor = Spawned;
 
+
 	Out.Transform = SpawnTM;
 	Out.WardrobeActor = Spawned;
 	return Out;
@@ -225,7 +226,7 @@ void ASZPlayerController::OnUnPossess()
 
 void ASZPlayerController::WardrobeEquipped(EEquipmentSlotType SlotType, USkeletalMesh* NewMesh)
 {
-	if (!IsValid(WardrobeActor)) 
+	if (!IsValid(WardrobeActor))
 	{
 		return;
 	}
@@ -235,7 +236,7 @@ void ASZPlayerController::WardrobeEquipped(EEquipmentSlotType SlotType, USkeleta
 
 void ASZPlayerController::WardrobeUnequipped(EEquipmentSlotType SlotType)
 {
-	if (!IsValid(WardrobeActor)) 
+	if (!IsValid(WardrobeActor))
 	{
 		return;
 	}
