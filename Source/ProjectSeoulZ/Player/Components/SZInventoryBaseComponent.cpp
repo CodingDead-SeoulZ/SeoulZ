@@ -5,6 +5,8 @@
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundBase.h"
 #include "Player/SZCharacterPlayer.h"
+#include "Player/Components/SZInventoryComponent.h"
+#include "Player/Components/SZCharacterEquipmentComponent.h"
 
 // Sets default values for this component's properties
 USZInventoryBaseComponent::USZInventoryBaseComponent()
@@ -452,7 +454,6 @@ bool USZInventoryBaseComponent::RequestUseItem(FName ItemID, int32 InIndex)
 	}
 	case EItemCategory::Appeal:
 	{
-		// TODO. WardrobeUI 및 EquipSlot 작업하기 -> 장비 해제 및 교체 
 		const bool bEquip = EquipItem(ItemID, InIndex);
 		if (!bEquip) 
 		{
@@ -536,8 +537,8 @@ bool USZInventoryBaseComponent::EquipPlayerCharacter(USkeletalMeshComponent* Ske
 	}
 
 	SkeletalComponent->SetSkeletalMesh(NewMesh);
-	// 옷장 델리게이트
-	OnWardrobeActorChanged.Broadcast(EquipmentSlot, NewMesh);
+	// 옷장 델리게이트 송신
+	OnWardrobeEquipped.Broadcast(EquipmentSlot, NewMesh);
 
 	// 옷장 슬롯 델리게이트 송신 테스트
 	UE_LOG(LogTemp, Warning, TEXT("[Broadcast] this=%s (%p) Bound=%d Owner=%s"),
@@ -546,6 +547,7 @@ bool USZInventoryBaseComponent::EquipPlayerCharacter(USkeletalMeshComponent* Ske
 	// 옷장 슬롯 델리게이트 송신
 	int32 EquipmentSlotIndex = GetEquipmentSlotIndex(EquipmentSlot);
 	OnEquipped.Broadcast(InItemID, Index, EquipmentSlotIndex);
+
 	return true;
 }
 
@@ -576,6 +578,7 @@ bool USZInventoryBaseComponent::EquipItem(const FName InItemID, const int32 Inde
 	{
 		return false;
 	}
+	Player->GEHandles.FindOrAdd(InItemID).Add(ActiveHandle);
 
 	USkeletalMesh* NewMesh = Item->ItemMesh.SkeletalMesh;
 	if (!IsValid(NewMesh)) 
@@ -590,7 +593,142 @@ bool USZInventoryBaseComponent::EquipItem(const FName InItemID, const int32 Inde
 		return false;
 	}
 
+	// 슬롯 아이디 저장
+	USZCharacterEquipmentComponent* EquipmentComp = Player->GetEquipmentComponent();
+	if (!IsValid(EquipmentComp))
+	{
+		return false;
+	}
+	int32 EquipmentSlotIndex = GetEquipmentSlotIndex(SlotType);
+	EquipmentComp->ItemSlots[EquipmentSlotIndex].ItemID = InItemID;
+
 	return EquipPlayerCharacter(TargetPart, SlotType, NewMesh, InItemID, Index);
+}
+
+bool USZInventoryBaseComponent::RequestUnequipItem(const FName ItemID, const int32 EquipmentSlotIndex)
+{
+#pragma region 아이템 검증
+	if (ItemID.IsNone() || !ItemSlots.IsValidIndex(EquipmentSlotIndex))
+	{
+		return false;
+	}
+
+	const FItemTemplete* Item = FindItemData(ItemID);
+	if (!Item)
+	{
+		return false;
+	}
+#pragma endregion
+
+	// 플레이어 장착 해제 및 장착 슬롯 제거
+	bool bUnequip = UnequipItem(ItemID);
+	if (!bUnequip)
+	{
+		return false;
+	}
+
+	return true;
+}
+
+bool USZInventoryBaseComponent::UnequipPlayerCharacter(USkeletalMeshComponent* SkeletalComponent, const EEquipmentSlotType EquipmentSlot)
+{
+	if (!IsValid(SkeletalComponent))
+	{
+		return false;
+	}
+
+	SkeletalComponent->SetSkeletalMesh(nullptr);
+	// 델리게이트 송신. 옷장 액터
+	UE_LOG(LogTemp, Warning, TEXT("[Broadcast] InventoryBase=%s (%p)"),
+		*GetNameSafe(this), this);
+	OnWardrobeUnquipped.Broadcast(EquipmentSlot);
+
+	// 옷장 슬롯 델리게이트
+	int32 EquipmentSlotIndex = GetEquipmentSlotIndex(EquipmentSlot);
+	OnUnequipped.Broadcast(EquipmentSlotIndex);
+	return true;
+}
+
+bool USZInventoryBaseComponent::UnequipItem(const FName InItemID)
+{
+	if (InItemID.IsNone())
+	{
+		return false;
+	}
+
+	const FItemTemplete* Item = FindItemData(InItemID);
+	if (!Item)
+	{
+		return false;
+	}
+
+	ASZCharacterPlayer* Player = Cast<ASZCharacterPlayer>(GetOwner());
+	if (!Player)
+	{
+		return false;
+	}
+
+	const EEquipmentSlotType SlotType = Item->Equipment.EquipmentSlotType;
+	USkeletalMeshComponent* TargetPart = GetPlayerPartBySlotType(Player, SlotType);
+	if (!IsValid(TargetPart))
+	{
+		return false;
+	}
+
+	// 장착 해제
+	bool bUnequipSuccess = UnequipPlayerCharacter(TargetPart, SlotType);
+	if (!bUnequipSuccess)
+	{
+		return false;
+	}
+
+	// 핸들 제거
+	bool bRemoveGESuccess = RemoveHandlerGE(Player, InItemID);
+	if (!bRemoveGESuccess)
+	{
+		return false;
+	}
+
+	//  TODO. override로 
+	// 슬롯 아이디 저장
+	USZCharacterEquipmentComponent* EquipmentComp = Player->GetEquipmentComponent();
+	if (!IsValid(EquipmentComp))
+	{
+		return false;
+	}
+	int32 EquipmentSlotIndex = GetEquipmentSlotIndex(SlotType);
+	EquipmentComp->ItemSlots[EquipmentSlotIndex].ItemID = NAME_None;
+
+	// 인벤토리로 이동하기
+	USZInventoryComponent* InventoryComp = Player->GetInventoryComponent();
+	if (!IsValid(InventoryComp))
+	{
+		return false;
+	}
+	int32 EmptyIndex = InventoryComp->FindEmptySlot();
+	InventoryComp->ItemSlots[EmptyIndex] = FItemSlot{ InItemID, 1 };
+	InventoryComp->UpdateInventory();
+
+	return true;
+}
+
+bool USZInventoryBaseComponent::RemoveHandlerGE(ASZCharacterPlayer* Player, const FName InItemID)
+{
+	if (!Player) 
+	{
+		return false;
+	}
+
+	if (TArray<FActiveGameplayEffectHandle>* Handles = Player->GEHandles.Find(InItemID))
+	{
+		// 만약 같은 의상이 중복돼서 장착된 경우 모두 제거
+		for (FActiveGameplayEffectHandle& Handle : *Handles)
+		{
+			Player->RemoveInfiniteGE(Handle);
+		}
+		Player->GEHandles.Remove(InItemID);
+	}
+	return true;
 }
 
 void USZInventoryBaseComponent::PrintInventory()

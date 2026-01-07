@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "Item/SZItemTemplete.h"
 #include "SZItemTool.generated.h"
 
 //---------------------------------------------------------------------------------------------------------
@@ -35,17 +36,22 @@ public:
 	void SetItemToolPose();
 	void DisplayItemInfo();
 	void DisplayItemStat();
+	void DisplayButtonUI();
 	void CheckIsEquipment();
 	void CheckMoveToQuickSlot();
 
+	bool CheckMoveToEquipmentSlot();
+
 	float EvalStatFromCurve(FName Row, float Level, float Fallback = 0.f) const;
-	int32 GetEquipmentSlotIndex() const;
 
 	UFUNCTION()
 	void OnMoveToQuickSlot();
 
 	UFUNCTION()
 	void OnRequestUseItem();
+
+	UFUNCTION()
+	void OnRequestUnequipItem();
 
 public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Item Data")
@@ -54,15 +60,14 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Curve Data")
 	TObjectPtr<UCurveTable> ItemStats;
 
-	// InventorySlot에서 전달
 	UPROPERTY(BlueprintReadOnly, Category = "Inventory", meta = (AllowPrivateAccess = "true"))
 	FName ItemID;
 
 	UPROPERTY(BlueprintReadOnly, Transient, meta = (ExposeOnSpawn = "true"))
-	TObjectPtr<USZInventoryBaseComponent> Inventory;
+	int32 Index = INDEX_NONE;
 
 	UPROPERTY(BlueprintReadOnly, Transient, meta = (ExposeOnSpawn = "true"))
-	int32 Index = INDEX_NONE;
+	TObjectPtr<USZInventoryBaseComponent> SZInventoryBase;
 
 public:
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
@@ -94,9 +99,6 @@ public:
 	
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 	TObjectPtr<USZItemActionUI> Btn_Drop;
-	
-	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-	TObjectPtr<USZItemActionUI> Btn_Split;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 	TObjectPtr<UBorder> Border_ItemTool;

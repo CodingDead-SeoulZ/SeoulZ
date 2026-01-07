@@ -12,18 +12,22 @@
 // Date         : 2025-01-05
 // Copyright    : 
 //
-// Description  : 
-//              
+// Description  : 옷장 슬롯 UI
+//              1.  EquipmentSlot Icon문제
+//				1 - 1. ItemID가 None으로 초기화되는 문제 -> 해결 완료
+//				1 - 2. EquipmentSlot은 비워지고, InventorySlot에 채워지게 -> 해결완료
+//				
+//				2. EquipmentSlot에서 상세보기 변경하기 -> 해결 완료
 //                 
 //----------------------------------------------------------------------------------------------------------
 
+class USZItemTool;
+class USZCharacterEquipmentComponent;
 class UButton;
 class UBorder;
 class UImage;
-class USZInventoryBaseComponent;
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSlotSelected,EEquipmentSlotType, SlotType);
-
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnEquipmentSlotClicked);
 
 UCLASS()
 class PROJECTSEOULZ_API USZEquipmentSlot : public UUserWidget
@@ -31,12 +35,19 @@ class PROJECTSEOULZ_API USZEquipmentSlot : public UUserWidget
 	GENERATED_BODY()
 	
 public:
+	virtual FReply NativeOnPreviewMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
+
+	UFUNCTION(BlueprintCallable)
+	void DisplayItemTool(FName InItemID);
+
 	UFUNCTION(BlueprintCallable, Category = "EquipmentSlot")
-	void RefreshEquipmentSlot();
+	void RefreshEquip();
+
+	UFUNCTION(BlueprintCallable, Category = "EquipmentSlot")
+	void RefreshUnequip();
 
 protected:
 	virtual void NativeConstruct() override;
-	// virtual bool NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation) override;
 
 	UFUNCTION(BlueprintCallable, Category = "EquipmentSlot")
 	void SetEmptySlot();
@@ -44,19 +55,19 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "EquipmentSlot")
 	void SetFullSlot(UTexture2D* InTexture);
 
-	// UFUNCTION()
-	// void HandleSlotClicked();
-
 	UFUNCTION(BlueprintCallable, Category = "EquipmentSlot")
 	bool CheckItemSlot(FName InItemID, EEquipmentSlotType InEquipmentSlot) const;
 
 	UFUNCTION(BlueprintCallable, Category = "EquipmentSlot")
 	void Refresh();
 
-	UFUNCTION(BlueprintCallable, Category = "EquipmentSlot")
-	void EquipItem();
-
 public:
+	UPROPERTY(BlueprintAssignable)
+	FOnEquipmentSlotClicked OnEquipmentSlotClicked;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "EquipmentSlot", meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<class USZItemTool> ItemToolClass;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "EquipmentSlot", meta = (AllowPrivateAccess = "true"))
 	int32 Index;
 
@@ -73,10 +84,7 @@ public:
 	TObjectPtr<UDataTable> ItemData;
 
 	UPROPERTY(BlueprintReadOnly, Transient, meta = (ExposeOnSpawn = "true"))
-	TObjectPtr<USZInventoryBaseComponent> SZInventoryBase;
-
-	UPROPERTY(BlueprintAssignable, Category = "EquipmentSlot")
-	FOnSlotSelected OnSlotSelected;
+	TObjectPtr<USZCharacterEquipmentComponent> SZEquipment;
 
 public:
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))

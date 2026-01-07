@@ -10,13 +10,12 @@
 #include "Blueprint/WidgetLayoutLibrary.h"
 #include "Components/CanvasPanelSlot.h"
 
-#include "Item/SZItemTemplete.h"
-
 #include "Kismet/GameplayStatics.h"
 #include "Player/SZCharacterPlayer.h"
 #include "Player/Components/SZInventoryBaseComponent.h"
 #include "Player/Components/SZInventoryComponent.h"
 #include "Player/Components/SZQuickSlotComponent.h"
+#include "Player/Components/SZCharacterEquipmentComponent.h"
 
 void USZItemTool::NativeConstruct()
 {
@@ -24,19 +23,19 @@ void USZItemTool::NativeConstruct()
 
 	SetItemToolPose();
 	DisplayItemInfo();
+	DisplayButtonUI();
 	CheckIsEquipment();
-	
+
 	if (IsValid(Btn_MoveToQuickSlot))
 	{
 		CheckMoveToQuickSlot();
 		Btn_MoveToQuickSlot->OnItemActionClicked.AddDynamic(this, &USZItemTool::OnMoveToQuickSlot);
 	}
-	// CheckMoveToQuickSlot();
 
-	// 아이템 사용
 	if (IsValid(Btn_Use))
 	{
-		Btn_Use->OnItemActionClicked.AddDynamic(this, &USZItemTool::OnRequestUseItem);
+		bool bCheck = CheckMoveToEquipmentSlot();
+		(bCheck)? Btn_Use->OnItemActionClicked.AddDynamic(this, &USZItemTool::OnRequestUnequipItem) : Btn_Use->OnItemActionClicked.AddDynamic(this, &USZItemTool::OnRequestUseItem);
 	}
 }
 
@@ -161,6 +160,41 @@ void USZItemTool::DisplayItemStat()
 	Txt_ItemStat->SetText(StatText);
 }
 
+void USZItemTool::DisplayButtonUI()
+{
+	if (!IsValid(Btn_MoveToQuickSlot) || !IsValid(Btn_Drop))
+	{
+		return;
+	}
+
+	ASZCharacterPlayer* Player = Cast<ASZCharacterPlayer>(UGameplayStatics::GetPlayerCharacter(this, 0));
+	if (!IsValid(Player))
+	{
+		return;
+	}
+
+	USZCharacterEquipmentComponent* SZEquipment = Player->GetEquipmentComponent();
+	if (!IsValid(SZEquipment))
+	{
+		return;
+	}
+
+	const bool bCheck = (SZInventoryBase == SZEquipment);
+	if (bCheck)
+	{
+		// 장착
+		Btn_MoveToQuickSlot->SetVisibility(ESlateVisibility::Hidden);
+		Btn_Drop->SetVisibility(ESlateVisibility::Hidden);
+		return;
+	}
+	else
+	{
+		Btn_MoveToQuickSlot->SetVisibility(ESlateVisibility::Visible);
+		Btn_Drop->SetVisibility(ESlateVisibility::Visible);
+		return;
+	}
+}
+
 void USZItemTool::CheckIsEquipment()
 {
 	if (!ItemData || ItemID.IsNone())
@@ -202,17 +236,45 @@ void USZItemTool::CheckMoveToQuickSlot()
 		return;
 	}
 
-	USZQuickSlotComponent* SZQuickSlot = Player->FindComponentByClass<USZQuickSlotComponent>();
+	USZQuickSlotComponent* SZQuickSlot = Player->GetQuickSlotComponent();
 	if (!IsValid(SZQuickSlot))
 	{
 		return;
 	}
 
-	const bool bCheck = (Inventory == SZQuickSlot);
+	const bool bCheck = (SZInventoryBase == SZQuickSlot);
 	const FText NewText = bCheck ? 
 		FText::FromString(TEXT("퀵 슬롯에서 가져오기")) : FText::FromString(TEXT("퀵 슬롯에 놓기"));
 
 	Btn_MoveToQuickSlot->Txt_txt->SetText(NewText);
+}
+
+bool USZItemTool::CheckMoveToEquipmentSlot()
+{
+	if (!IsValid(Btn_Use) || !IsValid(Btn_Use->Txt_txt))
+	{
+		return false;
+	}
+
+	ASZCharacterPlayer* Player = Cast<ASZCharacterPlayer>(UGameplayStatics::GetPlayerCharacter(this, 0));
+	if (!IsValid(Player))
+	{
+		return false;
+	}
+
+	USZCharacterEquipmentComponent* SZEquipment = Player->GetEquipmentComponent();
+	if (!IsValid(SZEquipment))
+	{
+		return false;
+	}
+
+	const bool bCheck = (SZInventoryBase == SZEquipment);
+	const FText NewText = bCheck ?
+		FText::FromString(TEXT("장착 해제하기")) : FText::FromString(TEXT("사용하기"));
+	
+	Btn_Use->Txt_txt->SetText(NewText);
+
+	return bCheck;
 }
 
 float USZItemTool::EvalStatFromCurve(FName Row, float Level, float Fallback) const
@@ -229,7 +291,7 @@ float USZItemTool::EvalStatFromCurve(FName Row, float Level, float Fallback) con
 
 void USZItemTool::OnMoveToQuickSlot()
 {
-	if (!IsValid(Inventory))
+	if (!IsValid(SZInventoryBase))
 	{
 		return;
 	}
@@ -240,23 +302,29 @@ void USZItemTool::OnMoveToQuickSlot()
 		return;
 	}
 
-	USZInventoryComponent* SZInventory = Player->FindComponentByClass<USZInventoryComponent>();
+	USZInventoryComponent* SZInventory = Player->GetInventoryComponent();
 	if (!IsValid(SZInventory))
 	{
 		return;
 	}
 
-	USZQuickSlotComponent* SZQuickSlot = Player->FindComponentByClass<USZQuickSlotComponent>();
+	USZCharacterEquipmentComponent* SZEquipment = Player->GetEquipmentComponent();
+	if (!IsValid(SZEquipment))
+	{
+		return;
+	}
+
+	USZQuickSlotComponent* SZQuickSlot = Player->GetQuickSlotComponent();
 	if (!IsValid(SZQuickSlot))
 	{
 		return;
 	}
 
-	const bool bIsNotQuickSlot = (Inventory != SZQuickSlot);
+	const bool bIsNotQuickSlot = (SZInventoryBase != SZQuickSlot);
 	if (bIsNotQuickSlot)
 	{
 		// 인벤 -> 핫바
-		Inventory->MoveToInventory(SZQuickSlot, Index);
+		SZInventoryBase->MoveToInventory(SZQuickSlot, Index);
 	}
 	else
 	{
@@ -269,13 +337,13 @@ void USZItemTool::OnMoveToQuickSlot()
 
 void USZItemTool::OnRequestUseItem()
 {
-	if (ItemID.IsNone() || (Index == INDEX_NONE) || !IsValid(Inventory))
+	if (ItemID.IsNone() || (Index == INDEX_NONE) || !IsValid(SZInventoryBase))
 	{
 		return;
 	}
 
 	// 인벤토리한테 아이템 사용 요청
-	const bool bSuccess = Inventory->RequestUseItem(ItemID, Index);
+	const bool bSuccess = SZInventoryBase->RequestUseItem(ItemID, Index);
 	RemoveFromParent();
 
 	if (bSuccess)
@@ -288,3 +356,44 @@ void USZItemTool::OnRequestUseItem()
 	}
 }
 
+void USZItemTool::OnRequestUnequipItem()
+{
+	// 현재 문제 상황.
+	// ItemTool의 OnRequestUnequipItem() 함수에서 EquipmentComponent(파생)의 GEHandles가 Empty
+
+	// 문제 원인.
+	// Inventory가 부모 Base가 아닌, 파생 Equipment로 들어와서? 그 과정에서 GEHandles가 Empty
+	// SZInventorySlot에서 SZInventoryBase(부모)를 SZInventoryBase(부모)로 셋팅해서 발생한 문제. 그런데 본 셋팅을 변경할 수 없는 노릇.
+	// 그렇다면 GEHandles를 어떻게 전달해주지?
+
+	// 해결 방안.
+	// Player에서 GEHandles를 관리
+
+	if (ItemID.IsNone() || (Index == INDEX_NONE) || !IsValid(SZInventoryBase))
+	{
+		return;
+	}
+
+	const FItemTemplete* Item = ItemData->FindRow<FItemTemplete>(ItemID, TEXT("USZItemTool::OnRequestUnequipItem"));
+	if (!Item)
+	{
+		return;
+	}
+
+	if (Item->ItemCategory != EItemCategory::Appeal)
+	{
+		return;
+	}
+
+	// 인벤토리한테 아이템(의상) 해제 요청
+	const bool bSuccess = SZInventoryBase->RequestUnequipItem(ItemID, Index);
+	RemoveFromParent();
+
+	if (bSuccess)
+	{
+
+	}
+	else
+	{
+	}
+}

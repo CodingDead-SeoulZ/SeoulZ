@@ -30,6 +30,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Wardrobe")
 	void SetEquipment(const FName ItemID, const int32 Index, const int32 EquipmentSlotIndex);
+
+	UFUNCTION(BlueprintCallable, Category = "Wardrobe")
+	void ClearEquipment(const int32 EquipmentSlotIndex);
 	
 public:
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))

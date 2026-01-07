@@ -60,10 +60,20 @@ public:
 	virtual class UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 
 #pragma region 인벤토리 함수
+
+	FORCEINLINE const TObjectPtr<USZInventoryComponent>				GetInventoryComponent() const { return SZInventory; }
+	FORCEINLINE const TObjectPtr<USZQuickSlotComponent>				GetQuickSlotComponent() const { return SZQuickSlot; }
+	FORCEINLINE const TObjectPtr<USZCharacterEquipmentComponent>	GetEquipmentComponent() const { return SZCharacterEquipment; }
+	FORCEINLINE const TObjectPtr<USZInteractionComponent>			GetInteractionComponent() const { return SZInteraction; }
+
 	// InstantGE 사용
 	bool ApplyInstantGE(const TSubclassOf<UGameplayEffect>& GE, const float Level);
+	
 	// InfiniteGE 사용
 	FActiveGameplayEffectHandle ApplyInfiniteGE(const TSubclassOf<UGameplayEffect>& GE, float Level);
+	// InfiniteGE 제거
+	void RemoveInfiniteGE(FActiveGameplayEffectHandle& Handle);
+
 #pragma endregion
 
 protected:
@@ -226,6 +236,10 @@ public:
 	TObjectPtr<USkeletalMeshComponent> SecondaryGun;
 #pragma endregion
 
+#pragma region 아이템(의상) GE Handle
+	TMap<FName, TArray<FActiveGameplayEffectHandle>> GEHandles;
+#pragma endregion
+
 protected:
 	// GAS
 	UPROPERTY(EditAnywhere, Category = "GAS")
@@ -256,10 +270,10 @@ private:
 
 	// 의상 착용 컴포넌트
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<USZInteractionComponent> SZInteraction;
+	TObjectPtr<USZCharacterEquipmentComponent> SZCharacterEquipment;
 
 	// 상호작용 컴포넌트
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<USZCharacterEquipmentComponent> SZCharacterEquipment;
+	TObjectPtr<USZInteractionComponent> SZInteraction;
 #pragma endregion
 };

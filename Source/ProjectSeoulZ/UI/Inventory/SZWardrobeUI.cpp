@@ -7,6 +7,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Player/SZCharacterPlayer.h"
 #include "Player/Components/SZInventoryBaseComponent.h"
+#include "Player/Components/SZCharacterEquipmentComponent.h"
 
 void USZWardrobeUI::NativePreConstruct()
 {
@@ -33,27 +34,34 @@ void USZWardrobeUI::NativeConstruct()
 	{
 		return;
 	}
-
+	
+	// TODO. ★ 델리게이트 문제
+	// https://chatgpt.com/share/e/695cdc12-aa64-8002-bd72-3e846cce8d3d
+	// 클래스 상속 관계 및 FindComponentByClass()가 정확히 어떤 컴포넌트를 어떻게 반환하는지. 
+	// 가장 첫 번째꺼? Player에서 접근하는 것이므로 파생 중 가장 첫 번째꺼인지. 아니면 정말 Base인지. 
 	SZInventoryBase = Player->FindComponentByClass<USZInventoryBaseComponent>();
 	if (!IsValid(SZInventoryBase))
 	{
 		return;
 	}
 
+	// 델리게이트 수신. 아이템 장착
 	SZInventoryBase->OnEquipped.RemoveAll(this);
 	SZInventoryBase->OnEquipped.AddUniqueDynamic(this, &USZWardrobeUI::SetEquipment);
 
-	// 옷장 슬롯 델리게이트 수신 직후 테스트
-	UE_LOG(LogTemp, Warning, TEXT("[Bind] EquipComp=%s (%p) Bound=%d Owner=%s"),
-		*GetNameSafe(SZInventoryBase.Get()), SZInventoryBase.Get(),
-		SZInventoryBase ? SZInventoryBase->OnEquipped.IsBound() : 0,
-		SZInventoryBase ? *GetNameSafe(SZInventoryBase->GetOwner()) : TEXT("None"));
+	// 델리게이트 수신. 아이템 해제
+	USZCharacterEquipmentComponent* SZEquipment = Player->GetEquipmentComponent();
+	if (!SZEquipment)
+	{
+		return;
+	}
+
+	SZEquipment->OnUnequipped.RemoveAll(this);
+	SZEquipment->OnUnequipped.AddUniqueDynamic(this, &USZWardrobeUI::ClearEquipment);
 }
 
 void USZWardrobeUI::SetEquipment(const FName ItemID, const int32 Index, const int32 EquipmentSlotIndex)
 {
-	UE_LOG(LogTemp, Error, TEXT("QWER"));
-
 	if (ItemID.IsNone() || !EquipmentSlots.IsValidIndex(EquipmentSlotIndex)) 
 	{
 		return;
@@ -65,6 +73,11 @@ void USZWardrobeUI::SetEquipment(const FName ItemID, const int32 Index, const in
 		return;
 	}
 
+	if (!IsValid(SZInventoryBase))
+	{
+		return;
+	}
+
 	if (!SZInventoryBase->ItemSlots.IsValidIndex(Index))
 	{
 		return;
@@ -72,5 +85,28 @@ void USZWardrobeUI::SetEquipment(const FName ItemID, const int32 Index, const in
 
 	const FItemSlot& ItemSlot = SZInventoryBase->ItemSlots[Index];
 	SlotWidget->ItemID = ItemSlot.ItemID;
-	SlotWidget->RefreshEquipmentSlot();
+	SlotWidget->RefreshEquip();
+}
+
+void USZWardrobeUI::ClearEquipment(const int32 EquipmentSlotIndex)
+{
+	if (!EquipmentSlots.IsValidIndex(EquipmentSlotIndex))
+	{
+		return;
+	}
+
+	USZEquipmentSlot* SlotWidget = EquipmentSlots[EquipmentSlotIndex].Get();
+	if (!IsValid(SlotWidget))
+	{
+		return;
+	}
+
+	if (!IsValid(SZInventoryBase))
+	{
+		return;
+	}
+
+	const FItemSlot& ItemSlot = SZInventoryBase->ItemSlots[EquipmentSlotIndex];
+	SlotWidget->ItemID = ItemSlot.ItemID;
+	SlotWidget->RefreshUnequip();
 }

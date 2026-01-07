@@ -8,20 +8,51 @@
 #include "Engine/DataTable.h"
 
 #include "Item/SZItemTemplete.h"
+#include "Kismet/GameplayStatics.h"
+#include "Player/SZCharacterPlayer.h"
+#include "Player/SZPlayerController.h"
 #include "Player/Components/SZCharacterEquipmentComponent.h"
+#include "UI/Inventory/SZItemTool.h"
 #include "UI/Inventory/SZDDO_ItemSlot.h"
 
 void USZEquipmentSlot::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	/*if (Btn_EquipmentSlot)
+	ASZPlayerController* SZPC = Cast<ASZPlayerController>(GetOwningPlayer());
+	ASZCharacterPlayer* Player = SZPC ? Cast<ASZCharacterPlayer>(SZPC->GetPawn()) : nullptr;
+	if (!IsValid(Player))
 	{
-		Btn_EquipmentSlot->OnClicked.RemoveAll(this);
-		Btn_EquipmentSlot->OnClicked.AddDynamic(this, &USZEquipmentSlot::HandleSlotClicked);
-	}*/
+		Refresh();
+		return;
+	}
 
+	SZEquipment = Player->GetEquipmentComponent();
+	if (!IsValid(SZEquipment) || !SZEquipment->ItemSlots.IsValidIndex(Index))
+	{
+		Refresh();
+		return;
+	}
+
+	ItemID = SZEquipment->ItemSlots[Index].ItemID;
 	Refresh();
+}
+
+FReply USZEquipmentSlot::NativeOnPreviewMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
+{
+	if (ItemID.IsNone())
+	{
+		return Super::NativeOnPreviewMouseButtonDown(InGeometry, InMouseEvent);
+	}
+
+	// 우클릭이면 툴팁/상세 표시
+	if (InMouseEvent.IsMouseButtonDown(EKeys::RightMouseButton))
+	{
+		DisplayItemTool(ItemID);
+		return FReply::Handled();
+	}
+
+	return Super::NativeOnPreviewMouseButtonDown(InGeometry, InMouseEvent);
 }
 
 //bool USZEquipmentSlot::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation)
@@ -58,6 +89,52 @@ void USZEquipmentSlot::NativeConstruct()
 //	RefreshEquipmentSlot();
 //	return true;
 //}
+
+void USZEquipmentSlot::DisplayItemTool(FName InItemID)
+{
+	ASZPlayerController* SZPC = Cast<ASZPlayerController>(GetOwningPlayer());
+	if (!SZPC)
+	{
+		return;
+	}
+
+	ASZCharacterPlayer* Player = Cast<ASZCharacterPlayer>(SZPC->GetPawn());
+	if (!Player) 
+	{
+		return;
+	}
+
+	SZEquipment = Player->GetEquipmentComponent();
+	if (!SZEquipment)
+	{
+		return;
+	}
+
+	if (!ItemToolClass)
+	{
+		return;
+	}
+
+	USZItemTool* ItemToolWidget = CreateWidget<USZItemTool>(SZPC, ItemToolClass);
+	ItemToolWidget->ItemID = InItemID;
+	ItemToolWidget->SZInventoryBase = SZEquipment;
+	// WardrobeUI의 EquipmentSlots의 인덱스로 셋팅
+	ItemToolWidget->Index = Index;
+	
+	ItemToolWidget->AddToViewport();
+}
+
+// Wardrobe UI에서 호출하는 함수
+void USZEquipmentSlot::RefreshEquip()
+{
+	Refresh();
+}
+
+// Wardrobe UI에서 호출하는 함수
+void USZEquipmentSlot::RefreshUnequip()
+{
+	Refresh();
+}
 
 void USZEquipmentSlot::SetEmptySlot()
 {
@@ -116,7 +193,7 @@ void USZEquipmentSlot::Refresh()
 		return;
 	}
 
-	const FItemTemplete* Item = ItemData->FindRow<FItemTemplete>(ItemID, TEXT("USZEquipmentSlot::NativeConstruct"));
+	const FItemTemplete* Item = ItemData->FindRow<FItemTemplete>(ItemID, TEXT("USZEquipmentSlot::Refresh"));
 	if (!Item)
 	{
 		SetEmptySlot();
@@ -132,22 +209,3 @@ void USZEquipmentSlot::Refresh()
 
 	SetFullSlot(IconTexture);
 }
-
-void USZEquipmentSlot::RefreshEquipmentSlot()
-{
-	Refresh();
-	EquipItem();
-}
-
-void USZEquipmentSlot::EquipItem() 
-{
-	// TODO. 여기서 SZItemTool의 OnRequestUseItem()이 실행되는 게 
-
-}
-
-/*void USZEquipmentSlot::HandleSlotClicked()
-{
-	// 눌렀을 때 슬롯 타입 전달
-	OnSlotSelected.Broadcast(SlotType);
-}*/
-

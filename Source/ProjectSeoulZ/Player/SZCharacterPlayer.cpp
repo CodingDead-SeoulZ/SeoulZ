@@ -278,6 +278,15 @@ FActiveGameplayEffectHandle ASZCharacterPlayer::ApplyInfiniteGE(const TSubclassO
 	return ActiveHandle;
 }
 
+void ASZCharacterPlayer::RemoveInfiniteGE(FActiveGameplayEffectHandle& Handle)
+{
+	if (ASC && Handle.IsValid())
+	{
+		ASC->RemoveActiveGameplayEffect(Handle);
+		Handle.Invalidate();
+	}
+}
+
 void ASZCharacterPlayer::BeginPlay()
 {
 	Super::BeginPlay();

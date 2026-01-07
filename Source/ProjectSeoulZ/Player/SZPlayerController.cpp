@@ -11,6 +11,7 @@
 #include "Item/SZItemTemplete.h"
 #include "Player/SZCharacterPlayer.h"
 #include "Player/Components/SZInventoryBaseComponent.h"
+#include "Player/Components/SZCharacterEquipmentComponent.h"
 
 void ASZPlayerController::ShowPlayerHud()
 {
@@ -87,7 +88,6 @@ FSpawnWardrobeResult ASZPlayerController::CreateWardrobeActor()
 	ASZWardrobe* Spawned = GetWorld()->SpawnActor<ASZWardrobe>(WardrobeClass, SpawnTM, Params);
 	WardrobeActor = Spawned;
 
-
 	Out.Transform = SpawnTM;
 	Out.WardrobeActor = Spawned;
 	return Out;
@@ -155,7 +155,8 @@ void ASZPlayerController::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);
 
-#pragma region 델리게이트 수신. 옷장에서 아이템 장착
+#pragma region 델리게이트 수신
+	// 플레이어의 컴포넌트를 가져옴
 	ASZCharacterPlayer* SZPlayer = Cast<ASZCharacterPlayer>(GetCharacter());
 	if (!SZPlayer)
 	{
@@ -167,10 +168,23 @@ void ASZPlayerController::OnPossess(APawn* InPawn)
 	{
 		return;
 	}
-	// SZInventoryBase->OnWardrobeActorChanged.AddDynamic(this, &ASZPlayerController::UpdateWardrobe);
 
+	// 옷장에서 아이템 장착
+	// SZInventoryBase->OnWardrobeActorChanged.AddDynamic(this, &ASZPlayerController::UpdateWardrobe);
 	// 중복 바인딩 방지. 이미 같은 항목이 바인딩돼 있으면 추가하지 않음.
-	SZInventoryBase->OnWardrobeActorChanged.AddUniqueDynamic(this, &ASZPlayerController::UpdateWardrobe);
+	SZInventoryBase->OnWardrobeEquipped.AddUniqueDynamic(this, &ASZPlayerController::WardrobeEquipped);
+
+	// 옷장에서 아이템(장착템) 해제
+	UE_LOG(LogTemp, Warning, TEXT("[Bind] InventoryBase=%s (%p)"),
+		*GetNameSafe(SZInventoryBase), SZInventoryBase);
+
+	USZCharacterEquipmentComponent* SZEquipment = SZPlayer->GetEquipmentComponent();
+	if (!SZEquipment)
+	{
+		return;
+	}
+
+	SZEquipment->OnWardrobeUnquipped.AddUniqueDynamic(this, &ASZPlayerController::WardrobeUnequipped);
 #pragma endregion
 
 	// Possess 타이밍이 늦는 프로젝트도 있어 OnPossess에서 한 번 더 고정하면 안정적
@@ -179,7 +193,8 @@ void ASZPlayerController::OnPossess(APawn* InPawn)
 
 void ASZPlayerController::OnUnPossess()
 {
-#pragma region 델리게이트 수신 해제. 옷장에서 아이템 장착
+#pragma region 델리게이트 수신 해제
+	// 플레이어의 컴포넌트를 가져옴
 	ASZCharacterPlayer* SZPlayer = Cast<ASZCharacterPlayer>(GetCharacter());
 	if (!SZPlayer)
 	{
@@ -191,20 +206,41 @@ void ASZPlayerController::OnUnPossess()
 	{
 		return;
 	}
-	SZInventoryBase->OnWardrobeActorChanged.RemoveDynamic(this, &ASZPlayerController::UpdateWardrobe);
-#pragma endregion	
+
+	// 옷장에서 아이템 장착
+	SZInventoryBase->OnWardrobeEquipped.RemoveDynamic(this, &ASZPlayerController::WardrobeEquipped);
+
+	// 옷장에서 아이템(장착템) 해제
+	USZCharacterEquipmentComponent* SZEquipment = SZPlayer->GetEquipmentComponent();
+	if (!SZEquipment)
+	{
+		return;
+	}
+
+	SZEquipment->OnWardrobeUnquipped.AddUniqueDynamic(this, &ASZPlayerController::WardrobeUnequipped);
+#pragma endregion
 
 	Super::OnUnPossess();
 }
 
-void ASZPlayerController::UpdateWardrobe(EEquipmentSlotType SlotType, USkeletalMesh* NewMesh)
+void ASZPlayerController::WardrobeEquipped(EEquipmentSlotType SlotType, USkeletalMesh* NewMesh)
 {
 	if (!IsValid(WardrobeActor)) 
 	{
 		return;
 	}
 
-	WardrobeActor->UpdateSKM(SlotType, NewMesh);
+	WardrobeActor->SetSKM(SlotType, NewMesh);
+}
+
+void ASZPlayerController::WardrobeUnequipped(EEquipmentSlotType SlotType)
+{
+	if (!IsValid(WardrobeActor)) 
+	{
+		return;
+	}
+
+	WardrobeActor->ClearSKM(SlotType);
 }
 
 void ASZPlayerController::ApplyGameInputMode()

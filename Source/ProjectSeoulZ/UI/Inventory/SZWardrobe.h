@@ -28,7 +28,10 @@ public:
 	virtual void OnConstruction(const FTransform& Transform) override;
 
 	UFUNCTION()
-	void UpdateSKM(EEquipmentSlotType SlotType, USkeletalMesh* NewMesh);
+	void SetSKM(EEquipmentSlotType SlotType, USkeletalMesh* NewMesh);
+
+	UFUNCTION()
+	void ClearSKM(EEquipmentSlotType SlotType);
 
 protected:
 	// Called when the game starts or when spawned

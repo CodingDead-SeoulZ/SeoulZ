@@ -65,7 +65,10 @@ protected:
 	virtual void OnUnPossess() override;
 
 	UFUNCTION(BlueprintCallable, Category = "Wardrobe")
-	void UpdateWardrobe(EEquipmentSlotType SlotType, USkeletalMesh* NewMesh);
+	void WardrobeEquipped(EEquipmentSlotType SlotType, USkeletalMesh* NewMesh);
+
+	UFUNCTION(BlueprintCallable, Category = "Wardrobe")
+	void WardrobeUnequipped(EEquipmentSlotType SlotType);
 
 	//
 	UFUNCTION(BlueprintCallable, Category = "Input")

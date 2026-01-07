@@ -32,8 +32,10 @@ struct FItemSlot
 class ASZCharacterPlayer;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnInventoryUpdated);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnWardrobeActorChanged, EEquipmentSlotType, SlotType, USkeletalMesh*, NewMesh);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnWardrobeEquipped, EEquipmentSlotType, SlotType, USkeletalMesh*, NewMesh);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnWardrobeUnquipped, EEquipmentSlotType, SlotType);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnEquipped, FName, ItemID, int32, Index, int32, EquipmentSlotIndex);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnUnequipped, int32, EquipmentSlotIndex);
 
 UCLASS(Blueprintable, ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class PROJECTSEOULZ_API USZInventoryBaseComponent : public UActorComponent
@@ -87,6 +89,12 @@ public:
 	bool EquipItem(const FName InItemID, const int32 Index);
 #pragma endregion
 
+	// 아이템 상세보기 - 의상 해제
+	bool RequestUnequipItem(const FName ItemID, const int32 EquipmentSlotIndex);
+	bool UnequipPlayerCharacter(USkeletalMeshComponent* SkeletalComponent, const EEquipmentSlotType EquipmentSlot);
+	bool UnequipItem(const FName InItemID);
+	bool RemoveHandlerGE(ASZCharacterPlayer* Player, const FName InItemID);
+
 	UFUNCTION(BlueprintCallable)
 	void PrintInventory();
 
@@ -103,11 +111,16 @@ public:
 	FOnInventoryUpdated OnInventoryUpdated;
 
 	UPROPERTY(BlueprintAssignable, Category = "Inventory")
-	FOnWardrobeActorChanged OnWardrobeActorChanged;
+	FOnWardrobeEquipped OnWardrobeEquipped;
 
-	// TODO. 델리게이트는 상속 및 객체 바인딩 문제 분석하기
+	UPROPERTY(BlueprintAssignable, Category = "Inventory")
+	FOnWardrobeUnquipped OnWardrobeUnquipped;
+
 	UPROPERTY(BlueprintAssignable, Category = "Inventory")
 	FOnEquipped OnEquipped;
+
+	UPROPERTY(BlueprintAssignable, Category = "Inventory")
+	FOnUnequipped OnUnequipped;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Inventory | Data")
 	TObjectPtr<UDataTable> ItemData;

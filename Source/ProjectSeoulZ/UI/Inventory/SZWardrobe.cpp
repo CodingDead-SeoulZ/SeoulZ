@@ -69,9 +69,14 @@ void ASZWardrobe::OnConstruction(const FTransform& Transform)
 	Equipment(Magazine);
 }
 
-void ASZWardrobe::UpdateSKM(EEquipmentSlotType SlotType, USkeletalMesh* NewMesh)
+void ASZWardrobe::SetSKM(EEquipmentSlotType SlotType, USkeletalMesh* NewMesh)
 {
 	GetPlayerPartBySlotType(SlotType)->SetSkeletalMesh(NewMesh);
+}
+
+void ASZWardrobe::ClearSKM(EEquipmentSlotType SlotType)
+{
+	GetPlayerPartBySlotType(SlotType)->SetSkeletalMesh(nullptr);
 }
 
 // Called when the game starts or when spawned

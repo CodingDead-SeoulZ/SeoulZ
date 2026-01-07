@@ -10,6 +10,7 @@
 #include "Blueprint/WidgetBlueprintLibrary.h"
 #include "UI/Inventory/SZItemSlotPreview.h"
 #include "UI/Inventory/SZDDO_ItemSlot.h"
+#include "SZEquipmentSlot.h"
 
 void USZInventorySlot::NativeConstruct()
 {
@@ -127,7 +128,7 @@ void USZInventorySlot::DisplayItemTool(FName InItemID)
 
 	USZItemTool* ItemToolWidget = CreateWidget<USZItemTool>(SZPC, ItemToolClass);
 	ItemToolWidget->ItemID = InItemID;
-	ItemToolWidget->Inventory = SZInventoryBase;
+	ItemToolWidget->SZInventoryBase = SZInventoryBase;
 	ItemToolWidget->Index = SlotIndex;
 	ItemToolWidget->AddToViewport();
 }
