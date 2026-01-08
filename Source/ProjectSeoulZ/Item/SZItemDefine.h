@@ -29,8 +29,6 @@ enum class EEquipmentSlotType : uint8
 {
 	None,
 	Gun,
-	//PrimaryGun,
-	//SecondaryGun,
 	Helmet,
 	Vest,
 	Magazine,

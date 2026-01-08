@@ -250,12 +250,6 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Meshes")
 	TObjectPtr<USkeletalMeshComponent> Magazine;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Meshes")
-	TObjectPtr<USkeletalMeshComponent> PrimaryGun;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Meshes")
-	TObjectPtr<USkeletalMeshComponent> SecondaryGun;
 #pragma endregion
 
 #pragma region 아이템(의상) GE Handle

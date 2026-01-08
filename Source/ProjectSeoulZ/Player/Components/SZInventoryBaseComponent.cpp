@@ -386,8 +386,6 @@ USkeletalMeshComponent* USZInventoryBaseComponent::GetPlayerPartBySlotType(ASZCh
 	// 무기
 	case EEquipmentSlotType::Holster:       return Player->Holster.Get();
 	case EEquipmentSlotType::Magazine:      return Player->Magazine.Get();
-	// case EEquipmentSlotType::Gun:			return Player->PrimaryGun.Get();
-	//case EEquipmentSlotType::SecondaryGun: return Player->SecondaryGun.Get();
 	default: return nullptr;
 	}
 }
@@ -404,7 +402,6 @@ int32 USZInventoryBaseComponent::GetEquipmentSlotIndex(const EEquipmentSlotType 
 	case EEquipmentSlotType::Magazine: return 3;
 	case EEquipmentSlotType::Holster:  return 4;
 	case EEquipmentSlotType::Gun:   return 5;
-	// case EEquipmentSlotType::SecondaryGun: return 6;
 	default: return -1;
 	}
 }
@@ -466,8 +463,7 @@ bool USZInventoryBaseComponent::RequestUseItem(FName ItemID, int32 InIndex)
 		bool bGun = (Item->Equipment.EquipmentType == EEquipmentType::Gun);
 		if (bGun) 
 		{
-			// 1. 장착 슬롯에 있을 때만, Create 함수에 BP_SKM_으로 전달...
-			// 2. PrimaryGun or SecondaryGun 기능 추가 
+			// 1. PrimaryGun or SecondaryGun 기능 추가 
 			const bool bEquip = EquipWeaponItem(ItemID, InIndex);
 			if (!bEquip)
 			{
@@ -737,37 +733,17 @@ bool USZInventoryBaseComponent::RemoveHandlerGE(ASZCharacterPlayer* Player, cons
 	return true;
 }
 
-bool USZInventoryBaseComponent::EquipWeaponItem(const FName InItemID, const int32 Index)
+bool USZInventoryBaseComponent::SetPrimaryGun(ASZCharacterPlayer* Player, const FName InItemID)
 {
-	if (!ItemData || InItemID.IsNone())
-	{
-		return false;
-	}
-
-	const FItemTemplete* Item = FindItemData(InItemID);
-	if (!Item)
-	{
-		return false;
-	}
-
-	ASZCharacterPlayer* Player = Cast<ASZCharacterPlayer>(GetOwner());
 	if (!Player)
 	{
 		return false;
 	}
 
-	// 장착 컴포넌트에 저장
-	USZCharacterEquipmentComponent* EquipmentComp = Player->GetEquipmentComponent();
-	if (!IsValid(EquipmentComp))
+	if (InItemID.IsNone())
 	{
 		return false;
 	}
-	const EEquipmentSlotType SlotType = Item->Equipment.EquipmentSlotType;
-	int32 EquipmentSlotIndex = GetEquipmentSlotIndex(SlotType);
-	EquipmentComp->ItemSlots[EquipmentSlotIndex].ItemID = InItemID;
-	
-	// 옷장 슬롯 델리게이트 송신
-	OnEquipped.Broadcast(InItemID, Index, EquipmentSlotIndex);
 
 	// 무기 장착 처리
 	if (InItemID == TEXT("0001"))
@@ -794,6 +770,103 @@ bool USZInventoryBaseComponent::EquipWeaponItem(const FName InItemID, const int3
 		}
 		Player->BP_SKM_PrimaryGun = BP_SKM_Shotgun;
 	}
+
+	return true;
+}
+
+bool USZInventoryBaseComponent::SetSecondaryGun(ASZCharacterPlayer* Player, const FName InItemID)
+{
+	if (!Player)
+	{
+		return false;
+	}
+
+	if (InItemID.IsNone())
+	{
+		return false;
+	}
+
+	// 무기 장착 처리
+	if (InItemID == TEXT("0001"))
+	{
+		if (!BP_SKM_Pistol)
+		{
+			return false;
+		}
+		Player->BP_SKM_SecondaryGun = BP_SKM_Pistol;
+	}
+	else if (InItemID == TEXT("0010"))
+	{
+		if (!BP_SKM_Rifle)
+		{
+			return false;
+		}
+		Player->BP_SKM_SecondaryGun = BP_SKM_Rifle;
+	}
+	else if (InItemID == TEXT("0011"))
+	{
+		if (!BP_SKM_Shotgun)
+		{
+			return false;
+		}
+		Player->BP_SKM_SecondaryGun = BP_SKM_Shotgun;
+	}
+
+	return true;
+}
+
+bool USZInventoryBaseComponent::EquipWeaponItem(const FName InItemID, const int32 Index)
+{
+	if (!ItemData || InItemID.IsNone())
+	{
+		return false;
+	}
+
+	const FItemTemplete* Item = FindItemData(InItemID);
+	if (!Item)
+	{
+		return false;
+	}
+
+	ASZCharacterPlayer* Player = Cast<ASZCharacterPlayer>(GetOwner());
+	if (!Player)
+	{
+		return false;
+	}
+
+	// 장착 컴포넌트에 저장
+	USZCharacterEquipmentComponent* EquipmentComp = Player->GetEquipmentComponent();
+	if (!IsValid(EquipmentComp))
+	{
+		return false;
+	}
+	const EEquipmentSlotType SlotType = Item->Equipment.EquipmentSlotType;
+	
+	int32 EquipmentSlotIndex = GetEquipmentSlotIndex(SlotType);
+	// PrimaryGun 슬롯
+	if (EquipmentComp->ItemSlots[EquipmentSlotIndex].ItemID == NAME_None)
+	{
+		EquipmentComp->ItemSlots[EquipmentSlotIndex].ItemID = InItemID;
+		const bool bSetGun = SetPrimaryGun(Player, InItemID);
+		if (!bSetGun)
+		{
+			return false;
+		}
+	}
+	// SecondaryGun 슬롯에 배치
+	else 
+	{
+		EquipmentSlotIndex = 6;
+		EquipmentComp->ItemSlots[EquipmentSlotIndex].ItemID = InItemID;
+		const bool bSetGun = SetSecondaryGun(Player, InItemID);
+		if (!bSetGun)
+		{
+			return false;
+		}
+	}
+
+	// 옷장 슬롯 델리게이트 송신
+	OnEquipped.Broadcast(InItemID, Index, EquipmentSlotIndex);
 	
 	return true;
 }
@@ -814,7 +887,7 @@ bool USZInventoryBaseComponent::RequestUnequipWeaponItem(const FName ItemID, con
 #pragma endregion
 
 	// 장착 슬롯 제거
-	bool bUnequip = UnequipWeaponItem(ItemID);
+	bool bUnequip = UnequipWeaponItem(ItemID, EquipmentSlotIndex);
 	if (!bUnequip)
 	{
 		return false;
@@ -823,7 +896,7 @@ bool USZInventoryBaseComponent::RequestUnequipWeaponItem(const FName ItemID, con
 	return true;
 }
 
-bool USZInventoryBaseComponent::UnequipWeaponItem(const FName InItemID)
+bool USZInventoryBaseComponent::UnequipWeaponItem(const FName InItemID, const int32 EquipmentSlotIndex)
 {
 	if (InItemID.IsNone())
 	{
@@ -848,19 +921,26 @@ bool USZInventoryBaseComponent::UnequipWeaponItem(const FName InItemID)
 	{
 		return false;
 	}
-	const EEquipmentSlotType SlotType = Item->Equipment.EquipmentSlotType;
-	int32 EquipmentSlotIndex = GetEquipmentSlotIndex(SlotType);
 	EquipmentComp->ItemSlots[EquipmentSlotIndex].ItemID = NAME_None;
 	// 옷장 슬롯 델리게이트
 	OnUnequipped.Broadcast(EquipmentSlotIndex);
 
 	// 무기 장착 해제
-	Player->BP_SKM_PrimaryGun = nullptr;
+	// PrimaryGun
+	if (EquipmentSlotIndex == 5) 
+	{
+		Player->BP_SKM_PrimaryGun = nullptr;
+	}
+	// SecondaryGun
+	else if (EquipmentSlotIndex == 6) 
+	{
+		Player->BP_SKM_SecondaryGun = nullptr;
+	}
 	Player->DestroyWeapon();
 
 	// 인벤토리로 이동하기
 	USZInventoryComponent* InventoryComp = Player->GetInventoryComponent();
-	if (!IsValid(InventoryComp))
+ 	if (!IsValid(InventoryComp))
 	{
 		return false;
 	}

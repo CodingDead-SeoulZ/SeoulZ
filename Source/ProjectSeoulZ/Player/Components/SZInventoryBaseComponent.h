@@ -100,11 +100,12 @@ public:
 #pragma endregion
 
 #pragma region 아이템 상세보기 - 무기
+	bool SetPrimaryGun(ASZCharacterPlayer* Player, const FName InItemID);
+	bool SetSecondaryGun(ASZCharacterPlayer* Player, const FName InItemID);
 	bool EquipWeaponItem(const FName InItemID, const int32 Index);
 
 	bool RequestUnequipWeaponItem(const FName ItemID, const int32 EquipmentSlotIndex);
-	bool UnequipWeaponItem(const FName InItemID);
-
+	bool UnequipWeaponItem(const FName InItemID, const int32 EquipmentSlotIndex);
 #pragma endregion
 
 	UFUNCTION(BlueprintCallable)

@@ -67,10 +67,4 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Meshes")
 	TObjectPtr<USkeletalMeshComponent> Magazine;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Meshes")
-	TObjectPtr<USkeletalMeshComponent> PrimaryGun;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Meshes")
-	TObjectPtr<USkeletalMeshComponent> SecondaryGun;
 };

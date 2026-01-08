@@ -32,12 +32,6 @@ ASZWardrobe::ASZWardrobe()
 
 	Magazine = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Magazine"));
 	Magazine->SetupAttachment(CharacterMesh);
-
-	PrimaryGun = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("PrimaryGun"));
-	PrimaryGun->SetupAttachment(CharacterMesh);
-
-	SecondaryGun = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("SecondaryGun"));
-	SecondaryGun->SetupAttachment(CharacterMesh);
 }
 
 void ASZWardrobe::OnConstruction(const FTransform& Transform)

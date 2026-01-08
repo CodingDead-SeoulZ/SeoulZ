@@ -219,8 +219,6 @@ void ASZCharacterPlayer::OnConstruction(const FTransform& Transform)
 	//
 	Equipment(Holster);
 	Equipment(Magazine);
-	Equipment(PrimaryGun);
-	Equipment(SecondaryGun);
 #pragma endregion
 
 }
