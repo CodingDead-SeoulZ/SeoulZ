@@ -164,8 +164,7 @@ void ASZCharacterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 	EnhancedInputComponent->BindAction(MoveAction,			ETriggerEvent::Triggered,	this,	&ASZCharacterPlayer::Move);
 	EnhancedInputComponent->BindAction(MouseLookAction,		ETriggerEvent::Triggered,	this,	&ASZCharacterPlayer::MouseLook);
 	EnhancedInputComponent->BindAction(ChangeControlAction,	ETriggerEvent::Started,		this,	&ASZCharacterPlayer::ChangeCharacterControl);
-	EnhancedInputComponent->BindAction(CrouchAction, ETriggerEvent::Started, this, &ASZCharacterPlayer::Crouched);
-	EnhancedInputComponent->BindAction(CrouchAction, ETriggerEvent::Completed, this, &ASZCharacterPlayer::Uncrouched);
+	EnhancedInputComponent->BindAction(CrouchAction, ETriggerEvent::Started, this, &ASZCharacterPlayer::InputCrouch);
 	EnhancedInputComponent->BindAction(RollAction, ETriggerEvent::Started, this, &ASZCharacterPlayer::Roll);
 
 #pragma region 인벤토리
@@ -368,12 +367,15 @@ void ASZCharacterPlayer::BeginPlay()
 
 	HudHpBarWidget->AddToViewport(0);
 
-	// 2) 좌상단 고정(UMG 앵커를 안 만져도 코드로 고정 가능)
-	HudHpBarWidget->SetAnchorsInViewport(FAnchors(0.f, 0.f));
-	HudHpBarWidget->SetAlignmentInViewport(FVector2D(0.f, 0.f));
-	HudHpBarWidget->SetPositionInViewport(FVector2D(20.f, 20.f), false);
-	HudHpBarWidget->SetDesiredSizeInViewport(FVector2D(450.f, 24.f));
-	HudHpBarWidget->SetRenderScale(FVector2D(1.5f, 1.5f));
+	// 좌하단 고정
+	HudHpBarWidget->SetAnchorsInViewport(FAnchors(0.f, 1.f));
+	HudHpBarWidget->SetAlignmentInViewport(FVector2D(0.f, 1.f));
+
+	// 앵커가 아래라서 Y는 위로 올리려면 음수로 줌
+	HudHpBarWidget->SetPositionInViewport(FVector2D(20.f, 1000.f), false);
+
+	HudHpBarWidget->SetDesiredSizeInViewport(FVector2D(650.f, 10.f));
+	HudHpBarWidget->SetRenderScale(FVector2D(1.0f, 5.0f));
 
 	// 3) HUD 위젯에 "플레이어"를 Owner로 주입
 	HudHpBarWidget->SetAbilitySystemComponent(this);
@@ -426,13 +428,13 @@ void ASZCharacterPlayer::SetCharacterControl(ECharacterControlType NewType)
 	{
 		ApplyThirdPersonSettings(true);
 
-		// 1) 컨트롤러 회전 복원
+		// 컨트롤러 회전 복원
 		if (PC)
 		{
 			PC->SetControlRotation(Saved);
 		}
 
-		// 2) ★ 몸(하체)도 컨트롤러 Yaw로 즉시 정렬
+		// 몸(하체)도 컨트롤러 Yaw로 즉시 정렬
 		if (PC)
 		{
 			const float Third_Yaw = PC->GetControlRotation().Yaw;
@@ -529,15 +531,31 @@ void ASZCharacterPlayer::MouseLook(const FInputActionValue& Value)
 	AddControllerPitchInput(LookAxisVector.Y);
 }
 
-void ASZCharacterPlayer::Crouched(const FInputActionValue& Value)
+void ASZCharacterPlayer::InputCrouch(const FInputActionValue& Value)
 {
-	Super::Crouch();
+	if (bIsCrouched) UnCrouch();
+	else Crouch();
 }
 
-void ASZCharacterPlayer::Uncrouched(const FInputActionValue& Value)
+void ASZCharacterPlayer::OnStartCrouch(float HalfHeightAdjust, float ScaledHalfHeightAdjust)
 {
-	Super::UnCrouch();
+	Super::OnStartCrouch(HalfHeightAdjust, ScaledHalfHeightAdjust);
+
+	// 1) 카메라 전환(스프링암 길이/오프셋/카메라 높이 등)
+	// ApplyCrouchCamera(true);
+
+	// 2) AnimBP에서 읽을 변수 갱신(원하면)
+	bIsCrouching = true;
 }
+
+void ASZCharacterPlayer::OnEndCrouch(float HalfHeightAdjust, float ScaledHalfHeightAdjust)
+{
+	Super::OnEndCrouch(HalfHeightAdjust, ScaledHalfHeightAdjust);
+
+	// ApplyCrouchCamera(false);
+	bIsCrouching = false;
+}
+
 
 
 void ASZCharacterPlayer::Roll(const FInputActionValue& Value)

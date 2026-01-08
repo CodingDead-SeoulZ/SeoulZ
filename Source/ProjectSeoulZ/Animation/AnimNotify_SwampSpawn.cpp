@@ -4,7 +4,9 @@
 #include "Animation/AnimNotify_SwampSpawn.h"
 #include "Monster/SZBossBanshee.h"
 #include "Monster/GA/SZGA_BansheeSwampSpawn.h"
-#include "GameMode/SZGameModeBase.h"
+#include "GameMode/SZGameInstance.h"
+#include "Kismet/GameplayStatics.h"
+#include "GameMode/SZPoolManager.h"
 
 UAnimNotify_SwampSpawn::UAnimNotify_SwampSpawn()
 {
@@ -35,19 +37,19 @@ void UAnimNotify_SwampSpawn::Notify(USkeletalMeshComponent* MeshComp, UAnimSeque
 			UE_LOG(LogTemp, Log, TEXT("Can't find world!"));
 			return;
 		}
-		ASZGameModeBase* GameMode = Cast<ASZGameModeBase>(World->GetAuthGameMode());
-		if (!GameMode)
+
+		USZGameInstance* GameInstance = Cast<USZGameInstance>(Boss->GetGameInstance());
+		if (GameInstance)
 		{
-			UE_LOG(LogTemp, Log, TEXT("Can't find GameMode!"));
-			return;
-		}
-		if (GameMode->GetPoolManager()) // PoolManager 존재 확인
-		{
-			UE_LOG(LogTemp, Error, TEXT("find PoolManager!"));
-			Ability->SpawnActors(GameMode->GetPoolManager());
-		}else
-		{
-			UE_LOG(LogTemp, Log, TEXT("Can't find GameMode!"));
+			USZPoolManager* PoolManager = GameInstance->GetSubsystem<USZPoolManager>();
+			if (PoolManager)
+			{
+				Ability->SpawnActors(PoolManager);
+			}
+			else
+			{
+				UE_LOG(LogTemp, Log, TEXT("Can't find PoolManager!"));
+			}
 		}
 	}
 	

@@ -5,6 +5,8 @@
 #include "Monster/SZBossBanshee.h"
 #include "Monster/GA/SZGA_BansheeMonsterSpawn.h"
 #include "GameMode/SZGameModeBase.h"
+#include "GameMode/SZPoolManager.h"
+#include "GameMode/SZGameInstance.h"
 
 USZBossSpawnSkillAnimNotify::USZBossSpawnSkillAnimNotify()
 {
@@ -34,19 +36,22 @@ void USZBossSpawnSkillAnimNotify::Notify(USkeletalMeshComponent* MeshComp, UAnim
             UE_LOG(LogTemp, Log, TEXT("Can't find world!"));
             return;
         }
-        ASZGameModeBase* GameMode = Cast<ASZGameModeBase>(World->GetAuthGameMode());
-        if (!GameMode)
+
+        USZGameInstance* GameInstance = Cast<USZGameInstance>(Boss->GetGameInstance());
+        if (GameInstance)
         {
-            UE_LOG(LogTemp, Log, TEXT("Can't find GameMode!"));
-            return;
+            USZPoolManager* PoolManager = GameInstance->GetSubsystem<USZPoolManager>();
+            if (PoolManager)
+            {
+                Ability->SpawnActors(PoolManager);
+            }
+            else
+            {
+                UE_LOG(LogTemp, Log, TEXT("Can't find PoolManager!"));
+            }
         }
-        if (GameMode->GetPoolManager()) // PoolManager 존재 확인
-        {
-            UE_LOG(LogTemp, Error, TEXT("find PoolManager!"));
-            Ability->SpawnActors(GameMode->GetPoolManager());
-        }else
-        {
-            UE_LOG(LogTemp, Log, TEXT("Can't find GameMode!"));
-        }
+
+        
+
     }
 }

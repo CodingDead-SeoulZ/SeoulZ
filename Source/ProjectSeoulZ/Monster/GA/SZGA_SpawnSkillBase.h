@@ -15,7 +15,7 @@ class PROJECTSEOULZ_API USZGA_SpawnSkillBase : public UGameplayAbility
 	GENERATED_BODY()
 
 public:
-	void SpawnActors(class USZPoolManager* PoolManager);
+	virtual void SpawnActors(class USZPoolManager* PoolManager);
 
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = Spawn)

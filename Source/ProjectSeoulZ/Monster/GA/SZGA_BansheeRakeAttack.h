@@ -3,19 +3,20 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Abilities/GameplayAbility.h"
+#include "Monster/GA/SZGA_SpawnSkillBase.h"
 #include "SZGA_BansheeRakeAttack.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class PROJECTSEOULZ_API USZGA_BansheeRakeAttack : public UGameplayAbility
+class PROJECTSEOULZ_API USZGA_BansheeRakeAttack : public USZGA_SpawnSkillBase
 {
 	GENERATED_BODY()
+
 public:
 	USZGA_BansheeRakeAttack();
-	
+
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
 	//
 	virtual void CancelAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateCancelAbility) override;
@@ -32,4 +33,7 @@ protected:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UAnimMontage> AttackMontage;
+	
+	virtual void SpawnActors(class USZPoolManager* PoolManager) override;
+	
 };

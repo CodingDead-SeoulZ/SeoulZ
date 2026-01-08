@@ -25,10 +25,10 @@ class PROJECTSEOULZ_API USZHpBarUserWidget : public USZUserWidget
 {
 	GENERATED_BODY()
 	
-protected:
+public:
 	//
 	virtual void SetAbilitySystemComponent(AActor* InOwner) override;
-
+protected:
 	//
 	virtual void OnHealthChanged(const FOnAttributeChangeData& ChangeData);
 

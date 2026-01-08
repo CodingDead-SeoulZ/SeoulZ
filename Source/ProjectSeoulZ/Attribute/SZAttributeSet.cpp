@@ -7,6 +7,7 @@
 #include "Player/SZCharacterPlayer.h"
 #include "AbilitySystemGlobals.h"
 #include "GameplayEffectExtension.h"
+#include "Monster/SZBossBanshee.h"
 
 USZAttributeSet::USZAttributeSet() 
 	/*AttackRange(100.0f),
@@ -70,6 +71,9 @@ void USZAttributeSet::PostAttributeChange(const FGameplayAttribute& Attribute, f
             {
                 // 몬스터의 SetDead() 함수 호출
                 Monster->SetDead();
+            }else if (ASZBossBanshee* Boss = Cast<ASZBossBanshee>(OwnerActor))
+            {
+                Boss->SetDead();
             }
         }
     }

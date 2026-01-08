@@ -71,8 +71,14 @@ void ASZBossBanshee::SetDead()
 	AnimInstance->Montage_Play(DeadMontage, 1.0f);
 
 	// AIController�� ������ AI�� ����. ���� AIController�� �ٲ�� ��.
-	ASZBossAIController* NormalMonsterController = Cast<ASZBossAIController>(GetController());
-	NormalMonsterController->StopAI();
+	ASZBossAIController* BossMonsterController = Cast<ASZBossAIController>(GetController());
+	
+	if (BossMonsterController)
+	{
+		BossMonsterController->StopAI();	
+	}
+	
+	UE_LOG(LogTemp,Log,TEXT("ASZBossBanshee::SetDead()"));
 
 	// ��Ÿ�ְ� ����Ǵ� �ð����� ��ٷȴٰ� ���͸� �ı��ϴ� �Լ� ȣ��.
 	FTimerHandle TimerHandle;

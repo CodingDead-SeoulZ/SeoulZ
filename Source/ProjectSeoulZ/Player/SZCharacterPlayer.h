@@ -179,8 +179,11 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Roll")
 	bool bIsRolling = false;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Roll")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Jump")
 	bool bIsJumping = false;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Crouch")
+	bool bIsCrouching = false;
 
 #pragma region 인벤토리 입력 값
 	// 아이템 줍기 - 입력 값
@@ -209,8 +212,9 @@ protected:
 	void Move(const FInputActionValue& Value);
 	void MouseLook(const FInputActionValue& Value);
 	
-	void Crouched(const FInputActionValue& Value);
-	void Uncrouched(const FInputActionValue& Value);
+	void InputCrouch(const FInputActionValue& Value);
+	void OnStartCrouch(float HalfHeightAdjust, float ScaledHalfHeightAdjust);
+	void OnEndCrouch(float HalfHeightAdjust, float ScaledHalfHeightAdjust);
 
 	// 구르기 관련
 	void Roll(const FInputActionValue& Value);

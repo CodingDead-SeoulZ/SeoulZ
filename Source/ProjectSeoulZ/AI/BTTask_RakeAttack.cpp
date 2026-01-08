@@ -33,6 +33,7 @@ EBTNodeResult::Type UBTTask_RakeAttack::ExecuteTask(UBehaviorTreeComponent& Owne
 	if (!SkillGASpec->IsActive())
 	{
 		Monster->SetCurrentTask(this);
+		UE_LOG(LogTemp,Log,TEXT("SkillGASpec is active."));
 		Monster->GetAbilitySystemComponent()->TryActivateAbility(SkillGASpec->Handle);
 	}
 	else
@@ -43,6 +44,7 @@ EBTNodeResult::Type UBTTask_RakeAttack::ExecuteTask(UBehaviorTreeComponent& Owne
 	CachedOwnerComp = &OwnerComp;
 	
 	return EBTNodeResult::InProgress;
+	
 }
 
 void UBTTask_RakeAttack::OnSkillFinished(bool bSuccess)

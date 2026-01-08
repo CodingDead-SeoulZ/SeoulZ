@@ -22,11 +22,11 @@ struct FMapData
 	GENERATED_BODY()
 
 public:
-	//
+	// 맵 이름.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FName LevelName;
 
-	//
+	// 맵 미리보기 이미지.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UTexture2D* PreviewImage;
 };
@@ -39,6 +39,9 @@ class PROJECTSEOULZ_API USZGameInstance : public UGameInstance
 public:
 	virtual void Init() override;
 
+	//void BeginLoadingScreen(const FString& LevelName);
+	//void EndLoadingScreen(const FString& LevelName);
+
 public:
 	// 맵 + 이미지 목록.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -47,7 +50,5 @@ public:
 	// 맵 인덱스 -> 모듈러 써야해서.
 	UPROPERTY(BlueprintReadWrite)
 	int32 SelectedMapIndex = 0;
-
-	// 상점 재화.
 
 };
