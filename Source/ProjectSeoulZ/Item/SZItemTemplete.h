@@ -18,15 +18,6 @@ struct FItemFragment : public FTableRowBase
 {
 	GENERATED_BODY()
 
-	/*UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float HealthAmount = 0;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float Damage = 0;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float Defense = 0;*/
-
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<UGameplayEffect> GE;
 
@@ -35,12 +26,6 @@ struct FItemFragment : public FTableRowBase
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float Level = 0;
-
-	//UPROPERTY(EditDefaultsOnly)
-	//TSubclassOf<UGameplayEffect> InstantGE; // 즉시 반영
-
-	//UPROPERTY(EditDefaultsOnly)
-	//TSubclassOf<UGameplayEffect> InfiniteGE; // 장비 착용 중
 
 	//UPROPERTY(EditDefaultsOnly)
 	//TSubclassOf<UGameplayEffect> DurationGE; // 해당 시간 동안

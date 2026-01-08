@@ -280,6 +280,16 @@ void ASZCharacterPlayer::RemoveInfiniteGE(FActiveGameplayEffectHandle& Handle)
 	}
 }
 
+void ASZCharacterPlayer::DestroyWeapon()
+{
+	if (!WeaponGun) 
+	{
+		return;
+	}
+
+	WeaponGun->Destroy();
+}
+
 void ASZCharacterPlayer::BeginPlay()
 {
 	Super::BeginPlay();

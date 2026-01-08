@@ -380,20 +380,17 @@ void USZItemTool::OnRequestUnequipItem()
 		return;
 	}
 
-	if (Item->ItemCategory != EItemCategory::Appeal)
+	if (Item->ItemCategory == EItemCategory::Appeal)
 	{
-		return;
+		// 인벤토리한테 아이템(의상) 해제 요청
+		const bool bSuccess = SZInventoryBase->RequestUnequipItem(ItemID, Index);
 	}
-
-	// 인벤토리한테 아이템(의상) 해제 요청
-	const bool bSuccess = SZInventoryBase->RequestUnequipItem(ItemID, Index);
+	else if (Item->ItemCategory == EItemCategory::Weapons)
+	{
+		// 인벤토리한테 아이템(무기) 해제 요청
+		const bool bSuccess = SZInventoryBase->RequestUnequipWeaponItem(ItemID, Index);
+	}
+	
 	RemoveFromParent();
-
-	if (bSuccess)
-	{
-
-	}
-	else
-	{
-	}
+	return;
 }

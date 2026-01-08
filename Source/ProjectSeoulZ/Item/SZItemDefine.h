@@ -28,24 +28,14 @@ UENUM(BlueprintType)
 enum class EEquipmentSlotType : uint8
 {
 	None,
-	PrimaryGun,
-	SecondaryGun,
+	Gun,
+	//PrimaryGun,
+	//SecondaryGun,
 	Helmet,
 	Vest,
 	Magazine,
 	Gloves,
 	Holster,
-
-	Count	UMETA(Hidden)
-};
-
-UENUM(BlueprintType)
-enum class EItemRarity : uint8
-{
-	Common,
-	Uncommon,
-	Rare,
-	Legendary,
 
 	Count	UMETA(Hidden)
 };

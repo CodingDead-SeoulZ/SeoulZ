@@ -80,20 +80,32 @@ public:
 	void MoveToInventory(USZInventoryBaseComponent* DestinationInventory, int32 SourceIndex);
 #pragma endregion
 
-#pragma region 아이템 상세보기 - 아이템 사용
+#pragma region 아이템 상세보기 - 아이템 사용 및 의상
 	USkeletalMeshComponent* GetPlayerPartBySlotType(ASZCharacterPlayer* Player, EEquipmentSlotType SlotType) const;
 	int32 GetEquipmentSlotIndex(const EEquipmentSlotType EquipmemtSlot) const;
+	
+	// 아이템 사용
 	bool RequestUseItem(FName ItemID, int32 InIndex);
+
+	// Equip
 	bool RemoveEquippedItem(int32 Index, EEquipmentSlotType EquipmentSlot);
 	bool EquipPlayerCharacter(USkeletalMeshComponent* SkeletalComponent, const EEquipmentSlotType EquipmentSlot, USkeletalMesh* NewMesh, const FName InItemID, const int32 Index);
 	bool EquipItem(const FName InItemID, const int32 Index);
-#pragma endregion
 
-	// 아이템 상세보기 - 의상 해제
+	// Unequip
 	bool RequestUnequipItem(const FName ItemID, const int32 EquipmentSlotIndex);
 	bool UnequipPlayerCharacter(USkeletalMeshComponent* SkeletalComponent, const EEquipmentSlotType EquipmentSlot);
 	bool UnequipItem(const FName InItemID);
 	bool RemoveHandlerGE(ASZCharacterPlayer* Player, const FName InItemID);
+#pragma endregion
+
+#pragma region 아이템 상세보기 - 무기
+	bool EquipWeaponItem(const FName InItemID, const int32 Index);
+
+	bool RequestUnequipWeaponItem(const FName ItemID, const int32 EquipmentSlotIndex);
+	bool UnequipWeaponItem(const FName InItemID);
+
+#pragma endregion
 
 	UFUNCTION(BlueprintCallable)
 	void PrintInventory();
@@ -130,4 +142,13 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Inventory")
 	TArray<FItemSlot> ItemSlots;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "BP_SKM_Gun")
+	TSubclassOf<AActor> BP_SKM_Pistol;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "BP_SKM_Gun")
+	TSubclassOf<AActor> BP_SKM_Rifle;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "BP_SKM_Gun")
+	TSubclassOf<AActor> BP_SKM_Shotgun;
 };

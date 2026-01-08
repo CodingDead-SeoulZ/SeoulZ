@@ -97,8 +97,8 @@ USkeletalMeshComponent* ASZWardrobe::GetPlayerPartBySlotType(EEquipmentSlotType 
 	// 무기
 	case EEquipmentSlotType::Holster:       return Holster;
 	case EEquipmentSlotType::Magazine:      return Magazine;
-	case EEquipmentSlotType::PrimaryGun:   return PrimaryGun;
-	case EEquipmentSlotType::SecondaryGun: return SecondaryGun;
+	// case EEquipmentSlotType::PrimaryGun:   return PrimaryGun;
+	// case EEquipmentSlotType::SecondaryGun: return SecondaryGun;
 	default: return nullptr;
 	}
 }

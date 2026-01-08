@@ -74,6 +74,10 @@ public:
 	// InfiniteGE 제거
 	void RemoveInfiniteGE(FActiveGameplayEffectHandle& Handle);
 
+	// BP에서 사용할 함수
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
+	void DestroyWeapon();
+
 #pragma endregion
 
 protected:
@@ -258,6 +262,17 @@ public:
 	TMap<FName, TArray<FActiveGameplayEffectHandle>> GEHandles;
 #pragma endregion
 
+#pragma region BP_SKM_Gun
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "BP_SKM_Gun")
+	TSubclassOf<AActor> BP_SKM_PrimaryGun;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "BP_SKM_Gun")
+	TSubclassOf<AActor> BP_SKM_SecondaryGun;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "BP_SKM_Gun")
+	TObjectPtr<AActor> WeaponGun;
+#pragma endregion
+
 protected:
 	// GAS
 	UPROPERTY(EditAnywhere, Category = "GAS")
@@ -297,4 +312,5 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<USZInteractionComponent> SZInteraction;
 #pragma endregion
+
 };
