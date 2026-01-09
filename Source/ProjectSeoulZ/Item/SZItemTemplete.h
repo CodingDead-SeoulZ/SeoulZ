@@ -44,6 +44,24 @@ struct FItemEquipment : public FTableRowBase
 };
 
 USTRUCT(BlueprintType)
+struct FItemAmmo : public FTableRowBase
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditDefaultsOnly)
+	EAmmoType AmmoType = EAmmoType::None;
+
+	UPROPERTY(EditDefaultsOnly)
+	int32 CurrentAmmo = 0;
+
+	UPROPERTY(EditDefaultsOnly)
+	int32 MaxAmmo = 0;
+
+	UPROPERTY(EditDefaultsOnly)
+	int32 InventoryAmmo = 0;
+};
+
+USTRUCT(BlueprintType)
 struct FItemMesh : public FTableRowBase
 {
 	GENERATED_BODY()
@@ -104,6 +122,9 @@ struct FItemTemplete : public FTableRowBase
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FItemEquipment Equipment;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FItemAmmo ItemAmmo;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FItemMesh ItemMesh;

@@ -16,6 +16,8 @@
 #include "Player/Components/SZInteractionComponent.h"
 #include "Player/Components/SZCharacterEquipmentComponent.h"
 
+#include "Item/Components/SZGunDataComp.h"
+
 #include "GameplayEffect.h" 
 
 #include "AbilitySystemComponent.h"
@@ -283,6 +285,31 @@ void ASZCharacterPlayer::DestroyWeapon()
 	{
 		return;
 	}
+
+	USZGunDataComp* GunDataComp = WeaponGun->FindComponentByClass<USZGunDataComp>();
+	if (!GunDataComp)
+	{
+		return;
+	}
+
+	const FName ItemID = GunDataComp->ItemID;
+
+	// 1. 총에 맞는 총알이 존재하는지
+	const int32 AmmoIndex = SZInventory->GetMatchAmmoIndex(ItemID);
+	if (AmmoIndex == INDEX_NONE)
+	{
+		// 단, 총알이 없으면 동작 안 함.
+		return;
+	}
+	FItemSlot& AmmoSlot = SZInventory->ItemSlots[AmmoIndex];
+	FItemTemplete* Ammo = SZInventory->FindAmmo(AmmoSlot.ItemID);
+
+	// 2. 총알 수 기록
+	const int32 RemainingAmmo = GunDataComp->InventoryAmmo;
+	const int32 SpentAmmo = GunDataComp->MaxAmmo - GunDataComp->CurrentAmmo;
+
+	// ★ TODO. 여기서 문제 생기면
+	Ammo->ItemAmmo.InventoryAmmo = RemainingAmmo - SpentAmmo;
 
 	WeaponGun->Destroy();
 }
@@ -555,8 +582,6 @@ void ASZCharacterPlayer::OnEndCrouch(float HalfHeightAdjust, float ScaledHalfHei
 	// ApplyCrouchCamera(false);
 	bIsCrouching = false;
 }
-
-
 
 void ASZCharacterPlayer::Roll(const FInputActionValue& Value)
 {

@@ -49,6 +49,8 @@ public:
 #pragma region 아이템 줍기
 	// 데이터 테이블
 	const FItemTemplete* FindItemData(FName ItemID) const;
+	FItemTemplete* FindAmmo(FName ItemID);
+
 	// 슬롯
 	int32 FindMatchingSlot(FName ItemID) const;
 	int32 FindEmptySlot() const;
@@ -107,6 +109,11 @@ public:
 	bool RequestUnequipWeaponItem(const FName ItemID, const int32 EquipmentSlotIndex);
 	bool UnequipWeaponItem(const FName InItemID, const int32 EquipmentSlotIndex);
 #pragma endregion
+
+	const int32 GetMatchAmmoIndex(const FName GunID);
+
+	UFUNCTION(BlueprintCallable)
+	void SetAmmo(ASZCharacterPlayer* Player);
 
 	UFUNCTION(BlueprintCallable)
 	void PrintInventory();

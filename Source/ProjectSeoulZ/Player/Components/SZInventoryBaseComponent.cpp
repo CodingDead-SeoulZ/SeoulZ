@@ -7,6 +7,7 @@
 #include "Player/SZCharacterPlayer.h"
 #include "Player/Components/SZInventoryComponent.h"
 #include "Player/Components/SZCharacterEquipmentComponent.h"
+#include "Item/Components/SZGunDataComp.h"
 
 // Sets default values for this component's properties
 USZInventoryBaseComponent::USZInventoryBaseComponent()
@@ -22,6 +23,15 @@ const FItemTemplete* USZInventoryBaseComponent::FindItemData(FName ItemID) const
 {
 	// TObjectPtr는 GC가 추적하는 UObject 전용 포인터라서, USTRUCT 같은 일반 구조체에는 사용할 수 없음.
 	// C++의 참조(T&)는 반드시 실제 객체를 가리켜야 하므로 nullptr이라는 개념이 없음.
+	if (ItemData)
+	{
+		return ItemData->FindRow<FItemTemplete>(ItemID, TEXT("GetItemData"));
+	}
+	return nullptr;
+}
+
+FItemTemplete* USZInventoryBaseComponent::FindAmmo(FName ItemID)
+{
 	if (ItemData)
 	{
 		return ItemData->FindRow<FItemTemplete>(ItemID, TEXT("GetItemData"));
@@ -460,21 +470,17 @@ bool USZInventoryBaseComponent::RequestUseItem(FName ItemID, int32 InIndex)
 	}
 	case EItemCategory::Weapons:
 	{
-		bool bGun = (Item->Equipment.EquipmentType == EEquipmentType::Gun);
+		const bool bGun = (Item->Equipment.EquipmentType == EEquipmentType::Gun);
+		const bool bAccessory = (Item->Equipment.EquipmentType == EEquipmentType::Accessory);
 		if (bGun) 
 		{
-			// 1. PrimaryGun or SecondaryGun 기능 추가 
+			// 1. 총 장착
 			const bool bEquip = EquipWeaponItem(ItemID, InIndex);
 			if (!bEquip)
 			{
 				return false;
 			}
 		}
-		//else if (bAccessory)
-		//{
-		//	// TODO. 
-		//	StatText = FText::FromString(TEXT("공격력 없음"));
-		//}
 		break;
 	}
 	default:
@@ -769,6 +775,7 @@ bool USZInventoryBaseComponent::SetPrimaryGun(ASZCharacterPlayer* Player, const 
 			return false;
 		}
 		Player->BP_SKM_PrimaryGun = BP_SKM_Shotgun;
+
 	}
 
 	return true;
@@ -843,6 +850,7 @@ bool USZInventoryBaseComponent::EquipWeaponItem(const FName InItemID, const int3
 	const EEquipmentSlotType SlotType = Item->Equipment.EquipmentSlotType;
 	
 	int32 EquipmentSlotIndex = GetEquipmentSlotIndex(SlotType);
+
 	// PrimaryGun 슬롯
 	if (EquipmentComp->ItemSlots[EquipmentSlotIndex].ItemID == NAME_None)
 	{
@@ -867,7 +875,6 @@ bool USZInventoryBaseComponent::EquipWeaponItem(const FName InItemID, const int3
 
 	// 옷장 슬롯 델리게이트 송신
 	OnEquipped.Broadcast(InItemID, Index, EquipmentSlotIndex);
-	
 	return true;
 }
 
@@ -951,6 +958,83 @@ bool USZInventoryBaseComponent::UnequipWeaponItem(const FName InItemID, const in
 	InventoryComp->UpdateInventory();
 
 	return true;
+}
+
+const int32 USZInventoryBaseComponent::GetMatchAmmoIndex(const FName GunID)
+{
+	if (GunID.IsNone())
+	{
+		return INDEX_NONE;
+	}
+
+	FName ItemID = NAME_None;
+	if (GunID == TEXT("0001")) 
+	{
+		ItemID = TEXT("1100");
+	}
+	else if (GunID == TEXT("0010"))
+	{
+		ItemID = TEXT("1101");
+	}
+	else if (GunID == TEXT("0011"))
+	{
+		ItemID = TEXT("1110");
+	}
+
+	const FItemTemplete* Ammo = FindItemData(ItemID);
+	for (int32 i = 0; i < ItemSlots.Num(); ++i)
+	{
+		const FItemSlot& Slot = ItemSlots[i];
+
+		if (Slot.ItemID == ItemID &&
+			Slot.StackCount > 0 &&
+			Slot.StackCount <= Ammo->MaxStackCount)
+		{
+			return i;
+		}
+	}
+
+	return INDEX_NONE;
+}
+
+void USZInventoryBaseComponent::SetAmmo(ASZCharacterPlayer* Player)
+{
+	if (!Player) 
+	{
+		return;
+	}
+
+	USZGunDataComp* GunDataComp = Player->WeaponGun->FindComponentByClass<USZGunDataComp>();
+	if (!GunDataComp)
+	{
+		return;
+	}
+
+	const FName ItemID = GunDataComp->ItemID;
+	
+	// 1. 총에 맞는 총알이 존재하는지
+	const int32 AmmoIndex = GetMatchAmmoIndex(ItemID);
+	if (AmmoIndex == INDEX_NONE) 
+	{
+		// 단, 총알이 없으면 동작 안 함.
+		return;
+	}
+	FItemSlot& AmmoSlot = ItemSlots[AmmoIndex];
+	const FItemTemplete* Ammo = FindItemData(AmmoSlot.ItemID);
+	
+	// 2. 장전
+	GunDataComp->CurrentAmmo = Ammo->ItemAmmo.CurrentAmmo;
+	GunDataComp->MaxAmmo = Ammo->ItemAmmo.MaxAmmo;
+	GunDataComp->InventoryAmmo = Ammo->ItemAmmo.InventoryAmmo;
+	/*if (ItemID == TEXT("0001")) 
+	{
+	}
+	else if (ItemID == TEXT("0010"))
+	{
+	}
+	else if (ItemID == TEXT("0011"))
+	{
+	}*/
 }
 
 void USZInventoryBaseComponent::PrintInventory()

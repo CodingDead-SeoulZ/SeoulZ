@@ -86,6 +86,14 @@ void USZItemTool::DisplayItemInfo()
 	{
 		Img_Icon->SetBrushFromTexture(Item->Icon, true);
 	}
+
+	if (Item->ItemAmmo.AmmoType != EAmmoType::None) 
+	{
+		if (Btn_Use)
+		{
+			Btn_Use->SetVisibility(ESlateVisibility::Hidden);
+		}
+	}
 }
 
 void USZItemTool::DisplayItemStat()

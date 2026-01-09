@@ -1,5 +1,16 @@
 ﻿#pragma once
 
+UENUM(BlueprintType)
+enum class EAmmoType : uint8
+{
+	None,
+	Pistol,
+	Rifle,
+	Shotgun,
+
+	Count	UMETA(Hidden)
+};
+
 UENUM(BlueprintType, meta = (Bitflags))
 enum class EItemCategory : uint8
 {
