@@ -5,13 +5,14 @@
 #include "SZItemDefine.h"
 #include "SZItemTemplete.generated.h"
 
-class ASZItemBase;
 class UGameplayEffect;
 class USoundBase;
 class USkeletalMesh;
 class UStaticMesh;
 class UMaterialInterface;
 class UTexture2D;
+
+class ASZItemBase;
 
 USTRUCT(BlueprintType)
 struct FItemFragment : public FTableRowBase

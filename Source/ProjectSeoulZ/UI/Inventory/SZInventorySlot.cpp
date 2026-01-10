@@ -88,6 +88,18 @@ bool USZInventorySlot::NativeOnDrop(const FGeometry& InGeometry, const FDragDrop
 	return true;
 }
 
+void USZInventorySlot::NativeOnDragCancelled(const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation)
+{
+	Super::NativeOnDragCancelled(InDragDropEvent, InOperation);
+
+	if (!IsValid(SZInventoryBase) || SlotIndex == INDEX_NONE)
+	{
+		return;
+	}
+
+	SZInventoryBase->RemoveAllFromInventory(SlotIndex);
+}
+
 void USZInventorySlot::SetItemData()
 {
 	if (!IsValid(SZInventoryBase)) 

@@ -108,12 +108,18 @@ public:
 
 	bool RequestUnequipWeaponItem(const FName ItemID, const int32 EquipmentSlotIndex);
 	bool UnequipWeaponItem(const FName InItemID, const int32 EquipmentSlotIndex);
-#pragma endregion
 
 	const int32 GetMatchAmmoIndex(const FName GunID);
 
 	UFUNCTION(BlueprintCallable)
 	AActor* SetAmmo(AActor* Weapon, const FName ItemID);
+#pragma endregion
+
+	void UpdateSlot(const int32 Index, int32 DropStack);
+	FVector GetDropLocation() const;
+	void DropFromInventory(const FName ItemID, int32 ItemStack);
+	void RemoveFromInventory(const int32 Index, int32 RequestedDropStack);
+	void RemoveAllFromInventory(int32 Index);
 
 	UFUNCTION(BlueprintCallable)
 	void PrintInventory();

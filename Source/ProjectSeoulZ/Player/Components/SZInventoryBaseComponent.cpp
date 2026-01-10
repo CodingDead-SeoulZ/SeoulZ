@@ -7,6 +7,8 @@
 #include "Player/SZCharacterPlayer.h"
 #include "Player/Components/SZInventoryComponent.h"
 #include "Player/Components/SZCharacterEquipmentComponent.h"
+
+#include "Item/SZItemBase.h"
 #include "Item/Components/SZGunDataComp.h"
 
 // Sets default values for this component's properties
@@ -1030,6 +1032,139 @@ AActor* USZInventoryBaseComponent::SetAmmo(AActor* WeaponGun, const FName ItemID
 	GunDataComp->InventoryAmmo = Ammo->ItemAmmo.InventoryAmmo;
 	
 	return WeaponGun;
+}
+
+void USZInventoryBaseComponent::UpdateSlot(const int32 Index, int32 DropStack)
+{
+	if (!ItemSlots.IsValidIndex(Index)) 
+	{
+		return;
+	}
+
+	ItemSlots[Index].StackCount -= DropStack;
+
+	if (ItemSlots[Index].StackCount <= 0) 
+	{
+		ItemSlots[Index].ItemID = NAME_None;
+		ItemSlots[Index].StackCount = 0;
+	}
+}
+
+FVector USZInventoryBaseComponent::GetDropLocation() const
+{
+	if (!GetOwner())
+	{
+		return FVector::ZeroVector;
+	}
+
+	ASZCharacterPlayer* Player = Cast<ASZCharacterPlayer>(GetOwner());
+	if (Player)
+	{
+		return 
+			Player->GetActorLocation() + Player->GetActorForwardVector() * 100.f
+			+ FVector(0.f, 0.f, 20.f);
+	}
+
+	return FVector::ZeroVector;
+}
+
+void USZInventoryBaseComponent::DropFromInventory(const FName ItemID, int32 ItemStack)
+{
+	if (ItemID.IsNone() || ItemStack <= 0)
+	{
+		return;
+	}
+
+	const FItemTemplete* Item = FindItemData(ItemID);
+	if (!Item)
+	{
+		return;
+	}
+
+	TSubclassOf<ASZItemBase> ItemClass = Item->ItemMesh.ItemClass;
+	if (!ItemClass)
+	{
+		return;
+	}
+
+	UWorld* World = GetWorld();
+	if (!World)
+	{
+		return;
+	}
+
+	for (int32 i = 0; i < ItemStack; ++i)
+	{
+		const FVector SpawnLoc = GetDropLocation();
+		const FTransform SpawnTM(FRotator::ZeroRotator, SpawnLoc);
+
+		FActorSpawnParameters Params;
+		Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+		Params.Owner = GetOwner();
+
+		World->SpawnActor<AActor>(ItemClass, SpawnTM, Params);
+	}
+
+	const FItemSFX* SFX = GetItemSFX(ItemID); 
+	if (SFX && SFX->Drop)
+	{
+		PlayItemSFX(SFX->Drop);
+	}
+}
+
+void USZInventoryBaseComponent::RemoveFromInventory(const int32 Index, int32 RequestedDropStack)
+{
+	if (!ItemSlots.IsValidIndex(Index))
+	{
+		return;
+	}
+
+	FItemSlot& Slot = ItemSlots[Index];
+	if (Slot.ItemID.IsNone() || Slot.StackCount <= 0)
+	{
+		return;
+	}
+
+	const FName ItemID = Slot.ItemID;
+	const int32 ItemStackCount = Slot.StackCount;
+	const int32 DropStack = FMath::Clamp(RequestedDropStack, 1, ItemStackCount);
+	
+	// 전체 드랍
+	if (DropStack == ItemStackCount)
+	{
+		AddToNewSlot(NAME_None, 0, Index);
+	}
+	// 부분 드랍
+	else
+	{
+		UpdateSlot(Index, DropStack);
+	}
+
+	// 아이템 스폰
+	DropFromInventory(ItemID, DropStack);
+	// 인벤토리 송신
+	UpdateInventory();
+}
+
+void USZInventoryBaseComponent::RemoveAllFromInventory(int32 Index)
+{
+	if (!ItemSlots.IsValidIndex(Index))
+	{
+		return;
+	}
+
+	const FItemSlot& ItemSlot = ItemSlots[Index];
+	const FName LocalItemID = ItemSlot.ItemID;
+	const int32 LocalItemQuantity = ItemSlot.StackCount;
+
+	if (LocalItemID.IsNone() || LocalItemQuantity <= 0)
+	{
+		return;
+	}
+
+	AddToNewSlot(NAME_None, 0, Index);
+	DropFromInventory(LocalItemID, LocalItemQuantity);
+	UpdateInventory();
 }
 
 void USZInventoryBaseComponent::PrintInventory()

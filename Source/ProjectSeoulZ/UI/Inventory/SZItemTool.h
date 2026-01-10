@@ -24,6 +24,8 @@ class UImage;
 class USZItemActionUI;
 class UBorder;
 
+class USZItemSlider;
+
 UCLASS()
 class PROJECTSEOULZ_API USZItemTool : public UUserWidget
 {
@@ -43,6 +45,9 @@ public:
 	bool CheckMoveToEquipmentSlot();
 
 	float EvalStatFromCurve(FName Row, float Level, float Fallback = 0.f) const;
+
+	UFUNCTION()
+	void OnDropSlider();
 
 	UFUNCTION()
 	void OnMoveToQuickSlot();
@@ -68,6 +73,12 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, Transient, meta = (ExposeOnSpawn = "true"))
 	TObjectPtr<USZInventoryBaseComponent> SZInventoryBase;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Drop UI")
+	TSubclassOf<USZItemSlider> WBItemSliderClass;
+
+	UPROPERTY(Transient, BlueprintReadOnly, Category = "Drop UI")
+	TObjectPtr<USZItemSlider> WBItemSlider;
 
 public:
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))

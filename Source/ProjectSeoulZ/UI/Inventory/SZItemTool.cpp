@@ -6,12 +6,14 @@
 #include "Components/TextBlock.h"
 #include "Components/Image.h"
 #include "UI/Inventory/SZItemActionUI.h"
+#include "UI/Inventory/SZItemSlider.h"
 #include "Components/Border.h"
 #include "Blueprint/WidgetLayoutLibrary.h"
 #include "Components/CanvasPanelSlot.h"
 
 #include "Kismet/GameplayStatics.h"
 #include "Player/SZCharacterPlayer.h"
+#include "Player/SZPlayerController.h"
 #include "Player/Components/SZInventoryBaseComponent.h"
 #include "Player/Components/SZInventoryComponent.h"
 #include "Player/Components/SZQuickSlotComponent.h"
@@ -36,6 +38,11 @@ void USZItemTool::NativeConstruct()
 	{
 		bool bCheck = CheckMoveToEquipmentSlot();
 		(bCheck)? Btn_Use->OnItemActionClicked.AddDynamic(this, &USZItemTool::OnRequestUnequipItem) : Btn_Use->OnItemActionClicked.AddDynamic(this, &USZItemTool::OnRequestUseItem);
+	}
+
+	if (IsValid(Btn_Drop)) 
+	{
+		Btn_Drop->OnItemActionClicked.AddDynamic(this, &USZItemTool::OnDropSlider);
 	}
 }
 
@@ -295,6 +302,32 @@ float USZItemTool::EvalStatFromCurve(FName Row, float Level, float Fallback) con
 		return Fallback;
 
 	return Curve->Eval(Level);
+}
+
+void USZItemTool::OnDropSlider()
+{
+	if (!WBItemSliderClass || !IsValid(SZInventoryBase))
+	{
+		return;
+	}
+
+	ASZPlayerController* SZPC = Cast<ASZPlayerController>(GetOwningPlayer());
+	if (!SZPC)
+	{
+		return;
+	}
+
+	USZItemSlider* ItemSlider = CreateWidget<USZItemSlider>(SZPC, WBItemSliderClass);
+	if (!ItemSlider)
+	{
+		return;
+	}
+
+	ItemSlider->SZInventoryBase = SZInventoryBase;
+	ItemSlider->Index = Index;
+
+	WBItemSlider = ItemSlider;
+	WBItemSlider->AddToViewport(0);
 }
 
 void USZItemTool::OnMoveToQuickSlot()
