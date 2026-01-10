@@ -23,6 +23,8 @@ public:
 
 	// 해당 컨트롤러가 폰에 빙의될 때 호출되는 함수.
 	virtual void OnPossess(APawn* InPawn) override;
+	
+	virtual void BeginPlay() override;
 
 protected:
 	// 사용할 블랙보드 
@@ -32,5 +34,9 @@ protected:
 	// 사용할 비헤이비어 트리
 	UPROPERTY()
 	TObjectPtr<class UBehaviorTree> BTAsset;
+
+	void TrySetPlayerTarget();
+
+	FTimerHandle PlayerCheckTimerHandle;
 	
 };

@@ -11,7 +11,7 @@ void USZSelectingMapWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	// GameInstance 할당.
+	// GameInstance 불러오기.
 	if (!GI)
 	{
 		GI = GetWorld()->GetGameInstance<USZGameInstance>();

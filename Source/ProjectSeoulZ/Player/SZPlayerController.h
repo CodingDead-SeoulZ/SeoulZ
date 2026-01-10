@@ -78,6 +78,22 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Input")
 	void ApplyUIOnlyMode(UUserWidget* FocusWidget = nullptr);
 
+	// 일시정지 메뉴
+	UFUNCTION()
+	void TogglePauseMenu();
+
+	void ShowPauseMenu();
+	void HidePauseMenu();
+
+	UFUNCTION(BlueprintCallable)
+	void ResumeFromPauseMenu();
+
+	UFUNCTION(BlueprintCallable)
+	void ReturnToLobby();
+
+	UFUNCTION(BlueprintCallable)
+	void ExitGameFromPauseMenu();
+
 public:
 	//
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widget", meta = (AllowPrivateAccess = "true"))
@@ -99,6 +115,17 @@ protected:
 	//
 	UPROPERTY(VisibleInstanceOnly, Category = "Spawn")
 	TObjectPtr<ASZInventoryActor> InventoryActor;
+
+
+	// 일시정지 메뉴
+	UPROPERTY(EditDefaultsOnly, Category = "UI|Pause")
+	TSubclassOf<UUserWidget> PauseMenuClass;
+
+	UPROPERTY()
+	UUserWidget* PauseMenuWidget = nullptr;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Input")
+	UInputAction* IA_Pause = nullptr;
  
 private:
 	//

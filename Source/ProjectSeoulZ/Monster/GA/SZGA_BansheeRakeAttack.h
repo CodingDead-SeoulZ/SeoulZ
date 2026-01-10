@@ -23,6 +23,9 @@ public:
 	//
 	virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override;
 
+	virtual void SpawnActors(class USZPoolManager* PoolManager) override;
+
+
 protected:
 	UFUNCTION()
 	void OnCompleteCallback();
@@ -33,7 +36,12 @@ protected:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UAnimMontage> AttackMontage;
+
+	float ElapsedTime = 0.f;
+	float Duration = 1.f; // 1초 동안 늘리기
+	FVector StartExtent;
+	FVector TargetExtent;
+
 	
-	virtual void SpawnActors(class USZPoolManager* PoolManager) override;
 	
 };

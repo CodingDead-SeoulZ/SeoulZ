@@ -7,6 +7,7 @@
 #include "GameplayAbilitySpec.h"
 #include "AbilitySystemComponent.h"
 #include "Monster/GA/SZGA_BansheeRakeAttack.h"
+#include "BehaviorTree/BlackboardComponent.h"
 
 UBTTask_RakeAttack::UBTTask_RakeAttack()
 {
@@ -43,6 +44,8 @@ EBTNodeResult::Type UBTTask_RakeAttack::ExecuteTask(UBehaviorTreeComponent& Owne
 
 	CachedOwnerComp = &OwnerComp;
 	
+	OwnerComp.GetBlackboardComponent()->SetValueAsBool("bHasChasedPlayer", false);
+
 	return EBTNodeResult::InProgress;
 	
 }

@@ -26,6 +26,7 @@ class PROJECTSEOULZ_API USZStartButton : public UUserWidget
 
 protected:
 	virtual void NativeConstruct() override;
+	virtual void NativeDestruct() override;
 
 	// 버튼 클릭시 실행.
 	UFUNCTION()
@@ -45,9 +46,10 @@ protected:
 	USoundBase* StartButtonSound;
 
 	// 사운드가 재생되고 1초 뒤에 레벨 이동.
+	UPROPERTY()
 	FTimerHandle LevelOpenTimer;
 
 	// GameInstance
-	USZGameInstance* GI;
+	// USZGameInstance* GI;
 
 };

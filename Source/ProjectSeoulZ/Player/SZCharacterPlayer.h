@@ -268,6 +268,9 @@ public:
 	TSubclassOf<AActor> BP_SKM_SecondaryGun;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "BP_SKM_Gun")
+	FName GunID;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "BP_SKM_Gun")
 	TObjectPtr<AActor> WeaponGun;
 #pragma endregion
 

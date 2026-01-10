@@ -51,7 +51,7 @@ void ASZMonsterSpawner::SpawnMonster(class USZPoolManager* PoolManager)
     //
     FHitResult HitResult;
     FVector TraceStart = SpawnLocation + FVector(0.f, 0.f, 200.f); // 충분히 위에서
-    FVector TraceEnd = SpawnLocation - FVector(0.f, 0.f, 100.f); // 충분히 아래까지
+    FVector TraceEnd = SpawnLocation - FVector(0.f, 0.f, -50.f); // 충분히 아래까지
 
     //
     if (GetWorld()->LineTraceSingleByChannel(HitResult, TraceStart, TraceEnd, ECC_WorldStatic))

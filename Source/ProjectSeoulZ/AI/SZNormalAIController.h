@@ -32,6 +32,7 @@ public:
 	// 해당 컨트롤러가 폰에 빙의될 때 호출되는 함수.
 	virtual void OnPossess(APawn* InPawn) override;
 
+
 private:
 	// 사용할 블랙보드 
 	UPROPERTY()

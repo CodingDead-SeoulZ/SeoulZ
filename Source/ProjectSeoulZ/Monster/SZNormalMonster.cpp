@@ -144,7 +144,7 @@ float ASZNormalMonster::GetAIPatrolRadius()
 
 float ASZNormalMonster::GetAIDetectRange()
 {
-	return 400.0f;
+	return 1000.0f;
 }
 
 float ASZNormalMonster::GetAIAttackRange()

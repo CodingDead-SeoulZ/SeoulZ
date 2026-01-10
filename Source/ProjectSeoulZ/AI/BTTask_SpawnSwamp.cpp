@@ -7,6 +7,7 @@
 #include "GameplayAbilitySpec.h"
 #include "AbilitySystemComponent.h"
 #include "Monster/GA/SZGA_BansheeSwampSpawn.h"
+#include "BehaviorTree/BlackboardComponent.h"
 
 UBTTask_SpawnSwamp::UBTTask_SpawnSwamp()
 {
@@ -42,6 +43,8 @@ EBTNodeResult::Type UBTTask_SpawnSwamp::ExecuteTask(UBehaviorTreeComponent& Owne
 	}
 
 	CachedOwnerComp = &OwnerComp;
+
+	OwnerComp.GetBlackboardComponent()->SetValueAsBool("bHasChasedPlayer", false);
 	
 	return EBTNodeResult::InProgress;
 	

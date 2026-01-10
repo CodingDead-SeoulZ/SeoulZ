@@ -113,7 +113,7 @@ public:
 	const int32 GetMatchAmmoIndex(const FName GunID);
 
 	UFUNCTION(BlueprintCallable)
-	void SetAmmo(ASZCharacterPlayer* Player);
+	AActor* SetAmmo(AActor* Weapon, const FName ItemID);
 
 	UFUNCTION(BlueprintCallable)
 	void PrintInventory();

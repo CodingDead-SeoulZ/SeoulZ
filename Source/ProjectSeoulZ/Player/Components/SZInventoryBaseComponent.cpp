@@ -777,6 +777,7 @@ bool USZInventoryBaseComponent::SetPrimaryGun(ASZCharacterPlayer* Player, const 
 		Player->BP_SKM_PrimaryGun = BP_SKM_Shotgun;
 
 	}
+	Player->GunID = InItemID;
 
 	return true;
 }
@@ -818,6 +819,7 @@ bool USZInventoryBaseComponent::SetSecondaryGun(ASZCharacterPlayer* Player, cons
 		}
 		Player->BP_SKM_SecondaryGun = BP_SKM_Shotgun;
 	}
+	Player->GunID = InItemID;
 
 	return true;
 }
@@ -937,11 +939,13 @@ bool USZInventoryBaseComponent::UnequipWeaponItem(const FName InItemID, const in
 	if (EquipmentSlotIndex == 5) 
 	{
 		Player->BP_SKM_PrimaryGun = nullptr;
+		// Player->PrimaryGunID = NAME_None;
 	}
 	// SecondaryGun
 	else if (EquipmentSlotIndex == 6) 
 	{
 		Player->BP_SKM_SecondaryGun = nullptr;
+		// Player->SecondaryGunID = NAME_None;
 	}
 	Player->DestroyWeapon();
 
@@ -997,44 +1001,35 @@ const int32 USZInventoryBaseComponent::GetMatchAmmoIndex(const FName GunID)
 	return INDEX_NONE;
 }
 
-void USZInventoryBaseComponent::SetAmmo(ASZCharacterPlayer* Player)
+AActor* USZInventoryBaseComponent::SetAmmo(AActor* WeaponGun, const FName ItemID)
 {
-	if (!Player) 
+	if (!WeaponGun)
 	{
-		return;
+		return nullptr;
 	}
 
-	USZGunDataComp* GunDataComp = Player->WeaponGun->FindComponentByClass<USZGunDataComp>();
+	USZGunDataComp* GunDataComp = WeaponGun->FindComponentByClass<USZGunDataComp>();
 	if (!GunDataComp)
 	{
-		return;
+		return nullptr;
 	}
 
-	const FName ItemID = GunDataComp->ItemID;
-	
 	// 1. 총에 맞는 총알이 존재하는지
 	const int32 AmmoIndex = GetMatchAmmoIndex(ItemID);
 	if (AmmoIndex == INDEX_NONE) 
 	{
 		// 단, 총알이 없으면 동작 안 함.
-		return;
+		return nullptr;
 	}
 	FItemSlot& AmmoSlot = ItemSlots[AmmoIndex];
 	const FItemTemplete* Ammo = FindItemData(AmmoSlot.ItemID);
 	
 	// 2. 장전
-	GunDataComp->CurrentAmmo = Ammo->ItemAmmo.CurrentAmmo;
+	// GunDataComp->CurrentAmmo = Ammo->ItemAmmo.CurrentAmmo;
 	GunDataComp->MaxAmmo = Ammo->ItemAmmo.MaxAmmo;
 	GunDataComp->InventoryAmmo = Ammo->ItemAmmo.InventoryAmmo;
-	/*if (ItemID == TEXT("0001")) 
-	{
-	}
-	else if (ItemID == TEXT("0010"))
-	{
-	}
-	else if (ItemID == TEXT("0011"))
-	{
-	}*/
+	
+	return WeaponGun;
 }
 
 void USZInventoryBaseComponent::PrintInventory()

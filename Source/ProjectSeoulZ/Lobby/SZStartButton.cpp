@@ -11,15 +11,24 @@ void USZStartButton::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	// GameInstance 불러오기.
-	if (!GI)
-	{
-		GI = GetWorld()->GetGameInstance<USZGameInstance>();
-	}
+	// // GameInstance 불러오기.
+	// if (!GI)
+	// {
+	// 	GI = GetWorld()->GetGameInstance<USZGameInstance>();
+	// }
 
 	// Start Button 바인딩.
 	StartButton->OnClicked.AddDynamic(this, &USZStartButton::OnStartButtonClicked);
-	UE_LOG(LogTemp, Log, TEXT("StartButton binded"));
+}
+
+void USZStartButton::NativeDestruct()
+{
+	Super::NativeDestruct();
+
+	if (UWorld* World = GetWorld())
+	{
+		World->GetTimerManager().ClearAllTimersForObject(this);
+	}
 }
 
 void USZStartButton::OnStartButtonClicked()
@@ -33,6 +42,7 @@ void USZStartButton::OnStartButtonClicked()
 	}
 
 	// 1초 뒤에 레벨 이동 타이머 재생.
+	//TWeakObjectPtr<USZStartButton> WeakThis = this;
 	GetWorld()->GetTimerManager().SetTimer(
 		LevelOpenTimer,
 		this,
@@ -44,14 +54,23 @@ void USZStartButton::OnStartButtonClicked()
 
 void USZStartButton::OpenSelectedLevel()
 {
+	
+	USZGameInstance* GI= GetWorld()->GetGameInstance<USZGameInstance>();
+	
 	if (!GI || !(GI->MapList.IsValidIndex(GI->SelectedMapIndex)))
 	{
 		return;
 	}
 
+	GetWorld()->GetTimerManager().ClearTimer(LevelOpenTimer);
+	
 	// 인게임 레벨 이동.
 	UGameplayStatics::OpenLevel(
 		GetWorld(),
 		GI->MapList[GI->SelectedMapIndex].LevelName
 	);
+	
+	// 비동기 로딩레벨로 이동.
+	//GI->LoadSelectedLevelAsync();
+	
 }

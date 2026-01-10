@@ -12,7 +12,13 @@ USZGA_BansheeSwampSpawn::USZGA_BansheeSwampSpawn()
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 	
-	SpawnClass = ASZSwamp::StaticClass();
+	//SpawnClass = ASZSwamp::StaticClass();
+
+	static ConstructorHelpers::FClassFinder<AActor> BPSwampClass(TEXT("/Game/Blueprints/BP_Swamp.BP_Swamp_C"));
+	if (BPSwampClass.Class)
+	{
+		SpawnClass = BPSwampClass.Class;
+	}
 	
 }
 

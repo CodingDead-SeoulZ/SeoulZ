@@ -3,6 +3,7 @@
 
 #include "Player/SZPlayerController.h"
 #include "EnhancedInputSubsystems.h"
+#include "EnhancedInputComponent.h"
 #include "InputMappingContext.h"
 #include "Blueprint/UserWidget.h"
 #include "UI/Inventory/SZWardrobe.h"
@@ -12,6 +13,8 @@
 #include "Player/SZCharacterPlayer.h"
 #include "Player/Components/SZInventoryBaseComponent.h"
 #include "Player/Components/SZCharacterEquipmentComponent.h"
+#include "Kismet/KismetSystemLibrary.h"
+#include "Kismet/GameplayStatics.h"
 
 void ASZPlayerController::ShowPlayerHud()
 {
@@ -141,6 +144,8 @@ void ASZPlayerController::BeginPlay()
 
 void ASZPlayerController::SetupInputComponent()
 {
+	UE_LOG(LogTemp, Warning, TEXT("ASZPlayerController::SetupInputComponent called"));
+
 	Super::SetupInputComponent();
 
 	if (IsLocalPlayerController())
@@ -150,6 +155,10 @@ void ASZPlayerController::SetupInputComponent()
 			Subsystem->AddMappingContext(CurrentCharacterContext, 0);
 		}
 	}
+	
+	UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(InputComponent);
+
+	EnhancedInputComponent->BindAction(IA_Pause, ETriggerEvent::Started, this, &ASZPlayerController::TogglePauseMenu);
 }
 
 void ASZPlayerController::OnPossess(APawn* InPawn)
@@ -169,7 +178,7 @@ void ASZPlayerController::OnPossess(APawn* InPawn)
 	{
 		return;
 	}
-
+	
 	// 옷장에서 아이템 장착
 	// SZInventoryBase->OnWardrobeActorChanged.AddDynamic(this, &ASZPlayerController::UpdateWardrobe);
 	// 중복 바인딩 방지. 이미 같은 항목이 바인딩돼 있으면 추가하지 않음.
@@ -275,4 +284,135 @@ void ASZPlayerController::ApplyUIOnlyMode(UUserWidget* FocusWidget)
 	// UI 전용이면 보통 이동/시점도 잠금
 	SetIgnoreMoveInput(true);
 	SetIgnoreLookInput(true);
+}
+
+void ASZPlayerController::TogglePauseMenu()
+{
+	const bool bIsPaused = IsPaused();
+
+	if (!bIsPaused)
+	{
+		SetPause(true);
+		ShowPauseMenu();
+	}
+	else
+	{
+		HidePauseMenu();
+		SetPause(false);
+	}
+}
+
+void ASZPlayerController::ShowPauseMenu()
+{
+
+	UE_LOG(LogTemp, Warning, TEXT("ShowPauseMenu called. PauseMenuClass=%s"),
+		*GetNameSafe(PauseMenuClass));
+
+	if (!PauseMenuClass) return;
+
+	if (!PauseMenuWidget)
+	{
+		PauseMenuWidget = CreateWidget<UUserWidget>(this, PauseMenuClass);
+	}
+	if (PauseMenuWidget && !PauseMenuWidget->IsInViewport())
+	{
+		PauseMenuWidget->AddToViewport(100); // ZOrder 높게
+	}
+
+	bShowMouseCursor = true;
+	SetIgnoreLookInput(true);
+	SetIgnoreMoveInput(true);
+
+	FInputModeUIOnly InputMode;
+	InputMode.SetWidgetToFocus(PauseMenuWidget ? PauseMenuWidget->TakeWidget() : TSharedPtr<SWidget>());
+	InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+	SetInputMode(InputMode);
+}
+
+void ASZPlayerController::HidePauseMenu()
+{
+	if (PauseMenuWidget && PauseMenuWidget->IsInViewport())
+	{
+		PauseMenuWidget->RemoveFromParent();
+	}
+
+	bShowMouseCursor = false;
+	SetIgnoreLookInput(false);
+	SetIgnoreMoveInput(false);
+
+	FInputModeGameOnly InputMode;
+	SetInputMode(InputMode);
+}
+
+void ASZPlayerController::ResumeFromPauseMenu()
+{
+	// 1) UI 제거
+	if (PauseMenuWidget)
+	{
+		PauseMenuWidget->RemoveFromParent();
+		PauseMenuWidget = nullptr;
+	}
+
+	// 2) 일시정지 해제
+	SetPause(false);
+
+	// 3) 마우스 커서/클릭/마우스오버 복구
+	bShowMouseCursor = false;
+	bEnableClickEvents = false;
+	bEnableMouseOverEvents = false;
+
+	SetIgnoreLookInput(false);
+	SetIgnoreMoveInput(false);
+
+	// 4) 입력 모드 복구 (핵심)
+	FInputModeGameOnly Mode;
+	SetInputMode(Mode);
+
+	// 5) (Enhanced Input에서 종종 필요) 키 상태 리셋
+	if (UEnhancedInputLocalPlayerSubsystem* Subsystem =
+		ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer()))
+	{
+		Subsystem->RequestRebuildControlMappings(FModifyContextOptions(), EInputMappingRebuildType::Rebuild);
+	}
+}
+
+void ASZPlayerController::ReturnToLobby()
+{
+	// 1) UI 제거
+	if (PauseMenuWidget)
+	{
+		PauseMenuWidget->RemoveFromParent();
+		PauseMenuWidget = nullptr;
+	}
+
+	// 2) 일시정지 해제 (OpenLevel 전에 반드시)
+	SetPause(false);
+
+	// 3) 마우스 커서/클릭/마우스오버 복구
+	bShowMouseCursor = false;
+	bEnableClickEvents = false;
+	bEnableMouseOverEvents = false;
+
+	SetIgnoreLookInput(false);
+	SetIgnoreMoveInput(false);
+
+	// 4) 입력 모드 복구
+	FInputModeGameOnly Mode;
+	SetInputMode(Mode);
+
+	// 5) (선택) Enhanced Input 키 상태/매핑 리빌드
+	if (UEnhancedInputLocalPlayerSubsystem* Subsystem =
+		ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer()))
+	{
+		Subsystem->RequestRebuildControlMappings(FModifyContextOptions(), EInputMappingRebuildType::Rebuild);
+	}
+
+	// 6) 로비 레벨로 이동
+	static const FName LobbyLevelName(TEXT("PAS_Demo1"));
+	UGameplayStatics::OpenLevel(this, LobbyLevelName);
+}
+
+void ASZPlayerController::ExitGameFromPauseMenu()
+{
+	UKismetSystemLibrary::QuitGame(this, this, EQuitPreference::Quit, false);
 }

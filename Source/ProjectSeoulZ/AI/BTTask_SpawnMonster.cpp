@@ -7,6 +7,7 @@
 #include "Monster/GA/SZGA_BansheeMonsterSpawn.h"
 #include "Monster/SZBossBanshee.h"
 #include "AbilitySystemComponent.h"
+#include "BehaviorTree/BlackboardComponent.h"
 
 UBTTask_SpawnMonster::UBTTask_SpawnMonster()
 {
@@ -45,12 +46,10 @@ EBTNodeResult::Type UBTTask_SpawnMonster::ExecuteTask(UBehaviorTreeComponent& Ow
 		Monster->SetCurrentTask(this);
 		Monster->GetAbilitySystemComponent()->TryActivateAbility(SkillGASpec->Handle);
 	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Ability is a."));
-	}
 
 	CachedOwnerComp = &OwnerComp;
+
+	OwnerComp.GetBlackboardComponent()->SetValueAsBool("bHasChasedPlayer", false);
 
 	return EBTNodeResult::InProgress;
 }

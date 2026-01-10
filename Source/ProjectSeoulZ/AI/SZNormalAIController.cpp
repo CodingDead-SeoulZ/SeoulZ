@@ -6,6 +6,7 @@
 #include "BehaviorTree/BlackboardData.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "AI/SZAI.h"
+#include <Kismet/GameplayStatics.h>
 
 ASZNormalAIController::ASZNormalAIController()
 {
@@ -33,6 +34,11 @@ void ASZNormalAIController::RunAI()
 		{
 			// 블랙보드의 BBKEY_HOMEPOS에 생성되는 위치 저장
 			Blackboard->SetValueAsVector(BBKEY_HOMEPOS, GetPawn()->GetActorLocation());
+			/*APawn* PlayerPawn = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
+			if (PlayerPawn)
+			{
+				Blackboard->SetValueAsObject("Target", PlayerPawn);
+			}*/
 
 			// 비헤이비어 트리 시작
 			bool RunResult = RunBehaviorTree(BTAsset);
@@ -59,3 +65,4 @@ void ASZNormalAIController::OnPossess(APawn* InPawn)
 
 	RunAI();
 }
+

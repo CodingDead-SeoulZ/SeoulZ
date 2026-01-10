@@ -14,17 +14,17 @@ ASZBossBanshee::ASZBossBanshee()
 	// Monster�� ��ġ�Ǿ��ų� Spawn�Ǹ� AIController�� ���� ��.
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 	
-	GetCharacterMovement()->bOrientRotationToMovement = false; // 루트 모션과 충돌 방지
+	GetCharacterMovement()->bOrientRotationToMovement = true; // 루트 모션과 충돌 방지
 	GetCharacterMovement()->bUseControllerDesiredRotation = false;
 
 	// �ִ� �ν��Ͻ� �Ҵ�
-	static ConstructorHelpers::FClassFinder<UAnimInstance> AnimInstanceClassRef(TEXT("/Game/Animation/Monster/ABP_BossBanshee.ABP_BossBanshee_C"));
+	static ConstructorHelpers::FClassFinder<UAnimInstance> AnimInstanceClassRef(TEXT("/Game/Animation/Monster/ABP_Akkan.ABP_Akkan_C"));
 	if (AnimInstanceClassRef.Class)
 	{
 		GetMesh()->SetAnimInstanceClass(AnimInstanceClassRef.Class);
 	}
 
-	static ConstructorHelpers::FObjectFinder<UAnimMontage> DeadAnimMontageRef(TEXT("/Game/Animation/Monster/AM_BossDead.AM_BossDead"));
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> DeadAnimMontageRef(TEXT("/Game/Animation/Monster/AM_Dead.AM_Dead"));
 	if (DeadAnimMontageRef.Object)
 	{
 		DeadMontage = DeadAnimMontageRef.Object;
@@ -36,13 +36,13 @@ ASZBossBanshee::ASZBossBanshee()
 		RoarMontage = RoarAnimMontageRef.Object;
 	}
 
-	static ConstructorHelpers::FObjectFinder<UAnimMontage> SpawnSkillMontageRef(TEXT("/Game/Animation/Monster/AM_SpawnUndead.AM_SpawnUndead"));
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> SpawnSkillMontageRef(TEXT("/Game/Animation/Monster/AM_UndeadSpawn.AM_UndeadSpawn"));
 	if (SpawnSkillMontageRef.Object)
 	{
 		SpawnSkillMontage = SpawnSkillMontageRef.Object;
 	}
 	
-	static ConstructorHelpers::FObjectFinder<UAnimMontage> SpawnSwampMontageRef(TEXT("/Game/Animation/Monster/AM_SpawnSwamp.AM_SpawnSwamp"));
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> SpawnSwampMontageRef(TEXT("/Game/Animation/Monster/AM_SwampSpawn.AM_SwampSpawn"));
 	if (SpawnSwampMontageRef.Object)
 	{
 		SpawnSwampMontage = SpawnSwampMontageRef.Object;
@@ -57,6 +57,7 @@ void ASZBossBanshee::BeginPlay()
 	Super::BeginPlay();
 
 	//PlayIntroMontage();
+
 }
 
 void ASZBossBanshee::SetDead()
@@ -112,7 +113,7 @@ float ASZBossBanshee::GetAIPatrolRadius()
 
 float ASZBossBanshee::GetAIDetectRange()
 {
-	return 500.0f;
+	return 100000.0f;
 }
 
 float ASZBossBanshee::GetAIAttackRange()
@@ -127,6 +128,8 @@ float ASZBossBanshee::GetAITurnSpeed()
 
 void ASZBossBanshee::PossessedBy(AController* NewController)
 {
+	Super::PossessedBy(NewController);
+
 	if (ASC)
 	{
 		ASC->InitAbilityActorInfo(NewController, this);
@@ -146,7 +149,6 @@ void ASZBossBanshee::PossessedBy(AController* NewController)
 
 		//
 		AttributeSet->InitHealth(AttributeSet->GetMaxHealth());
-		UE_LOG(LogTemp, Log, TEXT("PossessedBy End"));
 	}
 
 	//
