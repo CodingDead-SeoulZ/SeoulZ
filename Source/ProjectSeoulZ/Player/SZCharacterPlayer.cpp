@@ -176,10 +176,9 @@ void ASZCharacterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 	// 인벤토리 열고 줍기
 	EnhancedInputComponent->BindAction(InventoryAction, ETriggerEvent::Started, this, &ASZCharacterPlayer::ToggleInventory);
 	// 퀵 슬롯 선택
-	EnhancedInputComponent->BindAction(SelectedF1Action, ETriggerEvent::Started, this, &ASZCharacterPlayer::SelectedF1);
-	EnhancedInputComponent->BindAction(SelectedF2Action, ETriggerEvent::Started, this, &ASZCharacterPlayer::SelectedF2);
-	EnhancedInputComponent->BindAction(SelectedF3Action, ETriggerEvent::Started, this, &ASZCharacterPlayer::SelectedF3);
-	EnhancedInputComponent->BindAction(SelectedF4Action, ETriggerEvent::Started, this, &ASZCharacterPlayer::SelectedF4);
+	EnhancedInputComponent->BindAction(Selected3Action, ETriggerEvent::Started, this, &ASZCharacterPlayer::Selected3);
+	EnhancedInputComponent->BindAction(Selected4Action, ETriggerEvent::Started, this, &ASZCharacterPlayer::Selected4);
+	EnhancedInputComponent->BindAction(Selected5Action, ETriggerEvent::Started, this, &ASZCharacterPlayer::Selected5);
 #pragma endregion
 }
 
@@ -637,7 +636,7 @@ void ASZCharacterPlayer::ToggleInventory(const FInputActionValue& Value)
 	}
 }
 
-void ASZCharacterPlayer::SelectedF1(const FInputActionValue& Value)
+void ASZCharacterPlayer::Selected3(const FInputActionValue& Value)
 {
 	if (SZQuickSlot)
 	{
@@ -645,7 +644,7 @@ void ASZCharacterPlayer::SelectedF1(const FInputActionValue& Value)
 	}
 }
 
-void ASZCharacterPlayer::SelectedF2(const FInputActionValue& Value)
+void ASZCharacterPlayer::Selected4(const FInputActionValue& Value)
 {
 	if (SZQuickSlot)
 	{
@@ -653,19 +652,11 @@ void ASZCharacterPlayer::SelectedF2(const FInputActionValue& Value)
 	}
 }
 
-void ASZCharacterPlayer::SelectedF3(const FInputActionValue& Value)
+void ASZCharacterPlayer::Selected5(const FInputActionValue& Value)
 {
 	if (SZQuickSlot)
 	{
 		SZQuickSlot->GetSelectedSlot(2);
-	}
-}
-
-void ASZCharacterPlayer::SelectedF4(const FInputActionValue& Value)
-{
-	if (SZQuickSlot)
-	{
-		SZQuickSlot->GetSelectedSlot(3);
 	}
 }
 #pragma endregion

@@ -23,6 +23,8 @@ void USZQuickSlotComponent::GetSelectedSlot(int32 Index)
 	}
 
 	SZPC->PlayerHUD->WB_QuickSlotDisplay->SetSelectedSlot(Index);
+	RequestUseItem(ItemID, Index);
+	
 	// Play2DSound();
 	UpdateInventory();
 }
