@@ -196,13 +196,13 @@ protected:
 
 	// 퀵 슬롯 선택
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<class UInputAction> Selected3Action;
+	TObjectPtr<class UInputAction> SelectedQS3Action;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<class UInputAction> Selected4Action;
+	TObjectPtr<class UInputAction> SelectedQS4Action;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<class UInputAction> Selected5Action;
+	TObjectPtr<class UInputAction> SelectedQS5Action;
 #pragma endregion
 
 	//
@@ -226,9 +226,9 @@ protected:
 	void ToggleInventory(const FInputActionValue& Value);
 
 	// 퀵 슬롯 선택
-	void Selected3(const FInputActionValue& Value);
-	void Selected4(const FInputActionValue& Value);
-	void Selected5(const FInputActionValue& Value);
+	void SelectedQS3(const FInputActionValue& Value);
+	void SelectedQS4(const FInputActionValue& Value);
+	void SelectedQS5(const FInputActionValue& Value);
 #pragma endregion
 
 public:

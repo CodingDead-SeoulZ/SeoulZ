@@ -176,9 +176,9 @@ void ASZCharacterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 	// 인벤토리 열고 줍기
 	EnhancedInputComponent->BindAction(InventoryAction, ETriggerEvent::Started, this, &ASZCharacterPlayer::ToggleInventory);
 	// 퀵 슬롯 선택
-	EnhancedInputComponent->BindAction(Selected3Action, ETriggerEvent::Started, this, &ASZCharacterPlayer::Selected3);
-	EnhancedInputComponent->BindAction(Selected4Action, ETriggerEvent::Started, this, &ASZCharacterPlayer::Selected4);
-	EnhancedInputComponent->BindAction(Selected5Action, ETriggerEvent::Started, this, &ASZCharacterPlayer::Selected5);
+	EnhancedInputComponent->BindAction(SelectedQS3Action, ETriggerEvent::Started, this, &ASZCharacterPlayer::SelectedQS3);
+	EnhancedInputComponent->BindAction(SelectedQS4Action, ETriggerEvent::Started, this, &ASZCharacterPlayer::SelectedQS4);
+	EnhancedInputComponent->BindAction(SelectedQS5Action, ETriggerEvent::Started, this, &ASZCharacterPlayer::SelectedQS5);
 #pragma endregion
 }
 
@@ -636,7 +636,7 @@ void ASZCharacterPlayer::ToggleInventory(const FInputActionValue& Value)
 	}
 }
 
-void ASZCharacterPlayer::Selected3(const FInputActionValue& Value)
+void ASZCharacterPlayer::SelectedQS3(const FInputActionValue& Value)
 {
 	if (SZQuickSlot)
 	{
@@ -644,7 +644,7 @@ void ASZCharacterPlayer::Selected3(const FInputActionValue& Value)
 	}
 }
 
-void ASZCharacterPlayer::Selected4(const FInputActionValue& Value)
+void ASZCharacterPlayer::SelectedQS4(const FInputActionValue& Value)
 {
 	if (SZQuickSlot)
 	{
@@ -652,7 +652,7 @@ void ASZCharacterPlayer::Selected4(const FInputActionValue& Value)
 	}
 }
 
-void ASZCharacterPlayer::Selected5(const FInputActionValue& Value)
+void ASZCharacterPlayer::SelectedQS5(const FInputActionValue& Value)
 {
 	if (SZQuickSlot)
 	{
