@@ -200,13 +200,28 @@ void USZItemTool::DisplayButtonUI()
 		// 장착
 		Btn_MoveToQuickSlot->SetVisibility(ESlateVisibility::Hidden);
 		Btn_Drop->SetVisibility(ESlateVisibility::Hidden);
-		return;
 	}
 	else
 	{
 		Btn_MoveToQuickSlot->SetVisibility(ESlateVisibility::Visible);
 		Btn_Drop->SetVisibility(ESlateVisibility::Visible);
+	}
+
+	if (!ItemData || ItemID.IsNone())
+	{
 		return;
+	}
+
+	const FItemTemplete* Item = ItemData->FindRow<FItemTemplete>(ItemID, TEXT("USZItemTool::DisplayItemInfo"));
+	if (!Item)
+	{
+		return;
+	}
+	
+	const bool bIsWeapon = (Item->ItemCategory == EItemCategory::Weapons);
+	if (bIsWeapon) 
+	{
+		Btn_MoveToQuickSlot->SetVisibility(ESlateVisibility::Hidden);
 	}
 }
 
@@ -367,7 +382,7 @@ void USZItemTool::OnMoveToQuickSlot()
 		// 인벤 -> 핫바
 		SZInventoryBase->MoveToInventory(SZQuickSlot, Index);
 	}
-	else
+	else if (!bIsNotQuickSlot)
 	{
 		// 핫바 -> 인벤
 		SZQuickSlot->MoveToInventory(SZInventory, Index);

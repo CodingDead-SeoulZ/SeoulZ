@@ -30,6 +30,7 @@ struct FItemSlot
 };
 
 class ASZCharacterPlayer;
+// class USZGunDataComp;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnInventoryUpdated);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnWardrobeEquipped, EEquipmentSlotType, SlotType, USkeletalMesh*, NewMesh);
@@ -109,10 +110,13 @@ public:
 	bool RequestUnequipWeaponItem(const FName ItemID, const int32 EquipmentSlotIndex);
 	bool UnequipWeaponItem(const FName InItemID, const int32 EquipmentSlotIndex);
 
-	const int32 GetMatchAmmoIndex(const FName GunID);
+	// const int32 GetMatchAmmoIndex(const FName GunID);
 
-	UFUNCTION(BlueprintCallable)
-	AActor* SetAmmo(AActor* Weapon, const FName ItemID);
+	// UFUNCTION(BlueprintCallable)
+	// AActor* SetAmmoToWeapon(AActor* Weapon, const FName ItemID);
+
+	// UFUNCTION(BlueprintCallable)
+	// USZGunDataComp* SetAmmoToGunDataComp(USZGunDataComp* GunDataComp, const FName ItemID);
 #pragma endregion
 
 	void UpdateSlot(const int32 Index, int32 DropStack);

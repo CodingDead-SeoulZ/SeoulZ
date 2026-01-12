@@ -47,6 +47,25 @@ void USZInventorySlot::NativeOnDragDetected(const FGeometry& InGeometry, const F
 {
 	Super::NativeOnDragDetected(InGeometry, InMouseEvent, OutOperation);
 
+	if (ItemID.IsNone()) 
+	{
+		return;
+	}
+
+	const FItemTemplete* Item = SZInventoryBase->FindItemData(ItemID);
+	if (!Item) 
+	{
+		return;
+	}
+
+	const bool bIsWeapon = (Item && Item->ItemCategory == EItemCategory::Weapons);
+	// 무기는 드래그 불가
+	if (bIsWeapon)
+	{
+		OutOperation = nullptr; 
+		return;
+	}
+
 	// 아이템 이동 위젯 생성
 	USZItemSlotPreview* PreviewWidget = CreateWidget<USZItemSlotPreview>(GetOwningPlayer(), ItemSlotPreviewClass);
 	if (!PreviewWidget)

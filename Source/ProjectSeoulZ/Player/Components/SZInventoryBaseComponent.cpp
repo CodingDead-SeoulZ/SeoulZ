@@ -966,73 +966,104 @@ bool USZInventoryBaseComponent::UnequipWeaponItem(const FName InItemID, const in
 	return true;
 }
 
-const int32 USZInventoryBaseComponent::GetMatchAmmoIndex(const FName GunID)
-{
-	if (GunID.IsNone())
-	{
-		return INDEX_NONE;
-	}
+//const int32 USZInventoryBaseComponent::GetMatchAmmoIndex(const FName GunID)
+//{
+//	if (GunID.IsNone())
+//	{
+//		return INDEX_NONE;
+//	}
+//
+//	FName ItemID = NAME_None;
+//	if (GunID == TEXT("0001")) 
+//	{
+//		ItemID = TEXT("1100");
+//	}
+//	else if (GunID == TEXT("0010"))
+//	{
+//		ItemID = TEXT("1101");
+//	}
+//	else if (GunID == TEXT("0011"))
+//	{
+//		ItemID = TEXT("1110");
+//	}
+//
+//	const FItemTemplete* Ammo = FindItemData(ItemID);
+//	for (int32 i = 0; i < ItemSlots.Num(); ++i)
+//	{
+//		const FItemSlot& Slot = ItemSlots[i];
+//
+//		if (Slot.ItemID == ItemID &&
+//			Slot.StackCount > 0 &&
+//			Slot.StackCount <= Ammo->MaxStackCount)
+//		{
+//			return i;
+//		}
+//	}
+//
+//	return INDEX_NONE;
+//}
 
-	FName ItemID = NAME_None;
-	if (GunID == TEXT("0001")) 
-	{
-		ItemID = TEXT("1100");
-	}
-	else if (GunID == TEXT("0010"))
-	{
-		ItemID = TEXT("1101");
-	}
-	else if (GunID == TEXT("0011"))
-	{
-		ItemID = TEXT("1110");
-	}
-
-	const FItemTemplete* Ammo = FindItemData(ItemID);
-	for (int32 i = 0; i < ItemSlots.Num(); ++i)
-	{
-		const FItemSlot& Slot = ItemSlots[i];
-
-		if (Slot.ItemID == ItemID &&
-			Slot.StackCount > 0 &&
-			Slot.StackCount <= Ammo->MaxStackCount)
-		{
-			return i;
-		}
-	}
-
-	return INDEX_NONE;
-}
-
-AActor* USZInventoryBaseComponent::SetAmmo(AActor* WeaponGun, const FName ItemID)
-{
-	if (!WeaponGun)
-	{
-		return nullptr;
-	}
-
-	USZGunDataComp* GunDataComp = WeaponGun->FindComponentByClass<USZGunDataComp>();
-	if (!GunDataComp)
-	{
-		return nullptr;
-	}
-
-	// 1. 총에 맞는 총알이 존재하는지
-	const int32 AmmoIndex = GetMatchAmmoIndex(ItemID);
-	if (AmmoIndex == INDEX_NONE) 
-	{
-		// 단, 총알이 없으면 동작 안 함.
-		return nullptr;
-	}
-	FItemSlot& AmmoSlot = ItemSlots[AmmoIndex];
-	const FItemTemplete* Ammo = FindItemData(AmmoSlot.ItemID);
-	
-	// 2. 장전
-	// GunDataComp->CurrentAmmo = Ammo->ItemAmmo.CurrentAmmo;
-	GunDataComp->MaxAmmo = Ammo->ItemAmmo.MaxAmmo;
-	GunDataComp->InventoryAmmo = Ammo->ItemAmmo.InventoryAmmo;
-	
-	return WeaponGun;
-}
+//AActor* USZInventoryBaseComponent::SetAmmoToWeapon(AActor* WeaponGun, const FName ItemID)
+//{
+//	if (!WeaponGun)
+//	{
+//		return nullptr;
+//	}
+//
+//	USZGunDataComp* GunDataComp = WeaponGun->FindComponentByClass<USZGunDataComp>();
+//	if (!GunDataComp)
+//	{
+//		return nullptr;
+//	}
+//
+//	// 1. 총에 맞는 총알이 존재하는지
+//	const int32 AmmoIndex = GetMatchAmmoIndex(ItemID);
+//	if (AmmoIndex == INDEX_NONE) 
+//	{
+//		// 단, 총알이 없으면 동작 안 함.
+//		GunDataComp->MaxAmmo = 0;
+//		GunDataComp->InventoryAmmo = 0;
+//	}
+//	else 
+//	{
+//		FItemSlot& AmmoSlot = ItemSlots[AmmoIndex];
+//		const FItemTemplete* Ammo = FindItemData(AmmoSlot.ItemID);
+//
+//		// 2. 장전
+//		GunDataComp->MaxAmmo = Ammo->ItemAmmo.MaxAmmo;
+//		GunDataComp->InventoryAmmo = Ammo->ItemAmmo.InventoryAmmo;
+//	}
+//	
+//	return WeaponGun;
+//}
+//
+//USZGunDataComp* USZInventoryBaseComponent::SetAmmoToGunDataComp(USZGunDataComp* GunDataComp, const FName ItemID)
+//{
+//	if (!GunDataComp)
+//	{
+//		return nullptr;
+//	}
+//
+//	// 1. 총에 맞는 총알이 존재하는지
+//	const int32 AmmoIndex = GetMatchAmmoIndex(ItemID);
+//	if (AmmoIndex == INDEX_NONE)
+//	{
+//		// 단, 총알이 없으면 동작 안 함.
+//		GunDataComp->MaxAmmo = 0;
+//		GunDataComp->InventoryAmmo = 0;
+//	}
+//	else
+//	{
+//		FItemSlot& AmmoSlot = ItemSlots[AmmoIndex];
+//		const FItemTemplete* Ammo = FindItemData(AmmoSlot.ItemID);
+//
+//		// 2. 장전
+//		GunDataComp->MaxAmmo = Ammo->ItemAmmo.MaxAmmo;
+//		GunDataComp->InventoryAmmo = Ammo->ItemAmmo.InventoryAmmo;
+//	}
+//
+//	return GunDataComp;
+//}
 
 void USZInventoryBaseComponent::UpdateSlot(const int32 Index, int32 DropStack)
 {
