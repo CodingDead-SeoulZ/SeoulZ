@@ -1,0 +1,101 @@
+﻿// Fill out your copyright notice in the Description page of Project Settings.
+
+
+#include "UI/Inventory/SZPlayerDisplay.h"
+#include "Player/SZCharacterPlayer.h"
+#include "Player/SZPlayerController.h"
+#include "Player/Components/SZQuickSlotComponent.h"
+
+void USZPlayerDisplay::NativePreConstruct()
+{
+	Super::NativePreConstruct();
+
+	DisplayInventory();
+	DisplayQuickSlot();
+}
+
+void USZPlayerDisplay::NativeConstruct()
+{
+	Super::NativeConstruct();
+
+	ShowMouse();
+}
+
+void USZPlayerDisplay::NativeDestruct()
+{
+	Super::NativeDestruct();
+
+	HideMouse();
+}
+
+void USZPlayerDisplay::ShowMouse()
+{
+	ASZPlayerController* SZPC = GetOwningPlayer<ASZPlayerController>();
+	if (!IsValid(SZPC)) 
+	{
+		return;
+	}
+
+	SZPC->bShowMouseCursor = true;
+
+	FInputModeGameAndUI InputMode; // Game And UI
+	InputMode.SetWidgetToFocus(this->TakeWidget()); // 우선 순위는 UI
+	InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock); // 마우스 뷰 포트 밖으로 이동 가능
+	InputMode.SetHideCursorDuringCapture(true);
+	
+	SZPC->SetInputMode(InputMode);
+}
+
+void USZPlayerDisplay::HideMouse()
+{
+	ASZPlayerController* SZPC = GetOwningPlayer<ASZPlayerController>();
+	if (!IsValid(SZPC))
+	{
+		return;
+	}
+
+	SZPC->bShowMouseCursor = false;
+
+	FInputModeGameOnly InputMode;
+	SZPC->SetInputMode(InputMode);
+}
+
+void USZPlayerDisplay::DisplayInventory()
+{
+	ASZPlayerController* SZPC = GetOwningPlayer<ASZPlayerController>();
+	if (!IsValid(SZPC))
+	{
+		return;
+	}
+
+	USZInventoryBaseComponent* SZInventory = Cast<USZInventoryBaseComponent>(SZPC->GetComponentByClass(USZInventoryBaseComponent::StaticClass()));
+	if (!IsValid(SZInventory))
+	{
+		return;
+	}
+
+	WB_InventoryUI->RefreshInventory(SZInventory);
+}
+
+void USZPlayerDisplay::DisplayQuickSlot()
+{
+	ASZPlayerController* SZPC = GetOwningPlayer<ASZPlayerController>();
+	if (!IsValid(SZPC))
+	{
+		return;
+	}
+
+	ASZCharacterPlayer* Player = Cast<ASZCharacterPlayer>(SZPC->GetPawn());
+	if (!IsValid(Player))
+	{
+		return;
+	}
+
+	USZQuickSlotComponent* SZQuickSlot = Player->GetComponentByClass<USZQuickSlotComponent>();
+	if (!IsValid(SZQuickSlot))
+	{
+		return;
+	}
+
+	WB_InventoryUI->WB_QuickSlotUI->RefreshInventory(SZQuickSlot);
+}

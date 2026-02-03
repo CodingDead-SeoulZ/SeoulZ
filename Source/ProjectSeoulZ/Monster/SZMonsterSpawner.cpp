@@ -1,0 +1,124 @@
+﻿// Fill out your copyright notice in the Description page of Project Settings.
+
+#include "Monster/SZMonsterSpawner.h"
+#include "Utils/SpawnUtils.h"
+#include "Interface/SZPoolableInterface.h"
+#include "GameMode/SZPoolManager.h" 
+#include "GameFramework/Character.h"
+#include "Components/CapsuleComponent.h"
+
+ASZMonsterSpawner::ASZMonsterSpawner()
+{
+}
+
+void ASZMonsterSpawner::SpawnMonster(class USZPoolManager* PoolManager)
+{
+    //
+    if (!PoolManager || !MonsterClass) return;
+
+    //
+    FVector SpawnLocation;
+    //
+    bool bFound = false;
+
+    //
+    for (int32 i = 0; i < MaxRetries; i++)
+    {
+        //
+        if (!SpawnUtil::GetRandomSpawnLocation(GetWorld(), GetActorLocation(), SpawnRadius, SpawnLocation))
+        {
+            continue;
+        }
+  
+        //
+        if (SpawnUtil::IsLocationFree(GetWorld(), SpawnLocation))
+        {
+            bFound = true;
+            break;
+        }
+    }
+
+    //
+    if (!bFound)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("Failed to find valid spawn location"));
+        return;
+    }
+    else {
+        UE_LOG(LogTemp, Warning, TEXT("Success to find valid spawn location"));
+    }
+
+    //
+    FHitResult HitResult;
+    FVector TraceStart = SpawnLocation + FVector(0.f, 0.f, 200.f); // 충분히 위에서
+    FVector TraceEnd = SpawnLocation - FVector(0.f, 0.f, -50.f); // 충분히 아래까지
+
+    //
+    if (GetWorld()->LineTraceSingleByChannel(HitResult, TraceStart, TraceEnd, ECC_WorldStatic))
+    {
+        SpawnLocation.Z = HitResult.Location.Z; // 지형 높이로 Z 설정
+    }
+
+    //
+    FTransform SpawnTransform;
+    //
+    SpawnTransform.SetLocation(SpawnLocation);
+
+    //
+    AActor* Actor = PoolManager->GetActor(MonsterClass, SpawnTransform);
+
+    //
+    if (ACharacter* Character = Cast<ACharacter>(Actor))
+    {
+        //
+        if (UCapsuleComponent* Capsule = Character->GetCapsuleComponent())
+        {
+            //
+            FVector AdjustedLocation = SpawnLocation;
+            AdjustedLocation.Z += Capsule->GetUnscaledCapsuleHalfHeight(); // Capsule 바닥 기준 맞춤
+            Character->SetActorLocation(AdjustedLocation);
+        }
+    }
+
+    //
+    UE_LOG(LogTemp, Log, TEXT("Actor: %s"), *GetNameSafe(Actor));
+
+    //
+    UE_LOG(LogTemp, Log, TEXT("Class Implements Interface: %d"), Actor->GetClass()->ImplementsInterface(USZPoolableInterface::StaticClass()) ? 1 : 0);
+
+    //
+    if (Actor && Actor->GetClass()->ImplementsInterface(USZPoolableInterface::StaticClass()))
+    {
+        //
+        UE_LOG(LogTemp, Log, TEXT("Spawn Ok!"));
+        //
+        ISZPoolableInterface::Execute_OnSpawnFromPool(Actor);
+
+    }
+}
+
+void ASZMonsterSpawner::SpawnAll(USZPoolManager* PoolManager)
+{
+    //
+    for (int32 i = 0; i < SpawnCount; i++)
+    {
+           SpawnMonster(PoolManager);
+    }
+}
+
+
+//void ASZMonsterSpawner::SpawnAll()
+//{
+//    for (int32 i = 0; i < SpawnCount; i++)
+//    {
+//        SpawnMonster();
+//    }
+//}
+
+// Called when the game starts or when spawned
+void ASZMonsterSpawner::BeginPlay()
+{
+	Super::BeginPlay();
+}
+
+
