@@ -7,6 +7,7 @@
 #include "Components/CapsuleComponent.h"
 #include "Player/SZCharacterPlayer.h"
 #include "Refactoring/SZPortalSubsystem.h"
+#include "Refactoring/SZInventorySubsystem.h"
 
 // Sets default values
 ASZPortalActor::ASZPortalActor()
@@ -44,10 +45,21 @@ void ASZPortalActor::OnTriggerBeginOverlap(UPrimitiveComponent* OverlappedComp, 
 	ASZCharacterPlayer* Player = Cast<ASZCharacterPlayer>(OtherActor);
 	if (!Player) { return; }
 
-	if (UGameInstance* GI = GetGameInstance()) {
-		if (USZPortalSubsystem* PortalSystem = GI->GetSubsystem<USZPortalSubsystem>()) {
-			PortalSystem->RequestTravel(this);
-		}
-	}
+	UGameInstance* GI = GetGameInstance();
+	if (!GI) { return; }
+
+	USZPortalSubsystem* PortalSystem = GI->GetSubsystem<USZPortalSubsystem>();
+	if (!PortalSystem) { return; }
+
+	USZInventorySubsystem* InventorySystem = GI->GetSubsystem<USZInventorySubsystem>();
+	if (!InventorySystem) { return; }
+
+	InventorySystem->Save(
+		Player->GetInventoryComponent(),
+		Player->GetQuickSlotComponent(),
+		Player->GetEquipmentComponent()
+	);
+
+	PortalSystem->RequestTravel(this);
 }
 

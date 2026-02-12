@@ -70,6 +70,11 @@ public:
 	FORCEINLINE const TObjectPtr<USZCharacterEquipmentComponent>	GetEquipmentComponent() const { return SZCharacterEquipment; }
 	FORCEINLINE const TObjectPtr<USZInteractionComponent>			GetInteractionComponent() const { return SZInteraction; }
 
+	FORCEINLINE USZInventoryComponent*								GetMutableInventoryComponent() const { return SZInventory; }
+	FORCEINLINE USZQuickSlotComponent*								GetMutableQuickSlotComponent() const { return SZQuickSlot; }
+	FORCEINLINE USZCharacterEquipmentComponent*						GetMutableEquipmentComponent() const { return SZCharacterEquipment; }
+	FORCEINLINE USZInteractionComponent*							GetMutableInteractionComponent() const { return SZInteraction; }
+
 	// InstantGE 사용
 	bool ApplyInstantGE(const TSubclassOf<UGameplayEffect>& GE, const float Level);
 

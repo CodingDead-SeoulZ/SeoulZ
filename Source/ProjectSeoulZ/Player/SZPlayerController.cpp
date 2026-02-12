@@ -20,6 +20,7 @@
 #include "GameMode/SZGameModeBase.h"
 #include "GameMode/SZGameInstance.h"
 
+#include "Refactoring/SZInventorySubsystem.h"
 
 ASZPlayerController::ASZPlayerController()
 {
@@ -148,8 +149,6 @@ void ASZPlayerController::BeginPlay()
 
 	ShowPlayerHud();
 
-
-
 	// 인게임 레벨에서 확실히 게임 입력으로 전환하고 싶다면 여기서 호출
 	ApplyGameInputMode();
 }
@@ -177,7 +176,6 @@ void ASZPlayerController::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);
 
-#pragma region 델리게이트 수신
 	// 플레이어의 컴포넌트를 가져옴
 	ASZCharacterPlayer* SZPlayer = Cast<ASZCharacterPlayer>(GetCharacter());
 	if (!SZPlayer)
@@ -185,6 +183,21 @@ void ASZPlayerController::OnPossess(APawn* InPawn)
 		return;
 	}
 
+#pragma region 인벤토리 데이터 로드
+	UGameInstance* GI = GetGameInstance();
+	if (!GI) { return; }
+
+	USZInventorySubsystem* InventorySystem = GI->GetSubsystem<USZInventorySubsystem>();
+	if (!InventorySystem) { return; }
+
+	InventorySystem->Load(
+		SZPlayer->GetMutableInventoryComponent(),
+		SZPlayer->GetMutableQuickSlotComponent(),
+		SZPlayer->GetMutableEquipmentComponent()
+	);
+#pragma endregion
+
+#pragma region 델리게이트 수신
 	USZInventoryBaseComponent* SZInventoryBase = SZPlayer->FindComponentByClass<USZInventoryBaseComponent>();
 	if (!SZInventoryBase)
 	{
