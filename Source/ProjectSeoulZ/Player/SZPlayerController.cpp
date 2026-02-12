@@ -197,21 +197,12 @@ void ASZPlayerController::OnPossess(APawn* InPawn)
 	);
 #pragma endregion
 
-#pragma region 델리게이트 수신
+#pragma region 옷장 UI 관련
 	USZInventoryBaseComponent* SZInventoryBase = SZPlayer->FindComponentByClass<USZInventoryBaseComponent>();
 	if (!SZInventoryBase)
 	{
 		return;
 	}
-	
-	// 옷장에서 아이템 장착
-	// SZInventoryBase->OnWardrobeActorChanged.AddDynamic(this, &ASZPlayerController::UpdateWardrobe);
-	// 중복 바인딩 방지. 이미 같은 항목이 바인딩돼 있으면 추가하지 않음.
-	SZInventoryBase->OnWardrobeEquipped.AddUniqueDynamic(this, &ASZPlayerController::WardrobeEquipped);
-
-	// 옷장에서 아이템(장착템) 해제
-	UE_LOG(LogTemp, Warning, TEXT("[Bind] InventoryBase=%s (%p)"),
-		*GetNameSafe(SZInventoryBase), SZInventoryBase);
 
 	USZCharacterEquipmentComponent* SZEquipment = SZPlayer->GetEquipmentComponent();
 	if (!SZEquipment)
@@ -219,6 +210,22 @@ void ASZPlayerController::OnPossess(APawn* InPawn)
 		return;
 	}
 
+	// 1. 맵 이동 시 이미 장착된 아이템 유지
+	for (int i = 0; i < SZEquipment->ItemSlots.Num(); ++i) {
+		const FItemSlot& Slot = SZEquipment->ItemSlots[i];
+		if (Slot.ItemID.IsNone()) { continue; }
+
+		SZEquipment->EquipItem(Slot.ItemID, i);
+	}
+	// 아이템 장착
+	SZEquipment->OnWardrobeEquipped.AddUniqueDynamic(this, &ASZPlayerController::WardrobeEquipped);
+	// TODO. 옷장 UI
+
+	// 2. 옷장에서 아이템 장착
+	// 중복 바인딩 방지. 이미 같은 항목이 바인딩돼 있으면 추가하지 않음.
+	SZInventoryBase->OnWardrobeEquipped.AddUniqueDynamic(this, &ASZPlayerController::WardrobeEquipped);
+
+	// 3. 옷장에서 아이템(장착템) 해제
 	SZEquipment->OnWardrobeUnquipped.AddUniqueDynamic(this, &ASZPlayerController::WardrobeUnequipped);
 #pragma endregion
 
