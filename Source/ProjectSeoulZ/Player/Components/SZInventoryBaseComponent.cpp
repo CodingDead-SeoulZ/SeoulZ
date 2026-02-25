@@ -550,6 +550,8 @@ bool USZInventoryBaseComponent::EquipPlayerCharacter(USkeletalMeshComponent* Ske
 {
 	if (!IsValid(SkeletalComponent) || !IsValid(NewMesh))
 	{
+		// 옷장 슬롯 델리게이트 송신 테스트
+		UE_LOG(LogTemp, Warning, TEXT("[Equip] EarlyReturn: nullptr"));
 		return false;
 	}
 
@@ -568,7 +570,6 @@ bool USZInventoryBaseComponent::EquipPlayerCharacter(USkeletalMeshComponent* Ske
 	// 옷장 슬롯 델리게이트 송신
 	int32 EquipmentSlotIndex = GetEquipmentSlotIndex(EquipmentSlot);
 	OnEquipped.Broadcast(InItemID, Index, EquipmentSlotIndex);
-
 	return true;
 }
 

@@ -40,23 +40,6 @@ void ASZPlayerController::ShowPlayerHud()
 	}
 }
 
-//void ASZPlayerController::ToggleInventory()
-//{
-//	if (IsValid(InventoryActor))
-//	{
-//		InventoryActor->CloseInventory();
-//	}
-//	else
-//	{
-//		InventoryActor = CreateInventoryActor();
-//
-//		if (IsValid(InventoryActor))
-//		{
-//			InventoryActor->OpenInventory();
-//		}
-//	}
-//}
-
 void ASZPlayerController::ToggleInventory()
 {
 	if (!IsValid(InventoryActor))
@@ -210,22 +193,22 @@ void ASZPlayerController::OnPossess(APawn* InPawn)
 		return;
 	}
 
-	// 1. 맵 이동 시 이미 장착된 아이템 유지
+	// 맵 이동 시 이미 장착된 아이템 유지
 	for (int i = 0; i < SZEquipment->ItemSlots.Num(); ++i) {
 		const FItemSlot& Slot = SZEquipment->ItemSlots[i];
 		if (Slot.ItemID.IsNone()) { continue; }
 
+		// TODO. 디버깅 필요
 		SZEquipment->EquipItem(Slot.ItemID, i);
+		// 아이템 장착
+		SZEquipment->OnWardrobeEquipped.AddUniqueDynamic(this, &ASZPlayerController::WardrobeEquipped);
 	}
-	// 아이템 장착
-	SZEquipment->OnWardrobeEquipped.AddUniqueDynamic(this, &ASZPlayerController::WardrobeEquipped);
-	// TODO. 옷장 UI
 
-	// 2. 옷장에서 아이템 장착
+	// 옷장에서 아이템 장착
 	// 중복 바인딩 방지. 이미 같은 항목이 바인딩돼 있으면 추가하지 않음.
 	SZInventoryBase->OnWardrobeEquipped.AddUniqueDynamic(this, &ASZPlayerController::WardrobeEquipped);
 
-	// 3. 옷장에서 아이템(장착템) 해제
+	// 옷장에서 아이템(장착템) 해제
 	SZEquipment->OnWardrobeUnquipped.AddUniqueDynamic(this, &ASZPlayerController::WardrobeUnequipped);
 #pragma endregion
 
