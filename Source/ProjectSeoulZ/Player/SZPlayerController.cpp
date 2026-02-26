@@ -84,9 +84,9 @@ FSpawnWardrobeResult ASZPlayerController::CreateWardrobeActor()
 	ASZWardrobe* Spawned = GetWorld()->SpawnActor<ASZWardrobe>(WardrobeClass, SpawnTM, Params);
 	WardrobeActor = Spawned;
 
-
 	Out.Transform = SpawnTM;
 	Out.WardrobeActor = Spawned;
+
 	return Out;
 }
 
@@ -180,6 +180,12 @@ void ASZPlayerController::OnPossess(APawn* InPawn)
 #pragma endregion
 
 #pragma region 옷장 UI 관련
+	WardrobeActor = nullptr; 
+	if (!IsValid(WardrobeActor))
+	{
+		CreateWardrobeActor();
+	}
+
 	USZInventoryBaseComponent* SZInventoryBase = SZPlayer->FindComponentByClass<USZInventoryBaseComponent>();
 	if (!SZInventoryBase)
 	{
@@ -209,6 +215,9 @@ void ASZPlayerController::OnPossess(APawn* InPawn)
 	// 옷장에서 아이템 장착
 	// 중복 바인딩 방지. 이미 같은 항목이 바인딩돼 있으면 추가하지 않음.
 	SZInventoryBase->OnWardrobeEquipped.AddUniqueDynamic(this, &ASZPlayerController::WardrobeEquipped);
+
+	// 해제
+	SZEquipment->OnWardrobeUnquipped.AddUniqueDynamic(this, &ASZPlayerController::WardrobeUnequipped);
 #pragma endregion
 
 	// Possess 타이밍이 늦는 프로젝트도 있어 OnPossess에서 한 번 더 고정하면 안정적
@@ -228,7 +237,7 @@ void ASZPlayerController::OnUnPossess()
 		if (USZCharacterEquipmentComponent* SZEquipment = SZPlayer->GetEquipmentComponent())
 		{
 			SZEquipment->OnWardrobeEquipped.RemoveDynamic(this, &ASZPlayerController::WardrobeEquipped);
-			SZEquipment->OnWardrobeUnquipped.RemoveDynamic(this, &ASZPlayerController::WardrobeUnequipped); // 여기 Add -> Remove
+			SZEquipment->OnWardrobeUnquipped.RemoveDynamic(this, &ASZPlayerController::WardrobeUnequipped); 
 		}
 	}
 
@@ -237,11 +246,6 @@ void ASZPlayerController::OnUnPossess()
 
 void ASZPlayerController::WardrobeEquipped(EEquipmentSlotType SlotType, USkeletalMesh* NewMesh)
 {
-	UE_LOG(LogTemp, Warning, TEXT("[CALLBACK] PC=%s(%p) World=%s Mesh=%s"),
-		*GetNameSafe(this), this,
-		*GetNameSafe(GetWorld()),
-		*GetNameSafe(NewMesh));
-
 	if (!IsValid(WardrobeActor))
 	{
 		UE_LOG(LogTemp, Warning, TEXT("[CALLBACK] WardrobeActor invalid"));
@@ -501,7 +505,6 @@ void ASZPlayerController::ShowMissionFailMenu()
 	}
 	SetPause(true);
 }
-
 
 void ASZPlayerController::HideMissionFailMenu()
 {
