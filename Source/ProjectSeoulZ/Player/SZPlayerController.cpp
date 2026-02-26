@@ -1,6 +1,5 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "Player/SZPlayerController.h"
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
@@ -210,9 +209,6 @@ void ASZPlayerController::OnPossess(APawn* InPawn)
 	// 옷장에서 아이템 장착
 	// 중복 바인딩 방지. 이미 같은 항목이 바인딩돼 있으면 추가하지 않음.
 	SZInventoryBase->OnWardrobeEquipped.AddUniqueDynamic(this, &ASZPlayerController::WardrobeEquipped);
-
-	// 옷장에서 아이템(장착템) 해제
-	SZEquipment->OnWardrobeUnquipped.AddUniqueDynamic(this, &ASZPlayerController::WardrobeUnequipped);
 #pragma endregion
 
 	// Possess 타이밍이 늦는 프로젝트도 있어 OnPossess에서 한 번 더 고정하면 안정적
@@ -221,32 +217,20 @@ void ASZPlayerController::OnPossess(APawn* InPawn)
 
 void ASZPlayerController::OnUnPossess()
 {
-#pragma region 델리게이트 수신 해제
-	// 플레이어의 컴포넌트를 가져옴
 	ASZCharacterPlayer* SZPlayer = Cast<ASZCharacterPlayer>(GetCharacter());
-	if (!SZPlayer)
+	if (SZPlayer)
 	{
-		return;
+		if (USZInventoryBaseComponent* SZInventoryBase = SZPlayer->FindComponentByClass<USZInventoryBaseComponent>())
+		{
+			SZInventoryBase->OnWardrobeEquipped.RemoveDynamic(this, &ASZPlayerController::WardrobeEquipped);
+		}
+
+		if (USZCharacterEquipmentComponent* SZEquipment = SZPlayer->GetEquipmentComponent())
+		{
+			SZEquipment->OnWardrobeEquipped.RemoveDynamic(this, &ASZPlayerController::WardrobeEquipped);
+			SZEquipment->OnWardrobeUnquipped.RemoveDynamic(this, &ASZPlayerController::WardrobeUnequipped); // 여기 Add -> Remove
+		}
 	}
-
-	USZInventoryBaseComponent* SZInventoryBase = SZPlayer->FindComponentByClass<USZInventoryBaseComponent>();
-	if (!SZInventoryBase)
-	{
-		return;
-	}
-
-	// 옷장에서 아이템 장착
-	SZInventoryBase->OnWardrobeEquipped.RemoveDynamic(this, &ASZPlayerController::WardrobeEquipped);
-
-	// 옷장에서 아이템(장착템) 해제
-	USZCharacterEquipmentComponent* SZEquipment = SZPlayer->GetEquipmentComponent();
-	if (!SZEquipment)
-	{
-		return;
-	}
-
-	SZEquipment->OnWardrobeUnquipped.AddUniqueDynamic(this, &ASZPlayerController::WardrobeUnequipped);
-#pragma endregion
 
 	Super::OnUnPossess();
 }
