@@ -565,6 +565,12 @@ bool USZInventoryBaseComponent::EquipPlayerCharacter(USkeletalMeshComponent* Ske
 
 	SkeletalComponent->SetSkeletalMesh(NewMesh);
 	// 옷장 델리게이트 송신
+	UE_LOG(LogTemp, Warning, TEXT("[Broadcast] Comp=%s(%p) Owner=%s(%p) World=%s Slot=%d Mesh=%s"),
+		*GetNameSafe(this), this,
+		*GetNameSafe(GetOwner()), GetOwner(),
+		*GetNameSafe(GetWorld()),
+		(int32)EquipmentSlot,
+		*GetNameSafe(NewMesh));
 	OnWardrobeEquipped.Broadcast(EquipmentSlot, NewMesh);
 
 	// 옷장 슬롯 델리게이트 송신

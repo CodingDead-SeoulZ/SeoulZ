@@ -194,14 +194,17 @@ void ASZPlayerController::OnPossess(APawn* InPawn)
 	}
 
 	// 맵 이동 시 이미 장착된 아이템 유지
+	SZEquipment->OnWardrobeEquipped.AddUniqueDynamic(this, &ASZPlayerController::WardrobeEquipped);
+	UE_LOG(LogTemp, Warning, TEXT("[BindDone] World=%s Comp=%s(%p)"),
+		*GetNameSafe(GetWorld()),
+		*GetNameSafe(SZEquipment), SZEquipment);
+	UE_LOG(LogTemp, Warning, TEXT("[IsBound] %d"),
+		SZEquipment->OnWardrobeEquipped.IsAlreadyBound(this, &ASZPlayerController::WardrobeEquipped));
+
 	for (int i = 0; i < SZEquipment->ItemSlots.Num(); ++i) {
 		const FItemSlot& Slot = SZEquipment->ItemSlots[i];
 		if (Slot.ItemID.IsNone()) { continue; }
-
-		// TODO. 디버깅 필요
 		SZEquipment->EquipItem(Slot.ItemID, i);
-		// 아이템 장착
-		SZEquipment->OnWardrobeEquipped.AddUniqueDynamic(this, &ASZPlayerController::WardrobeEquipped);
 	}
 
 	// 옷장에서 아이템 장착
@@ -250,8 +253,14 @@ void ASZPlayerController::OnUnPossess()
 
 void ASZPlayerController::WardrobeEquipped(EEquipmentSlotType SlotType, USkeletalMesh* NewMesh)
 {
+	UE_LOG(LogTemp, Warning, TEXT("[CALLBACK] PC=%s(%p) World=%s Mesh=%s"),
+		*GetNameSafe(this), this,
+		*GetNameSafe(GetWorld()),
+		*GetNameSafe(NewMesh));
+
 	if (!IsValid(WardrobeActor))
 	{
+		UE_LOG(LogTemp, Warning, TEXT("[CALLBACK] WardrobeActor invalid"));
 		return;
 	}
 
