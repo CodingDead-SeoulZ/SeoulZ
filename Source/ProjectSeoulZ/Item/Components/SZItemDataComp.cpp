@@ -34,16 +34,17 @@ void USZItemDataComp::PickUpItem(AActor* Interactor)
 		return;
 	}
 
-	ASZItemBase* ItemOwner = Cast<ASZItemBase>(GetOwner());
-	if (!IsValid(ItemOwner))
+	ASZItemBase* Item = Cast<ASZItemBase>(GetOwner());
+	if (!IsValid(Item))
 	{
 		return;
 	}
 
-	FName ItemID = ItemOwner->GetItemID();
+	FName ItemID = Item->GetItemID();
 	int32 N = InventoryComp->PickUp(ItemID, StackCount);
-	// TODO. 아이템 파괴 대신, 오브젝트 폴링으로 코드 변경
-	GetOwner()->Destroy();
+
+	// 오브젝트 풀로 반환
+	Item->ReturnToPool(); 
 }
 
 // Called when the game starts

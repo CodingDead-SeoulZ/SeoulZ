@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Actor.h"
+#include "Refactoring/PoolableActor.h"
 #include "Interface/SZInteractionInterface.h"
 #include "Item/SZItemTemplete.h"
 #include "Item/Components/SZItemDataComp.h"	
@@ -21,7 +21,7 @@
 
 
 UCLASS()
-class PROJECTSEOULZ_API ASZItemBase : public AActor, public ISZInteractionInterface
+class PROJECTSEOULZ_API ASZItemBase : public APoolableActor, public ISZInteractionInterface
 {
 	GENERATED_BODY()
 	
