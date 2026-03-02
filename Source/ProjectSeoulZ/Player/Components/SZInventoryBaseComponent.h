@@ -120,7 +120,7 @@ public:
 #pragma endregion
 
 	void UpdateSlot(const int32 Index, int32 DropStack);
-	FVector GetDropLocation() const;
+	FTransform GetDropLocation() const;
 	void DropFromInventory(const FName ItemID, int32 ItemStack);
 	void RemoveFromInventory(const int32 Index, int32 RequestedDropStack);
 	void RefreshSlot(int32 Index);

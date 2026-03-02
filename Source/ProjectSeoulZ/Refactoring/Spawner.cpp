@@ -49,8 +49,8 @@ FTransform ASpawner::MakeItemSpawnTransform() const
 	const FVector2D Rand2D = FMath::RandPointInCircle(Radius);
 
 	FVector Loc = GetActorLocation();
-	Loc.X += (100 + Rand2D.X);
-	Loc.Y += (100 + Rand2D.Y);
+	Loc.X += (200 + Rand2D.X);
+	Loc.Y += (200 + Rand2D.Y);
 
 	// 회전은 고정
 	const FRotator Rot(0, FMath::RandRange(0.f, 360.f), 0);

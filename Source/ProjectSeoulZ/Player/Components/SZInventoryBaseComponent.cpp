@@ -1102,22 +1102,27 @@ void USZInventoryBaseComponent::UpdateSlot(const int32 Index, int32 DropStack)
 	}
 }
 
-FVector USZInventoryBaseComponent::GetDropLocation() const
+FTransform USZInventoryBaseComponent::GetDropLocation() const
 {
-	if (!GetOwner())
-	{
-		return FVector::ZeroVector;
-	}
+	// 랜덤 XY
+	const float Radius = 200.0f;
+	const FVector2D Rand2D = FMath::RandPointInCircle(Radius);
+	FVector Loc = FVector::ZeroVector;
+
 
 	ASZCharacterPlayer* Player = Cast<ASZCharacterPlayer>(GetOwner());
 	if (Player)
 	{
-		return 
-			Player->GetActorLocation() + Player->GetActorForwardVector() * 100.f
-			+ FVector(0.f, 0.f, 20.f);
+		Loc = Player->GetActorLocation();
 	}
 
-	return FVector::ZeroVector;
+	Loc.X += (200 + Rand2D.X);
+	Loc.Y += (200 + Rand2D.Y);
+	Loc.Z = 5.f;
+
+	// 회전은 고정
+	const FRotator Rot(0, FMath::RandRange(0.f, 360.f), 0);
+	return FTransform(Rot, Loc, FVector::OneVector);
 }
 
 void USZInventoryBaseComponent::DropFromInventory(const FName ItemID, int32 ItemStack)
@@ -1150,8 +1155,7 @@ void USZInventoryBaseComponent::DropFromInventory(const FName ItemID, int32 Item
 
 	for (int32 i = 0; i < ItemStack; ++i)
 	{
-		const FVector SpawnLoc = GetDropLocation();
-		const FTransform SpawnTM(FRotator::ZeroRotator, SpawnLoc);
+		const FTransform SpawnTM = GetDropLocation();
 
 		// 풀 매니저에서 아이템 액터 스폰
 		APoolableActor* SpawnedActor = PoolManager->OnSpawn(ASZItemBase::StaticClass(), SpawnTM);
