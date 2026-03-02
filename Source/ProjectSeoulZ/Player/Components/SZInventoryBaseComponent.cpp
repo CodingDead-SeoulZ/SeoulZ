@@ -12,6 +12,9 @@
 #include "Item/SZItemBase.h"
 #include "Item/Components/SZGunDataComp.h"
 
+#include "Engine/GameInstance.h"
+#include "Refactoring/PoolManager.h"
+
 // Sets default values for this component's properties
 USZInventoryBaseComponent::USZInventoryBaseComponent()
 {
@@ -1137,21 +1140,32 @@ void USZInventoryBaseComponent::DropFromInventory(const FName ItemID, int32 Item
 	}
 
 	UWorld* World = GetWorld();
-	if (!World)
-	{
-		return;
-	}
+	if (!World) return;
+
+	UGameInstance* GI = World->GetGameInstance();
+	if (!GI) return;
+
+	UPoolManager* PoolManager = GI->GetSubsystem<UPoolManager>();
+	if (!PoolManager) { return; }
 
 	for (int32 i = 0; i < ItemStack; ++i)
 	{
 		const FVector SpawnLoc = GetDropLocation();
 		const FTransform SpawnTM(FRotator::ZeroRotator, SpawnLoc);
 
-		FActorSpawnParameters Params;
-		Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
-		Params.Owner = GetOwner();
+		// 풀 매니저에서 아이템 액터 스폰
+		APoolableActor* SpawnedActor = PoolManager->OnSpawn(ASZItemBase::StaticClass(), SpawnTM);
+		SpawnedActor->SetActorEnableCollision(false);
+		SpawnedActor->SetActorTransform(SpawnTM, false, nullptr, ETeleportType::TeleportPhysics);
+		SpawnedActor->SetActorEnableCollision(true);
 
-		World->SpawnActor<AActor>(ItemClass, SpawnTM, Params);
+		// 스폰 후, 어떤 아이템인지 결정
+		if (ASZItemBase* SpawnedItem = Cast<ASZItemBase>(SpawnedActor))
+		{
+			SpawnedItem->ItemDataHandle.DataTable = ItemData;
+			SpawnedItem->ItemDataHandle.RowName = ItemID;
+			SpawnedItem->SpawnInitialItem();
+		}
 	}
 
 	const FItemSFX* SFX = GetItemSFX(ItemID); 
