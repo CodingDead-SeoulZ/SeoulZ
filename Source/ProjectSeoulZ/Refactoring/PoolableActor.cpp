@@ -29,12 +29,16 @@ void APoolableActor::Tick(float DeltaTime)
 void APoolableActor::OnSpawn_Implementation()
 {
 	SetActorHiddenInGame(false);
+
+	SetActorEnableCollision(true);
 	SetActorTickEnabled(true);
 }
 
 void APoolableActor::OnReturn_Implementation()
 {
 	SetActorHiddenInGame(true);
+
+	SetActorEnableCollision(false);
 	SetActorTickEnabled(false);
 }
 
