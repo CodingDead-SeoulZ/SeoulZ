@@ -2,6 +2,7 @@
 
 
 #include "Item/SZItemBase.h"
+#include "Components/SphereComponent.h"
 
 // Sets default values
 ASZItemBase::ASZItemBase()
@@ -10,6 +11,15 @@ ASZItemBase::ASZItemBase()
 	PrimaryActorTick.bCanEverTick = true;
 
 	StaticMeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComp"));
+	SetRootComponent(StaticMeshComp);
+	// 충돌은 있지만 물리 시뮬레이션은 안 함. (회전 안 하도록)
+	StaticMeshComp->SetSimulatePhysics(false);
+	StaticMeshComp->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	
+	ItemCollision = CreateDefaultSubobject<USphereComponent>(TEXT("ItemCollision"));
+	ItemCollision->SetupAttachment(StaticMeshComp);
+	ItemCollision->InitSphereRadius(50.f);
+	ItemCollision->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 
 	SZItemData = CreateDefaultSubobject<USZItemDataComp>(TEXT("SZItemData"));
 }
@@ -49,24 +59,23 @@ void ASZItemBase::SetMaterial()
 {
 }
 
+void ASZItemBase::SpawnInitialItem()
+{
+	SetStaticMesh();
+
+	if (StaticMeshComp)
+	{
+		// 회전 안 함.
+		StaticMeshComp->SetSimulatePhysics(false);
+		StaticMeshComp->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	}
+}
+
 // Called when the game starts or when spawned
 void ASZItemBase::BeginPlay()
 {
 	Super::BeginPlay();
 
-}
-
-void ASZItemBase::OnConstruction(const FTransform& Transform)
-{
-	Super::OnConstruction(Transform);
-
-	// 메쉬가 있을 때만 물리 시뮬레이션
-	if (StaticMeshComp && StaticMeshComp->GetStaticMesh())
-	{
-		StaticMeshComp->SetSimulatePhysics(true);
-	}
-
-	SetStaticMesh();
 }
 
 // Called every frame

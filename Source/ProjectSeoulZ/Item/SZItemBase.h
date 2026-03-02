@@ -19,6 +19,7 @@
 //                 
 //----------------------------------------------------------------------------------------------------------
 
+class USphereComponent;
 
 UCLASS()
 class PROJECTSEOULZ_API ASZItemBase : public APoolableActor, public ISZInteractionInterface
@@ -36,11 +37,11 @@ public:
 	void SetStaticMesh();
 	void SetMaterial();
 
+	void SpawnInitialItem();
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-	// 에디터에서 값 바꿀 때도 갱신
-	virtual void OnConstruction(const FTransform& Transform) override;
 
 public:	
 	// Called every frame
@@ -53,6 +54,9 @@ public:
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UStaticMeshComponent> StaticMeshComp;
+
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<USphereComponent> ItemCollision;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<USZItemDataComp> SZItemData;

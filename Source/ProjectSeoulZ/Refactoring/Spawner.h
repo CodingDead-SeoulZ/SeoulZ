@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -7,12 +7,12 @@
 #include "Spawner.generated.h"
 
 //---------------------------------------------------------------------------------------------------------
-// Author       : °í¹Ì¼Ò
+// Author       : ê³ ë¯¸ì†Œ
 // Date         : 2026-03-02
 // Copyright    : 
 //
-// Description : ¾ÆÀÌÅÛ ½ºÆù ¾×ÅÍ
-//               Ä³¸¯ÅÍ¿Í overlap ½Ã ¾ÆÀÌÅÛÀ» ·£´ıÀ¸·Î ½ºÆùÇÏ´Â ¿ªÇÒ
+// Description : ì•„ì´í…œ ìŠ¤í° ì•¡í„°
+//               ìºë¦­í„°ì™€ overlap ì‹œ ì•„ì´í…œì„ ëœë¤ìœ¼ë¡œ ìŠ¤í°í•˜ëŠ” ì—­í• 
 //				 
 //                 
 //----------------------------------------------------------------------------------------------------------
@@ -39,6 +39,9 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 private:
+	FTransform MakeItemSpawnTransform() const;
+	FName GetRandomItemID() const;
+
 	UFUNCTION()
 	void OnTriggerBeginOverlap(
 		UPrimitiveComponent* OverlappedComp,
@@ -51,6 +54,9 @@ private:
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Item")
 	UDataTable* ItemDataTable = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Item")
+	int32 InitialSpawnCount = 5;
 
 private:
 	UPROPERTY(VisibleAnywhere)

@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+Ôªø// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "Refactoring/Spawner.h"
@@ -8,6 +8,8 @@
 #include "Player/SZCharacterPlayer.h"
 #include "Refactoring/PoolManager.h"
 #include "Item/SZItemBase.h"
+
+#include "Components/SphereComponent.h"
 
 // Sets default values
 ASpawner::ASpawner()
@@ -40,6 +42,39 @@ void ASpawner::Tick(float DeltaTime)
 
 }
 
+FTransform ASpawner::MakeItemSpawnTransform() const
+{
+	// ÎûúÎç§ XY
+	const float Radius = 200.0f; 
+	const FVector2D Rand2D = FMath::RandPointInCircle(Radius);
+
+	FVector Loc = GetActorLocation();
+	Loc.X += (100 + Rand2D.X);
+	Loc.Y += (100 + Rand2D.Y);
+
+	// ÌöåÏ†ÑÏùÄ Í≥†Ï†ï
+	const FRotator Rot(0, FMath::RandRange(0.f, 360.f), 0);
+	return FTransform(Rot, Loc, FVector::OneVector);
+}
+
+FName ASpawner::GetRandomItemID() const
+{
+	if (!ItemDataTable)
+	{
+		return NAME_None;
+	}
+
+	TArray<FName> RowNames = ItemDataTable->GetRowNames();
+	if (RowNames.Num() == 0)
+	{
+		return NAME_None;
+	}
+
+	const int32 Index = FMath::RandRange(0, RowNames.Num() - 1);
+	const FName RandomItemID = RowNames[Index];
+	return RandomItemID;
+}
+
 void ASpawner::OnTriggerBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) 
 {
 	ASZCharacterPlayer* Player = Cast<ASZCharacterPlayer>(OtherActor);
@@ -51,16 +86,24 @@ void ASpawner::OnTriggerBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor
 	UPoolManager* PoolManager = GI->GetSubsystem<UPoolManager>();
 	if (!PoolManager) { return; }
 
-	const FTransform& SpawnTransform = GetActorTransform();
-
-	// «Æ ∏≈¥œ¿˙ø°º≠ æ∆¿Ã≈€ æ◊≈Õ Ω∫∆˘
-	APoolableActor* SpawnedActor = PoolManager->OnSpawn(ASZItemBase::StaticClass(), SpawnTransform);
-
-	// Ω∫∆˘ »ƒ, æÓ∂≤ æ∆¿Ã≈€¿Œ¡ˆ ∞·¡§
-	if (ASZItemBase* SpawnedItem = Cast<ASZItemBase>(SpawnedActor))
+	for (int i = 0; i < InitialSpawnCount; ++i)
 	{
-		FName RandomItemID = "0001";
-		SpawnedItem->ItemDataHandle.DataTable = ItemDataTable;
-		SpawnedItem->ItemDataHandle.RowName = RandomItemID;
+		const FTransform& SpawnTransform = MakeItemSpawnTransform();
+
+		// ÌíÄ Îß§ÎãàÏ†ÄÏóêÏÑú ÏïÑÏù¥ÌÖú Ïï°ÌÑ∞ Ïä§Ìè∞
+		APoolableActor* SpawnedActor = PoolManager->OnSpawn(ASZItemBase::StaticClass(), SpawnTransform);
+		SpawnedActor->SetActorEnableCollision(false);
+		SpawnedActor->SetActorTransform(SpawnTransform, false, nullptr, ETeleportType::TeleportPhysics);
+		SpawnedActor->SetActorEnableCollision(true);
+
+		// Ïä§Ìè∞ ÌõÑ, Ïñ¥Îñ§ ÏïÑÏù¥ÌÖúÏù∏ÏßÄ Í≤∞Ï†ï
+		if (ASZItemBase* SpawnedItem = Cast<ASZItemBase>(SpawnedActor))
+		{
+			FName RandomItemID = GetRandomItemID();
+			SpawnedItem->ItemDataHandle.DataTable = ItemDataTable;
+			SpawnedItem->ItemDataHandle.RowName = RandomItemID;
+
+			SpawnedItem->SpawnInitialItem();
+		}
 	}
 }
